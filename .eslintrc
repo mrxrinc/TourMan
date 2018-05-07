@@ -1,0 +1,6 @@
+{
+  "extends": "rallycoding",
+  "rules": {
+        'semi': [1, 'never']
+    }
+}
