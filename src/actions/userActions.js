@@ -1,50 +1,45 @@
 import * as types from '../constants/constants'
 
-// const Realm = require('realm')
-
-export function checkLocalUser() {
+export function userRegister(value, section) {
+  // empty string causes error on showing next page button 
+  //so we make sure it to be null if its empty
+  const data = value === '' ? null : value 
   return {
-    type: types.USER_LOCAL_CHECK
+    type: types.USER_REGISTER,
+    payload: data,
+    section
   }
 }
 
-export function checkLocalUserFounded(data) {
+export function userToStore(user) {
   return {
-    type: types.USER_LOCAL_CHECK_FOUNDED,
-    data
+    type: types.USER_TO_STORE,
+    payload: user
   }
 }
 
-export function checkLocalUserNotFounded() {
-  return {
-    type: types.USER_LOCAL_CHECK_NOT_FOUNDED
-  }
-}
-
-export function getLocalUser() {
-  return (dispatch) => {
-    dispatch(checkLocalUser())
-    dispatch(checkLocalUserFounded('Martin Jones'))
-  }
-}
-
-
-//
-// export function checkOnlineUser(){
+// export function checkLocalUser() {
 //   return {
-//     type: types.USER_ONLINE_CHECK
+//     type: types.USER_LOCAL_CHECK
 //   }
 // }
-//
-// export function checkOnlineUserFounded(data) {
+
+// export function checkLocalUserFounded(data) {
 //   return {
-//     type: types.USER_ONLINE_CHECK_FOUNDED,
-//     data
+//     type: types.USER_LOCAL_CHECK_FOUNDED,
+//     payload: data
 //   }
 // }
-//
-// export function checkOnlineUserNotFounded(){
+
+// export function checkLocalUserNotFounded() {
 //   return {
-//     type: types.USER_ONLINE_CHECK_NOT_FOUNDED
+//     type: types.USER_LOCAL_CHECK_NOT_FOUNDED
+//   }
+// }
+
+// export function getLocalUser() {  
+//   return (dispatch) => {
+//     dispatch(checkLocalUser())
+//     dispatch(checkLocalUserFounded('Martin Jones'))
 //   }
 // }

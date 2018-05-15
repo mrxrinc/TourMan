@@ -7,25 +7,95 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native'
+import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import LinearGradient from 'react-native-linear-gradient'
 import PersianDatePicker from 'react-native-persian-date-picker'
+import axios from 'axios'
+import Realm from 'realm'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBold, FaMulti, EnBold } from './assets/Font'
 import Loading from './assets/Loading'
+import { userRegister, userToStore } from '../actions/userActions'
+import { baseURL } from '../constants/api'
 import airConfig from './assets/air_font_config.json'
+
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-export default class Registration extends Component {
+class Registration extends Component {
   static navigatorStyle = {
     navBarHidden: true,
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
   }
-  state={
-    showPass: false
+  // constructor(props) {
+  //   super(props)
+  //   this.state = {
+  //     showPass: false, 
+  //     debug: 'nothin'
+  //   }
+  // }
+  state={ showPass: false, debug: 'nothin' }
+
+  componentDidMount() {
+    Realm.open({
+      schema: [{ name: 'localToken', properties: { key: 'string' } }]
+    }).then(realm => {
+      console.log('realm : ', realm.objects('localToken')[0].key)  
+      axios.defaults.headers.common.Authorization = `Bearer ${realm.objects('localToken')[0].key}`     
+    }) 
+  }
+
+  handleSignup = () => {
+    axios.post(`${baseURL}/users/signup`, { ...this.props.user })
+    .then(res => {
+      if (res.data.userState !== 'duplicate') {
+        Realm.open({
+          schema: [{ name: 'localToken', properties: { key: 'string' } }]
+        }).then(realm => {
+            realm.write(() => {
+              realm.delete(realm.objects('localToken'))
+              realm.create('localToken', { key: res.data.token })
+            })
+            console.log('realm : ', realm.objects('localToken'))
+            this.props.userToStore(res.data)
+          
+          console.log(this.props.user)
+        })
+      } else { // duplicated user found
+        console.log('Duplicate user')        
+      }
+    })
+    .catch(err => console.log(err))
+  }
+
+  handleSignin = () => {
+    axios.post(`${baseURL}/users/signin`, { 
+      email: this.props.user.email,
+      password: this.props.user.password
+    })
+    .then(res => {    
+      console.log('res DATA ===> ', res.data)        
+      if (res.data.userState !== 'noUser') {
+        Realm.open({
+          schema: [{ name: 'localToken', properties: { key: 'string' } }]
+        }).then(realm => {       
+          realm.write(() => {
+            realm.delete(realm.objects('localToken'))
+            realm.create('localToken', { key: res.data.token })
+          })
+          console.log('Login realm : ', realm.objects('localToken')[0].key)
+          this.props.userToStore(res.data)
+          console.log(this.props.user)
+        }) 
+      } else { // no user found
+        console.log('No user!')          
+      }
+    })
+    .catch(err => console.log(err))
   }
 
   render() {
@@ -34,13 +104,11 @@ export default class Registration extends Component {
       case 'SignIn':
         renderPage = (
           <SignIn
+            {...this.props}
             passVisibility={() => this.setState({ showPass: !this.state.showPass })}
+            showPass={this.state.showPass}
             back={() => this.props.navigator.pop()}
-            signIn={() => {
-              this.props.navigator.push({
-                screen: 'mrxrinc.Explore'
-              })
-            }}
+            signIn={() => this.handleSignin()}
             forgetPassword={() => {
               this.props.navigator.push({
                 screen: 'mrxrinc.Registration',
@@ -53,11 +121,12 @@ export default class Registration extends Component {
       case 'ForgetPassword':
         renderPage = (
           <ForgetPassword
+            {...this.props}
             back={() => this.props.navigator.pop()}
             confirm={() => {
               this.props.navigator.push({
                 screen: 'mrxrinc.Registration',
-                passProps: { page: 'SignUp' }
+                passProps: { page: 'SignIn' }
               })
             }}
           />
@@ -66,6 +135,7 @@ export default class Registration extends Component {
       case 'RegisterName':
         renderPage = (
           <RegisterName
+            {...this.props}
             back={() => this.props.navigator.pop()}
             next={() => {
               this.props.navigator.push({
@@ -79,6 +149,7 @@ export default class Registration extends Component {
       case 'RegisterEmail':
         renderPage = (
           <RegisterEmail
+            {...this.props}
             back={() => this.props.navigator.pop()}
             next={() => {
               this.props.navigator.push({
@@ -92,6 +163,9 @@ export default class Registration extends Component {
       case 'RegisterPassword':
         renderPage = (
           <RegisterPassword
+            {...this.props}
+            passVisibility={() => this.setState({ showPass: !this.state.showPass })}
+            showPass={this.state.showPass}
             back={() => this.props.navigator.pop()}
             next={() => {
               this.props.navigator.push({
@@ -105,13 +179,9 @@ export default class Registration extends Component {
       case 'RegisterBirthday':
         renderPage = (
           <RegisterBirthday
+            {...this.props}
             back={() => this.props.navigator.pop()}
-            next={() => {
-              this.props.navigator.push({
-                screen: 'mrxrinc.Registration',
-                passProps: { page: 'Explore' }
-              })
-            }}
+            next={() => this.handleSignup()}
           />
         )
         break
@@ -130,10 +200,13 @@ export default class Registration extends Component {
                 passProps: { page: 'RegisterName' }
               })
             }}
+            privacy={() => {
+              this.props.navigator.push({ screen: 'mrxrinc.Privacy' })
+            }}
           />
         )
     }
-
+    
     return (
       <View style={[r.full, r.bgWhite]}>
         <LinearGradient
@@ -148,6 +221,21 @@ export default class Registration extends Component {
     )
   }
 }
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userDataSend: (data, section) => dispatch(userRegister(data, section)),
+    userToStore: userInfo => dispatch(userToStore(userInfo)) 
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Registration)
+
 
 class SignUp extends Component {
   render() {
@@ -216,8 +304,9 @@ class SignUp extends Component {
 
 class SignIn extends Component {
   render() {
+    const activeBTN = this.props.user.email && this.props.user.password ? true : false    
     return (
-      <ScrollView contentContainerStyle={r.full}>
+      <KeyboardAvoidingView style={[r.full, r.hFull]}>
         <View style={[r.wFull, r.rtl, r.spaceBetween, { paddingTop: 25 }]}>
           <View style={g.regClose}>
             <TouchableNativeFeedback
@@ -247,6 +336,7 @@ class SignIn extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
+            onChangeText={(value) => this.props.userDataSend(value, 'email')}
           />
 
           <View style={[r.top20, r.rtl, r.spaceBetween, r.horizCenter]}>
@@ -261,37 +351,41 @@ class SignIn extends Component {
           <TextInput
             style={[r.white, r.centerText, { fontSize: 18 }]}
             returnKeyType={'next'}
+            autoCorrect={false}
             underlineColorAndroid={'#ccc'}
             secureTextEntry={!this.props.showPass}
             returnKeyType={'send'}
             returnKeyLabel={'ورود'}
+            onChangeText={(value) => this.props.userDataSend(value, 'password')}
+            onSubmitEditing={activeBTN ? this.props.signIn : null}
           />
         </View>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.signIn}
-          >
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'left-chevron-bold'}
-                size={16}
-                color={'#007e90'}
-                style={[{ width: 15, height: 20 }]}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
-      </ScrollView>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.signIn : null}
+            >
+              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                <AirIcon
+                  name={'left-chevron-bold'}
+                  size={16}
+                  color={'#007e90'}
+                  style={[{ width: 15, height: 20 }]}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
+      </KeyboardAvoidingView>
     )
   }
 }
 
 class RegisterName extends Component {
   render() {
+    const activeBTN = this.props.user.firstName && this.props.user.lastName ? true : false    
     return (
-      <ScrollView contentContainerStyle={r.full}>
+      <KeyboardAvoidingView style={[r.full, r.hFull]}>
         <View style={[r.wFull, r.rtl, { paddingTop: 25 }]}>
           <View style={g.regClose}>
             <TouchableNativeFeedback
@@ -313,6 +407,7 @@ class RegisterName extends Component {
             style={[r.white, r.centerText, { fontSize: 18 }]}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
+            onChangeText={(value) => this.props.userDataSend(value, 'firstName')}
           />
 
           <Fa size={16} style={[r.white, r.top20]}>نام خانوادگی</Fa>
@@ -320,32 +415,35 @@ class RegisterName extends Component {
             style={[r.white, r.centerText, { fontSize: 18 }]}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
+            onChangeText={(value) => this.props.userDataSend(value, 'lastName')}
+            onSubmitEditing={this.props.next}
           />
         </View>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.next}
-          >
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'left-chevron-bold'}
-                size={16}
-                color={'#007e90'}
-                style={[{ width: 15, height: 20 }]}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.next : null}
+            >
+              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                <AirIcon
+                  name={'left-chevron-bold'}
+                  size={16}
+                  color={'#007e90'}
+                  style={[{ width: 15, height: 20 }]}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
 
-      </ScrollView>
+      </KeyboardAvoidingView>
     )
   }
 }
 
 class RegisterEmail extends Component {
   render() {
+    const activeBTN = this.props.user.email ? true : false  
     return (
       <ScrollView contentContainerStyle={r.full}>
         <View style={[r.wFull, r.rtl, { paddingTop: 25 }]}>
@@ -369,23 +467,26 @@ class RegisterEmail extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
+            onChangeText={(value) => this.props.userDataSend(value, 'email')} 
+            onSubmitEditing={this.props.next}
           />
         </View>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.next}>
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'left-chevron-bold'}
-                size={16}
-                color={'#007e90'}
-                style={[{ width: 15, height: 20 }]}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.next : null}
+            >
+              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                <AirIcon
+                  name={'left-chevron-bold'}
+                  size={16}
+                  color={'#007e90'}
+                  style={[{ width: 15, height: 20 }]}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
       </ScrollView>
     )
   }
@@ -393,6 +494,7 @@ class RegisterEmail extends Component {
 
 class RegisterPassword extends Component {
   render() {
+    const activeBTN = this.props.user.password ? true : false  
     return (
       <ScrollView contentContainerStyle={r.full}>
         <View style={[r.wFull, r.rtl, { paddingTop: 25 }]}>
@@ -424,8 +526,9 @@ class RegisterPassword extends Component {
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
             secureTextEntry={!this.props.showPass}
-            returnKeyType={'send'}
-            returnKeyLabel={'ورود'}
+            returnKeyType={'next'}
+            onChangeText={(value) => this.props.userDataSend(value, 'password')}
+            onSubmitEditing={this.props.next}
           />
 
         </View>
@@ -436,22 +539,22 @@ class RegisterPassword extends Component {
         >
           رمز عبور باید بیش از شش کاراکتر بوده و شامل حروف و اعداد لاتین باشد.
         </FaMulti>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.next}
-          >
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'left-chevron-bold'}
-                size={16}
-                color={'#007e90'}
-                style={[{ width: 15, height: 20 }]}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.next : null}
+            >
+              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                <AirIcon
+                  name={'left-chevron-bold'}
+                  size={16}
+                  color={'#007e90'}
+                  style={[{ width: 15, height: 20 }]}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
       </ScrollView>
     )
   }
@@ -459,6 +562,7 @@ class RegisterPassword extends Component {
 
 class RegisterBirthday extends Component {
   render() {
+    const activeBTN = this.props.user.birthday ? true : false  
     return (
       <ScrollView contentContainerStyle={r.full}>
         <View style={[r.wFull, r.rtl, { paddingTop: 25 }]}>
@@ -492,27 +596,27 @@ class RegisterBirthday extends Component {
             selectedDate={'1379/فروردین/1'}
             minDate={'1320/1/1'}
             maxDate={'1379/12/29'}
-            onConfirm={data => console.log(data)}
+            onConfirm={(data) => this.props.userDataSend(data, 'birthday')}
             onCancel={() => console.log('pressed!')}
             onSelect={() => console.log('pressed!')}
           />
 
         </View>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.next}
-          >
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'ok-alt'}
-                size={18}
-                color={'#007e90'}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.next : null}
+            >
+              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                <AirIcon
+                  name={'ok-alt'}
+                  size={18}
+                  color={'#007e90'}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
       </ScrollView>
     )
   }
@@ -520,6 +624,7 @@ class RegisterBirthday extends Component {
 
 class ForgetPassword extends Component {
   render() {
+    const activeBTN = this.props.user.forget ? true : false  
     return (
       <ScrollView contentContainerStyle={r.full}>
         <View style={[r.wFull, r.rtl, { paddingTop: 25 }]}>
@@ -544,6 +649,8 @@ class ForgetPassword extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
+            onChangeText={(value) => this.props.userDataSend(value, 'forget')}
+            onSubmitEditing={this.props.confirm}
           />
         </View>
         <FaMulti
@@ -553,21 +660,31 @@ class ForgetPassword extends Component {
         >
           مشخصات ورود به ایمیل شما فرستاده می شود، لطفا ایمیل خود را چک کنید.
         </FaMulti>
-        <View style={[g.loginBTN, r.absolute, r.bgWhite]}>
-          <TouchableNativeFeedback
-            delayPressIn={0}
-            background={TouchableNativeFeedback.Ripple('#00000022')}
-            onPress={this.props.confirm}>
-            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-              <AirIcon
-                name={'left-chevron-bold'}
-                size={16}
-                color={'#007e90'}
-                style={[{ width: 15, height: 20 }]}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
+          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+            <TouchableNativeFeedback
+              delayPressIn={0}
+              background={TouchableNativeFeedback.Ripple('#00000022')}
+              onPress={activeBTN ? this.props.confirm : null}
+            >
+              <View 
+                pointerEvents={'box-only'} 
+                style={[r.full, r.rtl, r.center, r.paddHoriz5]}
+              >
+                <AirIcon
+                  name={'arrow-left'}
+                  size={15}
+                  color={'#007e90'}
+                  style={[{ width: 15, height: 18 }]}
+                />
+                <AirIcon
+                  name={'envelope'}
+                  size={15}
+                  color={'#007e90'}
+                  style={[r.centerText, { width: 25, height: 18 }]}
+                />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
       </ScrollView>
     )
   }

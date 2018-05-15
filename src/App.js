@@ -9,7 +9,8 @@ registerScreens(store, Provider)
 
 Navigation.startSingleScreenApp({
   screen: {
-    screen: 'mrxrinc.Explore'
+    screen: 'mrxrinc.Registration',
+    // passProps: { page: 'RegisterName' }
   },
   appStyle: {
     orientation: 'portrait',

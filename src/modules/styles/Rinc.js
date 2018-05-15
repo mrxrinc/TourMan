@@ -9,7 +9,8 @@ module.exports = StyleSheet.create({
     alignItems: 'stretch'
   },
   full: { flex: 1 },
-  wFull:{width: '100%'},
+  wFull: { width: '100%' },
+  hFull: { height: '100%' },
   stretchChild:{alignItems:'stretch'},
   white:{color:'#fff'},
   bgWhite:{backgroundColor:'#fff'},

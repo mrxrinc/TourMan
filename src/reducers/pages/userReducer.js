@@ -1,26 +1,27 @@
 import * as types from '../../constants/constants'
 import initialState from '../initialState'
 
-export default function userReducer(state = initialState.user, action) {
-  switch (action.type) {
-    case types.USER_LOCAL_CHECK:
-      return {
-        ...state,
-        // user: [],
-        loading: true
+export default function userReducer(state = initialState.user, { type, payload, section }) {
+  switch (type) {
+    case types.USER_REGISTER:
+      switch (section) {
+        case 'firstName':
+          return { ...state, firstName: payload }
+        case 'lastName':
+          return { ...state, lastName: payload }
+        case 'email':
+          return { ...state, email: payload }
+        case 'password':
+          return { ...state, password: payload }
+        case 'birthday':
+          return { ...state, birthday: payload }
+        case 'forget':
+          return { ...state, forget: payload }
+        default:
+          return state
       }
-    case types.USER_LOCAL_CHECK_FOUNDED:
-      return {
-        ...state,
-        loading: false,
-        user: { name: action.data }
-      }
-    case types.USER_LOCAL_CHECK_NOT_FOUNDED:
-      return {
-        ...state,
-        loading: false,
-        error: true
-      }
+    case types.USER_TO_STORE:
+      return { ...state, ...payload }
     default:
       return state
   }
