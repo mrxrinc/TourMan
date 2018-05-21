@@ -236,6 +236,10 @@ module.exports = StyleSheet.create({
     height: 15,
     backgroundColor: '#02938e',
     borderRadius: 10,
+  },
+  notification: {
+    minHeight: 80,
+    paddingTop: 25,
   }
 
 })

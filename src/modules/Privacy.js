@@ -3,15 +3,18 @@ import {
   View,
   FlatList,
   ScrollView,
-  Animated
+  Animated,
+  ToastAndroid
 } from 'react-native'
+import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import airConfig from './assets/air_font_config.json'
 import r from './styles/Rinc'
 import g from './styles/General'
-import { Fa, FaMulti } from './assets/Font'
+import { FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
+import { baseURL } from '../constants/api'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 const NAVBAR_HEIGHT = 75
@@ -40,21 +43,19 @@ export default class Privacy extends Component {
         0,
         NAVBAR_HEIGHT,
       ),
-      data: [
-        {
-          id: 1,
-          text: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 2,
-          text: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 3,
-          text: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-      ]
+      data: null
     }
+  }
+
+  componentWillMount() { 
+    axios.get(`${baseURL}api/privacy`)
+      .then(res => {
+        this.setState({ data: res.data })
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+        console.log(err)
+      })
   }
 
   onScroll(event) {
@@ -88,34 +89,41 @@ export default class Privacy extends Component {
           />
         </Animated.View>
 
-        <ScrollView
-          contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={this.onScroll.bind(this)}
-        >
-          <View style={[r.bottom50, r.padd20]}>
-            <FaMulti size={12} style={r.bottom10}>
-              ما چند قانون برای استفاده از تورمن داریم که شما با استفاده از خدمات این اپلیکیشن موافقت خود رو با این قوانین اعلام می کنید. در صورتی که در قوانین ما تغییراتی صورت بگیرد از طریق همین صفحه بروز رسانی خواهد شد و استفاده مستمر شما از اپلیکشن نشانه آگاهی و موافقت با قوانین مذکور می باشد.
-            </FaMulti>
-
-            <FlatList
-              data={this.state.data}
-              renderItem={({ item }) => (
-                <View style={[r.top20, r.rtl]}>
-                  <AirIcon name={'tag'} size={16} style={[r.leftMargin10, r.top5]}/>
-                  <FaMulti size={12} style={[r.grayDark, r.full]} key={item.id}>
-                    {item.text}
-                  </FaMulti>
-                </View>
-              )}
-              keyExtractor={item => `${item.id}`}
+          {this.state.data === null ? (
+            <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+              <Loading />
+            </View>
+          ) : (
+            <ScrollView
+              contentContainerStyle={[{ marginTop: NAVBAR_HEIGHT }]}
               showsVerticalScrollIndicator={false}
-              initialNumToRender={7}
-              ItemSeparatorComponent={() => <View style={g.line} />}
-            />
-          </View>
-        </ScrollView>
+              scrollEventThrottle={16}
+              onScroll={this.onScroll.bind(this)}
+            >
+              <FlatList
+                data={this.state.data}
+                renderItem={({ item }) => (
+                  <View style={[r.top20, r.rtl]}>
+                    <AirIcon name={'tag'} size={16} style={[r.leftMargin10, r.top5]} />
+                    <FaMulti size={12} style={[r.grayDark, r.full]}>
+                      {item.text}
+                    </FaMulti>
+                  </View>
+                )}
+                keyExtractor={item => `${item._id}`}
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={7}
+                ItemSeparatorComponent={() => <View style={g.line} />}
+                ListHeaderComponent={() => (
+                  <FaMulti size={12} style={r.bottom10}>
+                    ما چند قانون برای استفاده از تورمن داریم که شما با استفاده از خدمات این اپلیکیشن موافقت خود رو با این قوانین اعلام می کنید. در صورتی که در قوانین ما تغییراتی صورت بگیرد از طریق همین صفحه بروز رسانی خواهد شد و استفاده مستمر شما از اپلیکشن نشانه آگاهی و موافقت با قوانین مذکور می باشد.
+              </FaMulti>
+                )}
+                contentContainerStyle={[r.padd20, { paddingBottom: 100 }]}
+              />
+            </ScrollView>
+          )}
+          
       </View>
     )
   }

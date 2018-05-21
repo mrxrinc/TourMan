@@ -31,68 +31,95 @@ class Registration extends Component {
     navBarHidden: true,
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
   }
-  // constructor(props) {
-  //   super(props)
-  //   this.state = {
-  //     showPass: false, 
-  //     debug: 'nothin'
-  //   }
-  // }
   state={ showPass: false, debug: 'nothin' }
 
   componentDidMount() {
     Realm.open({
-      schema: [{ name: 'localToken', properties: { key: 'string' } }]
+      schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
     }).then(realm => {
-      console.log('realm : ', realm.objects('localToken')[0].key)  
-      axios.defaults.headers.common.Authorization = `Bearer ${realm.objects('localToken')[0].key}`     
+      if (realm.empty === false) {
+        console.log(realm)
+        console.log('realm : ', realm.objects('localToken')[0].key)
+        axios.defaults.headers.common.Authorization = `Bearer ${realm.objects('localToken')[0].key}` 
+      }
     }) 
+    // this.props.navigator.showInAppNotification({
+    //   screen: 'mrxrinc.Notification',
+    //   autoDismissTimerSec: 2,
+    //   passProps: {
+    //     message: 'یک متن نمونه!',
+    //     alarm: false,
+    //   }
+    // })
   }
 
   handleSignup = () => {
-    axios.post(`${baseURL}/users/signup`, { ...this.props.user })
+    axios.post(`${baseURL}api/users/signup`, { ...this.props.user })
     .then(res => {
+      console.log('Register Raw result : ', res)      
       if (res.data.userState !== 'duplicate') {
         Realm.open({
-          schema: [{ name: 'localToken', properties: { key: 'string' } }]
-        }).then(realm => {
-            realm.write(() => {
-              realm.delete(realm.objects('localToken'))
-              realm.create('localToken', { key: res.data.token })
-            })
-            console.log('realm : ', realm.objects('localToken'))
-            this.props.userToStore(res.data)
-          
+          schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
+        })
+        .then(realm => {
+          realm.write(() => {
+            realm.delete(realm.objects('localToken'))
+            realm.create('localToken', { key: res.data.token, id: res.data._id })
+          })
+          console.log('realm : ', realm.objects('localToken'))
+          this.props.userToStore(res.data)
+          this.props.navigator.push({
+            screen: 'mrxrinc.Splash'
+          })
           console.log(this.props.user)
         })
       } else { // duplicated user found
-        console.log('Duplicate user')        
+        console.log('Duplicate user')   
+        this.props.navigator.showInAppNotification({
+          screen: 'mrxrinc.Notification',
+          passProps: {
+            message: 'ایمیل وارد شده قبلا ثبت شده است!',
+            alarm: true,
+          },
+          autoDismissTimerSec: 1
+        })      
       }
     })
     .catch(err => console.log(err))
   }
 
   handleSignin = () => {
-    axios.post(`${baseURL}/users/signin`, { 
+    axios.post(`${baseURL}api/users/signin`, { 
       email: this.props.user.email,
       password: this.props.user.password
     })
-    .then(res => {    
+    .then(res => {
       console.log('res DATA ===> ', res.data)        
       if (res.data.userState !== 'noUser') {
         Realm.open({
-          schema: [{ name: 'localToken', properties: { key: 'string' } }]
+          schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
         }).then(realm => {       
           realm.write(() => {
             realm.delete(realm.objects('localToken'))
-            realm.create('localToken', { key: res.data.token })
+            realm.create('localToken', { key: res.data.token, id: res.data._id })
           })
           console.log('Login realm : ', realm.objects('localToken')[0].key)
           this.props.userToStore(res.data)
+          this.props.navigator.push({
+            screen: 'mrxrinc.Splash'
+          })
           console.log(this.props.user)
         }) 
       } else { // no user found
-        console.log('No user!')          
+        console.log('No user!')    
+        this.props.navigator.showInAppNotification({
+          screen: 'mrxrinc.Notification',
+          passProps: {
+            message: 'هیچ کاربری با این ایمیل ثبت نشده است!',
+            alarm: true,
+          },
+          autoDismissTimerSec: 1
+        })      
       }
     })
     .catch(err => console.log(err))
@@ -110,9 +137,13 @@ class Registration extends Component {
             back={() => this.props.navigator.pop()}
             signIn={() => this.handleSignin()}
             forgetPassword={() => {
-              this.props.navigator.push({
-                screen: 'mrxrinc.Registration',
-                passProps: { page: 'ForgetPassword' }
+              // this.props.navigator.push({
+              //   screen: 'mrxrinc.Registration',
+              //   passProps: { page: 'ForgetPassword' }
+              // })
+              this.props.navigator.showInAppNotification({
+                screen: 'mrxrinc.Notification',
+                autoDismissTimerSec: 2
               })
             }}
           />
@@ -229,7 +260,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    userDataSend: (data, section) => dispatch(userRegister(data, section)),
+    userRegister: (data, section) => dispatch(userRegister(data, section)),
     userToStore: userInfo => dispatch(userToStore(userInfo)) 
   }
 }
@@ -336,7 +367,7 @@ class SignIn extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
-            onChangeText={(value) => this.props.userDataSend(value, 'email')}
+            onChangeText={(value) => this.props.userRegister(value, 'email')}
           />
 
           <View style={[r.top20, r.rtl, r.spaceBetween, r.horizCenter]}>
@@ -356,7 +387,7 @@ class SignIn extends Component {
             secureTextEntry={!this.props.showPass}
             returnKeyType={'send'}
             returnKeyLabel={'ورود'}
-            onChangeText={(value) => this.props.userDataSend(value, 'password')}
+            onChangeText={(value) => this.props.userRegister(value, 'password')}
             onSubmitEditing={activeBTN ? this.props.signIn : null}
           />
         </View>
@@ -407,7 +438,7 @@ class RegisterName extends Component {
             style={[r.white, r.centerText, { fontSize: 18 }]}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
-            onChangeText={(value) => this.props.userDataSend(value, 'firstName')}
+            onChangeText={(value) => this.props.userRegister(value, 'firstName')}
           />
 
           <Fa size={16} style={[r.white, r.top20]}>نام خانوادگی</Fa>
@@ -415,7 +446,7 @@ class RegisterName extends Component {
             style={[r.white, r.centerText, { fontSize: 18 }]}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
-            onChangeText={(value) => this.props.userDataSend(value, 'lastName')}
+            onChangeText={(value) => this.props.userRegister(value, 'lastName')}
             onSubmitEditing={this.props.next}
           />
         </View>
@@ -467,7 +498,7 @@ class RegisterEmail extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
-            onChangeText={(value) => this.props.userDataSend(value, 'email')} 
+            onChangeText={(value) => this.props.userRegister(value, 'email')} 
             onSubmitEditing={this.props.next}
           />
         </View>
@@ -527,7 +558,7 @@ class RegisterPassword extends Component {
             underlineColorAndroid={'#ccc'}
             secureTextEntry={!this.props.showPass}
             returnKeyType={'next'}
-            onChangeText={(value) => this.props.userDataSend(value, 'password')}
+            onChangeText={(value) => this.props.userRegister(value, 'password')}
             onSubmitEditing={this.props.next}
           />
 
@@ -593,12 +624,12 @@ class RegisterBirthday extends Component {
             pickerToolBarFontSize={15}
             pickerFontSize={20}
             pickerBg={[255, 250, 255, 1]}
-            selectedDate={'1379/فروردین/1'}
+            selectedDate={'1370/آذر/21'}
             minDate={'1320/1/1'}
             maxDate={'1379/12/29'}
-            onConfirm={(data) => this.props.userDataSend(data, 'birthday')}
+            onConfirm={(data) => this.props.userRegister(data, 'birthday')}
             onCancel={() => console.log('pressed!')}
-            onSelect={() => console.log('pressed!')}
+            onSelect={() => console.log('pressed!')}i
           />
 
         </View>
@@ -649,7 +680,7 @@ class ForgetPassword extends Component {
             keyboardType={'email-address'}
             returnKeyType={'next'}
             underlineColorAndroid={'#ccc'}
-            onChangeText={(value) => this.props.userDataSend(value, 'forget')}
+            onChangeText={(value) => this.props.userRegister(value, 'forget')}
             onSubmitEditing={this.props.confirm}
           />
         </View>

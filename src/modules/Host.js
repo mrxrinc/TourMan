@@ -3,24 +3,23 @@ import {
   Text,
   View,
   ScrollView,
+  FlatList,
   Image,
   Animated,
-  TouchableOpacity,
-  TouchableHighlight,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ToastAndroid
 } from 'react-native'
+import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
-import InvertibleScrollView from 'react-native-invertible-scroll-view'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBoldMulti, FaMulti, FaBold } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
-import { HeartFull, HeartEmpty } from './assets/Assets'
+import { RowItem } from './assets/Assets'
+import { baseURL } from '../constants/api'
 import airConfig from './assets/air_font_config.json'
-import lineConfig from './assets/line_font_config.json'
 
-const LineIcon = createIconSetFromFontello(lineConfig)
 const AirIcon = createIconSetFromFontello(airConfig)
 
 const HEADER_MAX_HEIGHT = 250
@@ -30,7 +29,7 @@ const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT
 export default class Host extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  };
+  }
   constructor(props) {
     super(props)
     const scrollAnim = new Animated.Value(0)
@@ -51,13 +50,23 @@ export default class Host extends Component {
         0,
         HEADER_MIN_HEIGHT,
       ),
-      locLat: 38.246744,
-      locLong: 48.298332,
-      delta: 0.005,
-      activeImage: 0,
+      host: {},
+      loading: true,
       homeHeart_01: false,
-      debug: 'debug'
     }
+  }
+
+  componentWillMount() {
+    const { hostId } = this.props
+    axios.get(`${baseURL}api/users/${hostId}`)
+      .then(user => {
+        this.setState({ host: user.data, loading: false })
+        console.log('Host data : ', this.state.host)
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی در دریافت اطلاعات میزبان پیش آمد!', ToastAndroid.SHORT)
+        console.log(err)
+      })
   }
 
   onScroll(event) {
@@ -69,6 +78,33 @@ export default class Host extends Component {
         [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }]
       )(event)
     }
+  }
+
+  renderLanguageName = () => {
+    const array = []
+    const langChars = this.state.host.languages
+    for (let i = 0; i < langChars.length; i++) {
+      switch (langChars[i]) {
+        case 'FA':
+          array.push('فارسی')
+          break
+        case 'TR':
+          array.push('ترکی')
+          break
+        case 'EN':
+          array.push('انگلیسی')
+          break
+        case 'KR':
+          array.push('کردی')
+          break
+        case 'GL':
+          array.push('گیلکی')
+          break
+        default:
+          return null
+      }
+    }
+    return array.join(' / ')
   }
 
   render() {
@@ -86,12 +122,13 @@ export default class Host extends Component {
       inputRange: [0, 175],
       outputRange: [0, 1],
     })
-    const { clampedScroll } = this.state;
+    const { clampedScroll } = this.state
     const navbarTranslate = clampedScroll.interpolate({
       inputRange: [0, HEADER_MIN_HEIGHT],
       outputRange: [0, -(HEADER_MIN_HEIGHT)],
       extrapolate: 'clamp',
     })
+
     return (
       <View style={[r.full, r.bgWhite]}>
         <Animated.View
@@ -101,239 +138,232 @@ export default class Host extends Component {
           <NavBar animate={navAnimate} back={() => this.props.navigator.pop()} />
           <View>
             <Animated.Image
-              style={[r.wFull, { height: headerHeight, opacity: headerBG }]}
-              source={require('./imgs/hostPic.jpg')}
+              style={[r.wFull, r.bgLight3, { height: headerHeight, opacity: headerBG }]}
+              source={{ uri: this.state.host.avatar }}
             />
           </View>
         </Animated.View>
-        <ScrollView
-          contentContainerStyle={{ marginTop: HEADER_MAX_HEIGHT,
-          paddingBottom: HEADER_MAX_HEIGHT }}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-          onScroll={this.onScroll.bind(this)}
-        >
-          <View style={r.margin15}>
-            <FaBoldMulti size={23}>
-              علیرضا رضایی
-            </FaBoldMulti>
-            <Fa style={[r.grayMid]} size={13}>گلستان - ایران</Fa>
-            <View style={[r.rtl, r.spaceBetween, r.verticalPadd10, r.top10]}>
-              <Fa style={[r.grayMid, r.top3]} size={12}>کاربر تایید شده</Fa>
-              <AirIcon
-                name={'ok-fill'}
-                size={22}
-                style={[r.green, r.centerText, { width: 22 }]}
-              />
-            </View>
-            <View style={g.line} />
-
-            <View style={[r.verticalPadd20]}>
-              <FaMulti size={12}>
-                لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-              </FaMulti>
-            </View>
-            <View style={g.line} />
-            <View style={r.vertical10}>
-              <Fa size={12}>
-                <Text>عضویت از</Text>
-                <Text>   1396/12/12</Text>
-              </Fa>
-            </View>
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <FaBold size={13}>شغل</FaBold>
-              <FaMulti size={12} style={r.top5}>
-                لیدر تور گردشگری آژانس سیر و سفر
-              </FaMulti>
-            </View>
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <FaBold size={13}>تحصیلات</FaBold>
-              <FaMulti size={12} style={r.top5}>
-                کارشناسی ارشد گردشگری . کارشناس هتل داری
-              </FaMulti>
-            </View>
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <FaBold size={13}>زبان محاوره</FaBold>
-              <FaMulti size={12} style={r.top5}>
-                فارسی . ترکی . گیلکی
-              </FaMulti>
-            </View>
-            <View style={g.line} />
-
-            <View style={[r.top10]}>
-              <FaBold size={18}>
-                <Text> 15 </Text>
-                دیدگاه
-              </FaBold>
-              <View style={[r.rtl, r.top15]}>
-                <Image
-                  style={[g.reviewAvatar]}
-                  source={require('./imgs/profile.jpg')}
-                />
-                <View style={[r.verticalCenter, r.rightPadd10]}>
-                  <FaBold size={12} style={r.grayMid}>علیرضا رضایی</FaBold>
-                  <Fa size={9} style={r.grayLight}>1396/6/7</Fa>
+        {this.state.loading ? (
+          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+            <Loading />
+          </View>
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ 
+              marginTop: HEADER_MAX_HEIGHT,
+              paddingBottom: HEADER_MAX_HEIGHT 
+            }}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            onScroll={this.onScroll.bind(this)}
+          >
+            <View style={r.margin15}>
+              <FaBoldMulti size={23}>
+                <Text>{this.state.host.firstName}</Text>
+                <Text> </Text>
+                <Text>{this.state.host.lastName}</Text>
+              </FaBoldMulti>
+              {this.state.host.location && (
+                <Fa style={[r.grayMid]} size={13}>{this.state.host.location} - ایران</Fa>
+              )}
+              {this.state.host.verified && (
+                <View style={[r.rtl, r.spaceBetween, r.verticalPadd10, r.top10]}>
+                  <Fa style={[r.grayMid, r.top3]} size={12}>کاربر تایید شده</Fa>
+                  <AirIcon
+                    name={'ok-fill'}
+                    size={22}
+                    style={[r.green, r.centerText, { width: 22 }]}
+                  />
                 </View>
-              </View>
-              <View style={[r.vertical10]}>
-                <FaMulti size={12} style={[r.grayMid]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
+              )}
+              <View style={g.line} />
+  
+              <View style={[r.verticalPadd20]}>
+                <FaMulti size={12}>
+                  {this.state.host.about}
                 </FaMulti>
               </View>
-            </View>
-
-            <View style={g.line} />
-            <View style={r.vertical10}>
-              <Fa size={14} style={g.primary}>همه دیدگاه ها</Fa>
-            </View>
-            <View style={g.line} />
-
-            <View style={r.vertical20}>
-              <FaBold size={13}>اطلاعات تایید شده</FaBold>
-              <FaMulti size={12} style={r.top5}>
-                تصویر . تلفن ثابت . تلفن همراه . کد ملی . ایمیل . تلگرام
-              </FaMulti>
-            </View>
-            <View style={g.line} />
-          </View>
-
-          <View style={[r.bottom20]}>
-            <View style={[r.paddHoriz15]}>
-              <FaBold size={15} style={[r.grayDark]}>
-                خانه ها
-              </FaBold>
-            </View>
-            <InvertibleScrollView
-              contentContainerStyle={[r.leftPadd15, r.top10]}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyboardDismissMode={'on-drag'}
-              inverted
-            >
-              <View style={[g.hmItem]}>
-                <TouchableHighlight
-                  underlayColor={'rgba(0,0,0,0.1)'}
-                  onPress={() => console.log('hey')}
-                >
-                  <View>
-                    <Image
-                      source={require('./imgs/hmTest01.jpg')}
-                      style={[g.hmItemImg, g.round]}
-                      resizeMode={'cover'}
-                    />
-                    <View style={r.topPadd5}>
-                      <FaMulti numberOfLines={2} style={r.grayDark}>
-                        ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس
-                      </FaMulti>
-                      <View style={[r.rtl, r.spaceBetween, r.rightPadd5]}>
-                        <View style={[r.row]}>
-                          <FaBold size={19} style={[g.exItemPrice]}>1250</FaBold>
-                          <LineIcon name={'money'} size={20} style={r.gray} />
-                        </View>
-                        <View style={[r.rtl, r.top5]}>
-                          <Text>
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                          </Text>
-                          <Fa style={[r.gray, r.rightMargin5]} size={9}>259 نظر</Fa>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableHighlight>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={[r.absolute, r.left, r.margin5, r.center, g.heartWrapper]}
-                  onPress={() => {
-                    this.state.exItemHeart_01 === true ?
-                      this.setState({ exItemHeart_01: false }) :
-                      this.setState({ exItemHeart_01: true })
-                  }}
-                >
-                  {this.state.exItemHeart_01 === true ? <HeartFull /> : <HeartEmpty />}
-                </TouchableOpacity>
+              <View style={g.line} />
+              <View style={r.vertical10}>
+                <Fa size={12}>
+                  <Text>عضویت از</Text>
+                  <Text style={{ textAlign: 'left'}}>   {this.state.host.registerDate}</Text>
+                </Fa>
               </View>
-
-              <View style={[g.hmItem]}>
-                <TouchableHighlight
-                  underlayColor={'rgba(0,0,0,0.1)'}
-                  onPress={() => console.log('hey')}
-                >
-                  <View>
-                    <Image
-                      source={require('./imgs/hmTest01.jpg')}
-                      style={[g.hmItemImg, g.round]}
-                      resizeMode={'cover'}
-                    />
-                    <View style={r.topPadd5}>
-                      <FaMulti numberOfLines={2} style={r.grayDark}>
-                        ویلای فول در شهر نور
-                      </FaMulti>
-                      <View style={[r.rtl, r.spaceBetween, r.rightPadd5]}>
-                        <View style={[r.row]}>
-                          <FaBold size={19} style={[g.exItemPrice]}>1250</FaBold>
-                          <LineIcon name={'money'} size={20} style={r.gray} />
-                        </View>
-                        <View style={[r.rtl, r.top5]}>
-                          <Text>
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                          </Text>
-                          <Fa style={[r.gray, r.rightMargin5]} size={9}>259 نظر</Fa>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableHighlight>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={[r.absolute, r.left, r.margin5, r.center, g.heartWrapper]}
-                  onPress={() => {
-                    this.state.exItemHeart_01 === true ?
-                      this.setState({ exItemHeart_01: false }) :
-                      this.setState({ exItemHeart_01: true })
-                  }}
-                >
-                  {this.state.exItemHeart_01 === true ? <HeartFull /> : <HeartEmpty />}
-                </TouchableOpacity>
+              <View style={g.line} />
+  
+              <View style={r.vertical10}>
+                <FaBold size={13}>شغل</FaBold>
+                <FaMulti size={12} style={r.top5}>
+                  {this.state.host.job}
+                </FaMulti>
               </View>
-            </InvertibleScrollView>
-          </View>
-
-          <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
-          <View>
-            <TouchableNativeFeedback
-              delayPressIn={0}
-              background={TouchableNativeFeedback.Ripple('#00000011', false)}
-              onPress={() => {
-                this.props.navigator.push({
-                  screen: 'mrxrinc.ReportUser'
-                })
-              }}
-            >
-              <View
-                style={[r.rtl, r.horizCenter, r.verticalPadd20, r.paddHoriz20]}
-                pointerEvents={'box-only'}
+              <View style={g.line} />
+  
+              <View style={r.vertical10}>
+                <FaBold size={13}>تحصیلات</FaBold>
+                <FaMulti size={12} style={r.top5}>
+                  {this.state.host.education}
+                </FaMulti>
+              </View>
+              <View style={g.line} />
+  
+              <View style={r.vertical10}>
+                <FaBold size={13}>زبان محاوره</FaBold>
+                <FaMulti size={12} style={r.top5}>
+                  {this.renderLanguageName()}
+                </FaMulti>
+              </View>
+              <View style={g.line} />
+  
+              <View style={[r.top10]}>
+                <FaBold size={18}>
+                  <Text> 15 </Text>
+                  دیدگاه
+                </FaBold>
+                <View style={[r.rtl, r.top15]}>
+                  <Image
+                    style={[g.reviewAvatar]}
+                    source={require('./imgs/profile.jpg')}
+                  />
+                  <View style={[r.verticalCenter, r.rightPadd10]}>
+                    <FaBold size={12} style={r.grayMid}>علیرضا رضایی</FaBold>
+                    <Fa size={9} style={r.grayLight}>1396/6/7</Fa>
+                  </View>
+                </View>
+                <View style={[r.vertical10]}>
+                  <FaMulti size={12} style={[r.grayMid]}>
+                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
+                  </FaMulti>
+                </View>
+              </View>
+  
+              <View style={g.line} />
+              <View style={r.vertical10}>
+                <Fa 
+                size={14} 
+                style={g.primary}
+                onPress={() => {
+                  this.props.navigator.push({
+                    screen: 'mrxrinc.Reviews',
+                    passProps:{
+                      parent: this.props.hostId
+                    }
+                  })
+                }}
+                >همه دیدگاه ها</Fa>
+              </View>
+              <View style={g.line} />
+  
+              {this.state.host.verifiedInfo && (
+                <View>
+                  <View style={r.vertical20}>
+                    <FaBold size={13}>اطلاعات تایید شده</FaBold>
+                    <FaMulti size={12} style={r.top5}>
+                      {this.state.host.verifiedInfo}
+                    </FaMulti>
+                  </View>
+                  <View style={g.line} />
+                </View>
+              )}
+              
+            </View>
+  
+            <View style={[r.bottom20]}>
+              <View style={[r.paddHoriz15]}>
+                <FaBold size={15} style={[r.grayDark]}>
+                  خانه های 
+                  <Text> </Text>
+                  <Text>{this.state.host.firstName}</Text>
+                </FaBold>
+              </View>
+              <FlatList
+                data={[
+                  {
+                    id: 1,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: true,
+                  },
+                  {
+                    id: 2,
+                    title: 'آپارتمان لوکس سعادت آباد',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                  {
+                    id: 3,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                  {
+                    id: 4,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                ]}
+                renderItem={({ item }) => (
+                  <RowItem
+                    key={item.id}
+                    title={item.title}
+                    image={item.image}
+                    rate={5}
+                    reviews={168}
+                    price={1260}
+                    like={item.like}
+                    likePress={() => null}
+                    onPress={() => console.log(item.id)}
+                  />
+                )}
+                keyExtractor={item => `${item.id}`}
+                contentContainerStyle={[r.leftPadd15, r.top10]}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                initialNumToRender={2}
+                keyboardDismissMode={'on-drag'}
+                inverted
+              />
+            </View>
+  
+            <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
+            <View>
+              <TouchableNativeFeedback
+                delayPressIn={0}
+                background={TouchableNativeFeedback.Ripple('#00000011', false)}
+                onPress={() => {
+                  this.props.navigator.showModal({
+                    screen: 'mrxrinc.ReportUser',
+                    passProps: { hostId: this.state.host._id }
+                  })
+                }}
               >
-                <Fa style={[r.grayDark]} size={14}>گزارش این کاربر</Fa>
-              </View>
-            </TouchableNativeFeedback>
-          </View>
-
-        </ScrollView>
+                <View
+                  style={[r.rtl, r.horizCenter, r.verticalPadd20, r.paddHoriz20]}
+                  pointerEvents={'box-only'}
+                >
+                  <Fa style={[r.grayDark]} size={14}>گزارش این کاربر</Fa>
+                </View>
+              </TouchableNativeFeedback>
+            </View>
+  
+          </ScrollView>
+        )}
       </View>
     )
   }
 }
+

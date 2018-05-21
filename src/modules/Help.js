@@ -4,8 +4,10 @@ import {
   FlatList,
   ScrollView,
   Animated,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ToastAndroid
 } from 'react-native'
+import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import airConfig from './assets/air_font_config.json'
 import r from './styles/Rinc'
@@ -13,6 +15,7 @@ import g from './styles/General'
 import { FaBold, FaBoldMulti, FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
+import { baseURL } from '../constants/api'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 const NAVBAR_HEIGHT = 75
@@ -41,34 +44,19 @@ export default class Help extends Component {
         0,
         NAVBAR_HEIGHT,
       ),
-      data: [
-        {
-          id: 1,
-          question: 'سوال اول :',
-          answer: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 2,
-          question: 'سوال دوم با متن خیلی خیلی خیلی خیلی خیلی خیلی خیلی خیلی زیاد و دراز برای تست سطر دوم و اینا:',
-          answer: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 3,
-          question: 'سوال سوم:',
-          answer: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 4,
-          question: 'سوال سوم:',
-          answer: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-        {
-          id: 5,
-          question: 'سوال سوم: ',
-          answer: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد',
-        },
-      ]
+      data: null
     }
+  }
+
+  componentWillMount() {
+    axios.get(`${baseURL}api/help`)
+      .then(res => {
+        this.setState({ data: res.data })
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+        console.log(err)
+      })
   }
 
   onScroll(event) {
@@ -102,33 +90,40 @@ export default class Help extends Component {
           />
         </Animated.View>
 
-        <ScrollView
-          contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={this.onScroll.bind(this)}
-        >
-          <View style={[r.bottom50, r.padd20]}>
-            <FlatList
-              data={this.state.data}
-              renderItem={({ item }) => (
-                <View style={[r.rtl]}>
-                  <AirIcon name={'question-alt'} size={16} style={[r.leftMargin10]}/>
-                  <View style={r.full}>
-                    <FaBoldMulti size={14}>{item.question}</FaBoldMulti>
-                    <FaMulti size={12} style={[r.grayDark, r.full]} key={item.id}>
-                      {item.answer}
-                    </FaMulti>
-                  </View>
-                </View>
-              )}
-              keyExtractor={item => `${item.id}`}
-              showsVerticalScrollIndicator={false}
-              initialNumToRender={7}
-              ItemSeparatorComponent={() => <View style={g.line} />}
-            />
+        {this.state.data === null ? (
+          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+            <Loading />
           </View>
-        </ScrollView>
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={this.onScroll.bind(this)}
+          >
+            <View style={[r.bottom50, r.padd20]}>
+              <FlatList
+                data={this.state.data}
+                renderItem={({ item }) => (
+                  <View style={[r.rtl]}>
+                    <AirIcon name={'question-alt'} size={16} style={[r.leftMargin10]}/>
+                    <View style={r.full}>
+                      <FaBoldMulti size={14}>{item.question}</FaBoldMulti>
+                      <FaMulti size={12} style={[r.grayDark, r.full]} key={item.id}>
+                        {item.answer}
+                      </FaMulti>
+                    </View>
+                  </View>
+                )}
+                keyExtractor={item => `${item._id}`}
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={7}
+                ItemSeparatorComponent={() => <View style={g.line} />}
+              />
+            </View>
+          </ScrollView>
+        )}
+
         <View style={[g.homeItemFooter, r.bgWhite, r.bottom, r.wFull, r.row]}>
           <View style={[r.center, { flex: 5 }]}>
             <View style={[g.checkAccessBtn, r.overhide]}>

@@ -221,7 +221,8 @@ export default class HomeItem extends Component {
                   activeOpacity={0.8}
                   onPress={() => {
                     this.props.navigator.push({
-                      screen: 'mrxrinc.Host'
+                      screen: 'mrxrinc.Host',
+                      passProps: { hostId: '5afafc77af0ab5136416c969' }
                     })
                   }}
                 >
@@ -249,7 +250,8 @@ export default class HomeItem extends Component {
                       activeOpacity={0.8}
                       onPress={() => {
                         this.props.navigator.push({
-                          screen: 'mrxrinc.Host'
+                          screen: 'mrxrinc.Host',
+                          passProps: { hostId: '5afafc77af0ab5136416c969' }
                         })
                       }}
                     >

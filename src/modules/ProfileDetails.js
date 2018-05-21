@@ -1,28 +1,35 @@
 import React, { Component } from 'react'
 import {
   View,
+  Text,
   ScrollView,
   Image,
   Animated,
   TouchableOpacity,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ToastAndroid
 } from 'react-native'
+import { connect } from 'react-redux'
+import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import PersianDatePicker from 'react-native-persian-date-picker'
 import Modal from 'react-native-modal'
+import ImagePicker from 'react-native-image-picker'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaMulti, FaBold } from './assets/Font'
 import { RadioBTN, Checkbox } from './assets/Assets'
+import { userRegister, userToStore } from '../actions/userActions'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
 import airConfig from './assets/air_font_config.json'
+import provinces from './assets/provinces.json'
+import { baseURL } from '../constants/api'
 
 const AirIcon = createIconSetFromFontello(airConfig)
-import provinces from './assets/provinces.json'
 
 const NAVBAR_HEIGHT = 75
-export default class ProfileDetails extends Component {
+class ProfileDetails extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -47,14 +54,13 @@ export default class ProfileDetails extends Component {
         NAVBAR_HEIGHT,
       ),
       sexModal: false,
-      sexValue: 'male',
       birthdayModal: false,
-      birthdayValue: '1380/2/1',
       locationModal: false,
-      locationValue: 'تهران',
       languagesModal: false,
       // English(EN) - Turkish(TR) - Farsi(FA) - Kurdi(KR) - Gilaki(GL)
-      languagesValue: ['FA']
+      languagesValue: this.props.user.languages.map(item => item), // mutation avoiding
+      imageLoading: true,
+      // avatar: 'http://192.168.1.3:3000/uploads/userAvatars/1526681741781by0u3rmao2l.jpg'
     }
   }
 
@@ -74,11 +80,73 @@ export default class ProfileDetails extends Component {
       array.splice(0, 0, lang)
       this.setState({ languagesValue: array })
     }
-    console.log('langs : ', this.state.languagesValue)
+    axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { languages: this.state.languagesValue })
+      .then(res => {
+        this.props.userToStore(res.data)
+        console.log(res.data)
+        ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+        console.log(err)
+      })
+    this.props.userRegister(this.state.languagesValue, 'languages')
   }
+
+  pickImage() {
+    const options = {
+      quality: 1.0,
+      maxWidth: 1000,
+      maxHeight: 700,
+      storageOptions: {
+        skipBackup: true
+      }
+    }
+    this.setState({ upload: false })
+    ImagePicker.launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        // console.log('upload canceled!');
+      } else if (response.error) {
+        ToastAndroid.show('تصویر انتخابی مناسب نیست!', ToastAndroid.LONG)
+      } else {   
+        this.setState({ imageLoading: true })  
+        const data = new FormData()
+        data.append('userAvatar', {
+          uri: response.uri,
+          type: response.type,
+          name: response.fileName
+        })
+        axios.post(`${baseURL}api/users/avatar`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+          .then(res => {
+            // console.log(res.data)
+            this.props.userToStore({ avatar: res.data })
+            // now updating database with new user information(including avatar URL)
+            axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { ...this.props.user })
+              .then(finalRes => {
+                console.log('FINAL DB AVATAR RES : ', finalRes.data)
+                this.setState({ imageLoading: false })
+                ToastAndroid.show('تصویر پروفایل بروزرسانی شد', ToastAndroid.SHORT)
+              })
+              .catch(err => {
+                ToastAndroid.show('مشکلی در بروزرسانی سرور پیش آمد. لطفا دوباره تلاش کنید!', ToastAndroid.LONG)
+                // console.log(err)
+              })
+          })
+          .catch(err => {
+            ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+            // console.log(err)
+          })
+      }
+    })
+  }
+
   renderLanguageName = () => {
     const array = []
-    const langChars = this.state.languagesValue
+    const langChars = this.props.user.languages
     for (let i = 0; i < langChars.length; i++) {
       switch (langChars[i]) {
         case 'FA':
@@ -132,14 +200,24 @@ export default class ProfileDetails extends Component {
           scrollEventThrottle={16}
           onScroll={this.onScroll.bind(this)}
         >
-          <View>
+          <View style={[r.horizCenter, r.bgLight3, { height: 220 }]}>
+            {this.state.imageLoading && (
+              <View 
+                style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1, 
+                { backgroundColor: 'rgba(255,255,255,0.3)' }]}
+              >
+                <Loading />
+              </View>
+            )}
             <Image
-              style={[r.wFull, r.bgLight3, { height: 220 }]}
-              source={require('./imgs/hostPic.jpg')}
+              style={[r.wFull, { height: 220 }]}
+              source={{ uri: this.props.user.avatar }}
               resizeMode={'contain'}
+              onLoad={() => this.setState({ imageLoading: false })}
             />
             <TouchableOpacity
-              style={[r.absolute, { alignSelf: 'center', bottom: 10 }]}
+              style={[r.absolute, r.zIndex2, { alignSelf: 'center', bottom: 10 }]}
+              onPress={() => this.pickImage()}
             >
               <AirIcon
                 name={'photo-upload'} size={35}
@@ -149,7 +227,11 @@ export default class ProfileDetails extends Component {
           </View>
           <View style={[r.padd15]}>
             <View style={[r.horizCenter]}>
-              <FaBold size={22}>علیرضا رضایی</FaBold>
+              <FaBold size={22}>
+                <Text>{this.props.user.firstName ? this.props.user.firstName : '-' }</Text>
+                <Text> </Text>
+                <Text>{this.props.user.lastName ? this.props.user.lastName : '-'}</Text>
+              </FaBold>
               <TouchableOpacity
                 style={r.top10}
                 onPress={() => {
@@ -166,7 +248,7 @@ export default class ProfileDetails extends Component {
             <View>
               <FaBold size={16}>درباره من</FaBold>
               <FaMulti style={[g.grayDark, r.top10]} size={13}>
-                لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز
+                {this.props.user.about ? this.props.user.about : '-'}
               </FaMulti>
               <TouchableOpacity
                 style={r.selfCenter}
@@ -197,16 +279,38 @@ export default class ProfileDetails extends Component {
                   <View style={[r.rtl, r.spaceBetween, r.horizCenter, { height: 50 }]}>
                     <Fa size={15}>مرد</Fa>
                     <RadioBTN
-                      active={this.state.sexValue === 'male'}
-                      onPress={() => this.setState({ sexValue: 'male' })}
+                      active={this.props.user.sex === 'male'}
+                      onPress={() => {
+                        axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { sex: 'male' })
+                          .then(res => {
+                            this.props.userToStore(res.data)
+                            console.log(res.data)
+                            ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
+                          })
+                          .catch(err => {
+                            ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+                            console.log(err)
+                          })
+                      }}
                     />
                   </View>
                   <View style={g.line} />
                   <View style={[r.rtl, r.spaceBetween, r.horizCenter, { height: 50 }]}>
                     <Fa size={15}>زن</Fa>
                     <RadioBTN
-                      active={this.state.sexValue === 'female'}
-                      onPress={() => this.setState({ sexValue: 'female' })}
+                      active={this.props.user.sex === 'female'}
+                      onPress={() => {
+                        axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { sex: 'female' })
+                          .then(res => {
+                            this.props.userToStore(res.data)
+                            console.log(res.data)
+                            ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
+                          })
+                          .catch(err => {
+                            ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+                            console.log(err)
+                          })
+                      }}
                     />
                   </View>
                 </View>
@@ -226,18 +330,27 @@ export default class ProfileDetails extends Component {
                   pickerToolBarFontSize={15}
                   pickerFontSize={20}
                   pickerBg={[255, 250, 255, 1]}
-                  selectedDate={'1379/فروردین/1'}
+                  selectedDate={this.props.user.birthday.join(' - ')}
                   minDate={'1320/1/1'}
                   maxDate={'1379/12/29'}
-                  onConfirm={data => console.log(data)}
-                  onCancel={() => console.log('pressed!')}
-                  onSelect={() => console.log('pressed!')}
+                  onConfirm={value => {
+                    axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { birthday: value })
+                      .then(res => {
+                        this.props.userToStore(res.data)
+                        console.log(res.data)
+                        ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
+                      })
+                      .catch(err => {
+                        ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+                        console.log(err)
+                      })
+                  }}
                 />
               </View>
               <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
               <ListBTN
                 title={'ایمیل'}
-                value={'admin@gmail.com'}
+                value={this.props.user.email}
                 onPress={() => {
                   this.props.navigator.push({
                     screen: 'mrxrinc.ProfileDetailsEdit',
@@ -247,7 +360,7 @@ export default class ProfileDetails extends Component {
               />
               <ListBTN
                 title={'موبایل'}
-                value={'09114556318'}
+                value={this.props.user.mobile}
                 noBottomLine
                 onPress={() => {
                   this.props.navigator.push({
@@ -262,7 +375,7 @@ export default class ProfileDetails extends Component {
             <View style={[r.padd5, r.top10, g.profileBoxOutline]}>
               <ListBTN
                 title={'محل زندگی'}
-                value={this.state.locationValue}
+                value={this.props.user.location}
                 onPress={() => this.setState({ locationModal: true })}
               />
               <Modal
@@ -282,13 +395,26 @@ export default class ProfileDetails extends Component {
                       >
                         <Fa size={15}>{item.name}</Fa>
                         <RadioBTN
-                          active={this.state.locationValue === item.name}
-                          onPress={() => this.setState({ locationValue: item.name })}
+                          active={this.props.user.location === item.name}
+                          onPress={() => {
+                            axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { location: item.name })
+                              .then(res => {
+                                this.props.userToStore(res.data)
+                                console.log(res.data)
+                                ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
+                              })
+                              .catch(err => {
+                                ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
+                                console.log(err)
+                              })
+                            // this.props.userRegister(item.name, 'location')
+                            this.setState({ locationModal: false })
+                          }}
                         />
                       </View>
                     ))}
                   </ScrollView>
-                  <View style={[r.wFull, g.bgPrimary, { height: 45 }]}>
+                  {/*<View style={[r.wFull, g.bgPrimary, { height: 45 }]}>
                     <TouchableNativeFeedback
                       delayPressIn={0}
                       background={TouchableNativeFeedback.Ripple('#00000022')}
@@ -298,13 +424,13 @@ export default class ProfileDetails extends Component {
                         <FaBold size={14} style={[r.white]}>ذخیره</FaBold>
                       </View>
                     </TouchableNativeFeedback>
-                  </View>
+                  </View>*/}
                 </View>
               </Modal>
 
               <ListBTN
                 title={'تحصیلات'}
-                value={'لیسانس گردشگری'}
+                value={this.props.user.education}
                 onPress={() => {
                   this.props.navigator.push({
                     screen: 'mrxrinc.ProfileDetailsEdit',
@@ -314,7 +440,7 @@ export default class ProfileDetails extends Component {
               />
               <ListBTN
                 title={'شغل'}
-                value={'تور لیدر'}
+                value={this.props.user.job}
                 onPress={() => {
                   this.props.navigator.push({
                     screen: 'mrxrinc.ProfileDetailsEdit',
@@ -380,7 +506,7 @@ export default class ProfileDetails extends Component {
                       />
                     </View>
                   </View>
-                  <View style={[r.wFull, g.bgPrimary, { height: 45 }]}>
+                  {/*<View style={[r.wFull, g.bgPrimary, { height: 45 }]}>
                     <TouchableNativeFeedback
                       delayPressIn={0}
                       background={TouchableNativeFeedback.Ripple('#00000022')}
@@ -390,7 +516,7 @@ export default class ProfileDetails extends Component {
                         <FaBold size={14} style={[r.white]}>ذخیره</FaBold>
                       </View>
                     </TouchableNativeFeedback>
-                  </View>
+                  </View>*/}
                 </View>
               </Modal>
             </View>
@@ -434,3 +560,18 @@ class ListBTN extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userRegister: (data, section) => dispatch(userRegister(data, section)),
+    userToStore: userInfo => dispatch(userToStore(userInfo))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileDetails)

@@ -18,28 +18,8 @@ export function userToStore(user) {
   }
 }
 
-// export function checkLocalUser() {
-//   return {
-//     type: types.USER_LOCAL_CHECK
-//   }
-// }
-
-// export function checkLocalUserFounded(data) {
-//   return {
-//     type: types.USER_LOCAL_CHECK_FOUNDED,
-//     payload: data
-//   }
-// }
-
-// export function checkLocalUserNotFounded() {
-//   return {
-//     type: types.USER_LOCAL_CHECK_NOT_FOUNDED
-//   }
-// }
-
-// export function getLocalUser() {  
-//   return (dispatch) => {
-//     dispatch(checkLocalUser())
-//     dispatch(checkLocalUserFounded('Martin Jones'))
-//   }
-// }
+export function userReset() {
+  return {
+    type: types.USER_RESET
+  }
+}

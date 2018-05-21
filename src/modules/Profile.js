@@ -1,21 +1,25 @@
 import React, { Component } from 'react'
 import {
   View,
+  Text,
   ScrollView,
   Image,
   TouchableOpacity,
   TouchableNativeFeedback
 } from 'react-native'
+import { connect } from 'react-redux'
+import Realm from 'realm'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBold } from './assets/Font'
 import airConfig from './assets/air_font_config.json'
 import Tabs from './assets/Tabs'
-
+import { userReset } from '../actions/userActions'
+ 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-export default class Profile extends Component {
+class Profile extends Component {
   static navigatorStyle = {
     navBarHidden: true,
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
@@ -53,11 +57,15 @@ export default class Profile extends Component {
             }}
           >
             <View>
-              <FaBold size={20} style={[r.grayDark]}>محمد میرزایی</FaBold>
+              <FaBold size={20} style={[r.grayDark]}>
+                <Text>{this.props.user.firstName}</Text>
+                <Text>  </Text>
+                <Text>{this.props.user.lastName}</Text>
+              </FaBold>
               <Fa size={11} style={[r.grayLight, r.top10]}>مشاهده و ویرایش پروفایل</Fa>
             </View>
             <Image
-              source={require('./imgs/profile.jpg')}
+              source={{ uri: this.props.user.avatar}}
               style={[g.profileThumb, g.profileThumb2]}
             />
           </TouchableOpacity>
@@ -71,17 +79,6 @@ export default class Profile extends Component {
               })
             }}
           />
-          {/* <ListBTN
-            title={'تنظیمات نوتیفیکشن'}
-            icon={'bell'}
-            onPress={() => {
-              this.props.navigator.showInAppNotification({
-            screen: 'mrxrinc.ReportUser',
-            passProps: {},
-            autoDismissTimerSec: 1
-              })
-            }}
-          /> */}
           <ListBTN
             title={'درباره تورمن'}
             icon={'handshake'}
@@ -112,8 +109,24 @@ export default class Profile extends Component {
           <ListBTN
             title={'خروج'}
             icon={'rooms'}
-            noBottomLine={true}
-            onPress={() => null}
+            noBottomLine
+            onPress={() => {
+              Realm.open({
+                schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
+              }).then(realm => {
+                realm.write(() => {
+                  realm.delete(realm.objects('localToken'))
+                })
+                console.log('Have realm ? : ', realm.objects('localToken')[0] == null)
+                if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
+                  this.props.navigator.push({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
+                  this.props.userReset()
+                  console.log('USER AFTER LOGOUT ==> ', this.props.user)                  
+                } else {
+                  console.log('Couldnt destroy realm')                  
+                }
+              })
+            }}
           />
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -183,3 +196,17 @@ class ListBTN extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userReset: () => dispatch(userReset())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile)

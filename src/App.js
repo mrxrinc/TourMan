@@ -9,7 +9,7 @@ registerScreens(store, Provider)
 
 Navigation.startSingleScreenApp({
   screen: {
-    screen: 'mrxrinc.Registration',
+    screen: 'mrxrinc.Splash',
     // passProps: { page: 'RegisterName' }
   },
   appStyle: {

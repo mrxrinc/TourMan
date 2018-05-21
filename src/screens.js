@@ -1,5 +1,6 @@
 import { Navigation } from 'react-native-navigation'
 
+import Splash from './modules/Splash'
 import Explore from './modules/Explore'
 import Profile from './modules/Profile'
 import Messages from './modules/Messages'
@@ -22,12 +23,14 @@ import Map from './modules/Map'
 import Registration from './modules/Registration'
 import Privacy from './modules/Privacy'
 import Help from './modules/Help'
-import FeedBack from './modules/assets/FeedBack'
 import About from './modules/About'
 import ProfileDetails from './modules/ProfileDetails'
 import ProfileDetailsEdit from './modules/ProfileDetailsEdit'
+import FeedBack from './modules/FeedBack'
+import Notification from './modules/assets/Notification'
 
 export function registerScreens(store, Provider) {
+  Navigation.registerComponent('mrxrinc.Splash', () => Splash, store, Provider)
   Navigation.registerComponent('mrxrinc.Explore', () => Explore, store, Provider)
   Navigation.registerComponent('mrxrinc.Profile', () => Profile, store, Provider)
   Navigation.registerComponent('mrxrinc.Messages', () => Messages, store, Provider)
@@ -50,8 +53,9 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Registration', () => Registration, store, Provider)
   Navigation.registerComponent('mrxrinc.Privacy', () => Privacy, store, Provider)
   Navigation.registerComponent('mrxrinc.Help', () => Help, store, Provider)
-  Navigation.registerComponent('mrxrinc.FeedBack', () => FeedBack, store, Provider)
   Navigation.registerComponent('mrxrinc.About', () => About, store, Provider)
   Navigation.registerComponent('mrxrinc.ProfileDetails', () => ProfileDetails, store, Provider)
   Navigation.registerComponent('mrxrinc.ProfileDetailsEdit', () => ProfileDetailsEdit, store, Provider)
+  Navigation.registerComponent('mrxrinc.FeedBack', () => FeedBack, store, Provider)
+  Navigation.registerComponent('mrxrinc.Notification', () => Notification, store, Provider) 
 }

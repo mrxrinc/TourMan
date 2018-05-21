@@ -2,10 +2,12 @@ import { combineReducers } from 'redux'
 
 import userReducer from './pages/userReducer'
 import dateReducer from './pages/dateReducer'
+import { reportUserReducer } from './pages/generalReducers'
 
 const rootReducer = combineReducers({
   user: userReducer,
-  date: dateReducer
+  date: dateReducer,
+  reportUser: reportUserReducer,
 })
 
 export default rootReducer

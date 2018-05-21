@@ -76,15 +76,38 @@ date = date.map((month, key) => ({ ...month, id: key }))
 // that we need it for activate a tapped day in redux
 
 export default {
-  loading: true,
+  loading: false,
   user: {
     firstName: null,
     lastName: null,
     email: null,
+    mobile: null,
     password: null,
-    birthday: null,
+    birthday: [1370, 9, 21],
     token: null,
-    forget: null
+    forget: null,
+    location: null,
+    about: null,
+    education: null,
+    job: null,
+    languages: ['FA'],
+    sex: 'male',
+    avatar: null
+
+    // firstName: 'محمد',
+    // lastName: 'میرزایی',
+    // email: 'mrxrinc@gmail.com',
+    // mobile: '09114556318',
+    // password: null,
+    // birthday: [1370, 9, 21],
+    // token: null,
+    // forget: null,
+    // location: null,
+    // about: 'متن درباره من. کمی توضیح درباره پروفایل کاربر و سلیقه ها، علایق و دیگر خصوصیات ',
+    // education: 'کارشناسی گردشگری',
+    // job: 'کارمند بانک',
+    // languages: ['FA'],
+    // sex: 'male',
   },
   date: {
     loadedDate: date,
@@ -92,5 +115,6 @@ export default {
     cacheDays: [],
     startDate: 'تاریخ شروع',
     endDate: 'تاریخ پایان'
-  }
+  },
+  reportUser: {}
 }
