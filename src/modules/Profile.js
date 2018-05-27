@@ -5,7 +5,8 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ToastAndroid
 } from 'react-native'
 import { connect } from 'react-redux'
 import Realm from 'realm'
@@ -25,22 +26,6 @@ class Profile extends Component {
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
   }
   state={
-    // data: [
-    //   {
-    //     id: 1,
-    //     title: 'درخواست اجاره آپارتمان',
-    //     description: 'سلام. لطفا شرایط آپارتمان رو برای اجاره کردن 10 روزه بفرمایین.',
-    //     date: '1397/4/15',
-    //     archive: true,
-    //   },
-    //   {
-    //     id: 2,
-    //     title: 'اجاره ویلای چالوس',
-    //     description: 'سلام. لطفا شرایط آپارتمان رو برای اجاره کردن 10 روزه بفرمایین.',
-    //     date: '1397/4/15',
-    //     archive: false,
-    //   },
-    // ]
     data: null
   }
   render() {
@@ -65,7 +50,7 @@ class Profile extends Component {
               <Fa size={11} style={[r.grayLight, r.top10]}>مشاهده و ویرایش پروفایل</Fa>
             </View>
             <Image
-              source={{ uri: this.props.user.avatar}}
+              source={{ uri: this.props.user.avatar }}
               style={[g.profileThumb, g.profileThumb2]}
             />
           </TouchableOpacity>
@@ -111,19 +96,21 @@ class Profile extends Component {
             icon={'rooms'}
             noBottomLine
             onPress={() => {
+              ToastAndroid.show('در حال خروج از اکانت شما ...', ToastAndroid.SHORT)
               Realm.open({
                 schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
               }).then(realm => {
                 realm.write(() => {
                   realm.delete(realm.objects('localToken'))
                 })
-                console.log('Have realm ? : ', realm.objects('localToken')[0] == null)
+                // console.log('Have realm ? : ', realm.objects('localToken')[0] == null)
                 if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
-                  this.props.navigator.push({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
+                  this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
                   this.props.userReset()
-                  console.log('USER AFTER LOGOUT ==> ', this.props.user)                  
+                  // console.log('USER AFTER LOGOUT ==> ', this.props.user)                  
                 } else {
-                  console.log('Couldnt destroy realm')                  
+                  console.log('Couldnt destroy realm')  
+                  ToastAndroid.show('مشکلی پیش آمد، لطفا دوباره تلاش کنید :(', ToastAndroid.LONG)                
                 }
               })
             }}
@@ -145,7 +132,7 @@ class Profile extends Component {
             })
           }}
           explore={() => {
-            this.props.navigator.push({
+            this.props.navigator.resetTo({
               screen: 'mrxrinc.Explore',
               animationType: 'fade'
             })

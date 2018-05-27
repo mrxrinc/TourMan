@@ -17,8 +17,18 @@ import com.BV.LinearGradient.LinearGradientPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.realm.react.RealmReactPackage;
 import com.airbnb.android.react.maps.MapsPackage;
+import com.facebook.react.modules.i18nmanager.I18nUtil;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 
  public class MainApplication extends NavigationApplication {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // FORCE LTR
+        I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
+        sharedI18nUtilInstance.allowRTL(getApplicationContext(), false);
+    }
 
     @Override
     public boolean isDebug() {
@@ -35,7 +45,8 @@ import com.airbnb.android.react.maps.MapsPackage;
             new LinearGradientPackage(),
             new RealmReactPackage(),
             new MapsPackage(),
-            new PickerViewPackage()
+            new PickerViewPackage(),
+            new SplashScreenReactPackage()
         );
     }
 

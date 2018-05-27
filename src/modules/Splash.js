@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
-import { View } from 'react-native'
+import { View, Image } from 'react-native'
 import { connect } from 'react-redux'
 import axios from 'axios'
 import Realm from 'realm'
+import SplashScreen from 'react-native-splash-screen';
 import Loading from './assets/Loading'
 import r from './styles/Rinc'
-import { FaBold } from './assets/Font'
+import { EnBold } from './assets/Font'
 import { baseURL } from '../constants/api'
 import { userToStore } from '../actions/userActions'
 
 class Splash extends Component {
   static navigatorStyle = {
-    navBarHidden: true
+    navBarHidden: true,
+    statusBarColor: 'rgba(0, 0, 0, 0.1)'
   }
 
   componentWillMount() {
@@ -23,7 +25,7 @@ class Splash extends Component {
       // })
       console.log('Have realm ? : ', realm.objects('localToken')[0] != null)
       if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
-        this.props.navigator.push({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
+        this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
       } else {
         console.log('WE HAVE LOCAL DATABASE')        
         console.log('realm data: ', realm.objects('localToken')[0])
@@ -35,18 +37,34 @@ class Splash extends Component {
           .then(user => {
             this.props.userToStore(user.data)
             console.log('in Splash : ', this.props)      
-            this.props.navigator.push({ screen: 'mrxrinc.Profile', passProps: { hostId: '5afafc77af0ab5136416c969' } })
+            this.props.navigator.resetTo({ screen: 'mrxrinc.Explore', passProps: { homeId: '5b032f6cb33fc62ba879cd56' } })
           })
           .catch(err => console.log(err))
       }
     })
   }
 
+  componentDidMount() {
+    // SplashScreen.hide()
+  }
 
   render() {
     return (
       <View style={[r.center, r.full]}>
-        <FaBold>Loading...</FaBold>
+        <Image 
+          source={require('./imgs/splashLogo.png')}
+          style={{ width: 200, height: 200, marginTop: 36 }}
+        />
+
+        <View style={[r.absolute, r.bottom, r.wFull, { height: 150 }]}>
+          {/*<View style={[r.center, { height: 30 }]}>
+            <Loading style={{ opacity: 0.6 }} />
+          </View>*/}
+
+          <View style={[r.center, r.full]}>
+            <EnBold style={[r.light4, r.bottom20]} size={25}>mrxrinc</EnBold>
+          </View>
+        </View>
       </View>
     )
   }

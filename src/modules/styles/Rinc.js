@@ -238,7 +238,7 @@ module.exports = StyleSheet.create({
     borderRadius: 10,
   },
   notification: {
-    minHeight: 80,
+    minHeight: 100,
     paddingTop: 25,
   }
 

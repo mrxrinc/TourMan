@@ -11,18 +11,14 @@ import { createIconSetFromFontello } from 'react-native-vector-icons'
 import ReactNativeComponentTree from
   'react-native/Libraries/Renderer/shims/ReactNativeComponentTree'
 
-// import * as Animatable from 'react-native-animatable'
 import { connect } from 'react-redux'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
-// import * as asset from './assets/Assets'
+import { Fa, FaBold } from './assets/Font'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
 import { selectDay, initializeDays, loadDays, resetDays } from '../actions/dateActions'
-// import configureStore from '../store/configureStore'
-//
-// const store = configureStore()
+
 const AirIcon = createIconSetFromFontello(airConfig)
 
 class When extends Component {
@@ -91,7 +87,7 @@ class When extends Component {
     const date = this.props.date.slice(startPoint, endPoint)
     return date.map((month, monthKey) => (
         <View style={[g.dateWrap, r.paddHoriz10, r.paddVertical20]} key={monthKey}>
-          <a.Fa size={13} style={r.rightMargin15}>{month.name}</a.Fa>
+          <Fa size={13} style={r.rightMargin15}>{month.name}</Fa>
           <View style={[r.rtl, r.wrap, r.top5]}>
             {this.beginEmptyBoxes(
               month.firstDayInWeek,
@@ -141,41 +137,43 @@ class When extends Component {
                 </View>
               </TouchableNativeFeedback>
             </View>
-            <a.Fa
+            <Fa
               size={11}
               onPress={() => this.props.resetDays()}
             >
               پاک کردن
-            </a.Fa>
+            </Fa>
           </View>
           <View style={[r.full, r.padd15]} />
         </View>
 
         <View style={[r.padd10, r.rtl, r.center, r.spaceBetween]}>
           <View style={[r.center, { flex: 1 }]}>
-            <a.Fa size={17} style={[r.rtl]}>{
-              typeof this.props.startDate === 'object' ?
-                this.props.startDate.join(' / ') : this.props.startDate
-            }</a.Fa>
+            <Fa size={17} style={[r.rtl]}>
+            {typeof this.props.startDate === 'object' ?
+                this.props.startDate.join(' ') : this.props.startDate
+            }
+            </Fa>
           </View>
           <View style={[r.center, { flex: 1 }]}>
-            <a.Fa size={45} style={[r.light3, { height: 60, lineHeight: 72 }]}>/</a.Fa>
+            <Fa size={45} style={[r.light3, { height: 60, lineHeight: 72 }]}>/</Fa>
           </View>
           <View style={[r.center, { flex: 1 }]}>
-            <a.Fa size={17} style={[r.rtl]}>{
-              typeof this.props.endDate === 'object' ?
-                this.props.endDate.join(' / ') : this.props.endDate
-            }</a.Fa>
+            <Fa size={17} style={[r.rtl]}>
+              {typeof this.props.endDate === 'object' ?
+                  this.props.endDate.join(' ') : this.props.endDate
+              }
+            </Fa>
           </View>
         </View>
         <View style={[r.rtl, r.center, r.spaceBetween, r.paddHoriz10, r.bottom5]}>
-          <a.Fa size={15} style={g.weekHead}>ش</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>ی</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>د</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>س</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>چ</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>پ</a.Fa>
-          <a.Fa size={15} style={g.weekHead}>ج</a.Fa>
+          <Fa size={15} style={g.weekHead}>ش</Fa>
+          <Fa size={15} style={g.weekHead}>ی</Fa>
+          <Fa size={15} style={g.weekHead}>د</Fa>
+          <Fa size={15} style={g.weekHead}>س</Fa>
+          <Fa size={15} style={g.weekHead}>چ</Fa>
+          <Fa size={15} style={g.weekHead}>پ</Fa>
+          <Fa size={15} style={g.weekHead}>ج</Fa>
         </View>
 
         <View style={[g.line, { marginVertical: 0 }]} />
@@ -184,7 +182,7 @@ class When extends Component {
           data={this.props.date}
           renderItem={({ item }) => (
             <View style={[g.dateWrap, r.paddHoriz10, r.paddVertical20]}>
-              <a.Fa size={13} style={r.rightMargin15}>{item.name}</a.Fa>
+              <Fa size={13} style={r.rightMargin15}>{item.name}</Fa>
               <View style={[r.rtl, r.wrap, r.top5]}>
                 {this.beginEmptyBoxes(
                   item.firstDayInWeek,
@@ -233,7 +231,7 @@ class Footer extends Component {
             background={TouchableNativeFeedback.Ripple('#ffffff33', false)}
             onPress={this.props.onPress}>
             <View style={[r.full, r.center]} pointerEvents={'box-only'}>
-              <a.FaBold style={[r.white]} size={18}>ذخیره</a.FaBold>
+              <FaBold style={[r.white]} size={18}>ذخیره</FaBold>
             </View>
           </TouchableNativeFeedback>
         </View>

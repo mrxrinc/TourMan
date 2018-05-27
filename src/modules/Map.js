@@ -27,10 +27,15 @@ export default class Map extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      mapCenter: [35.732911, 51.358988],
+      region: { // just for initializing region (has no effect after data been recieved)
+        latitude: 35.732911,
+        longitude: 51.358988,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05
+      },
       items: [
         {
-          id: 1,
+          _id: 111,
           title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
           image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
           price: 1250,
@@ -44,7 +49,7 @@ export default class Map extends Component {
           location: [35.733609, 51.365425]
         },
         {
-          id: 2,
+          _id: 222,
           title: 'آپارتمان لوکس سعادت آباد',
           image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
           price: 1250,
@@ -58,7 +63,7 @@ export default class Map extends Component {
           location: [35.732911, 51.358988]
         },
         {
-          id: 3,
+          _id: 333,
           title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
           image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
           price: 1250,
@@ -72,7 +77,7 @@ export default class Map extends Component {
           location: [35.730890, 51.359331]
         },
         {
-          id: 4,
+          _id: 444,
           title: 'ویلای فول در شهر نور',
           image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
           price: 1250,
@@ -86,18 +91,65 @@ export default class Map extends Component {
           location: [35.729774, 51.364009]
         },
       ],
-      delta: 0.03,
+      scrolling: false,
+      scrollItem: null
     }
     //this is for preventing an error at FlatList get current item
     this.handleViewableItemsChanged = this.handleViewableItemsChanged.bind(this)
-    this.viewabilityConfig = { viewAreaCoveragePercentThreshold: 60 }
+    this.viewabilityConfig = { viewAreaCoveragePercentThreshold: 80 }
   }
 
-  handleViewableItemsChanged(item) {
-    if (item.viewableItems.length > 0) {
-      console.log(item.viewableItems[0].key)
+  componentDidMount() {
+    setTimeout(() => this.refs.map.fitToElements(true), 2000)
+  }
+
+  markerPress = (item) => {
+    console.log(item)
+    const newRegion = {
+      ...this.state.region,
+      latitude: item.location[0],
+      longitude: item.location[1]
+    }
+    this.setState({ scrolling: true }, () => {
+      this.list.scrollToItem({ item, viewOffset: 15 })
+      setTimeout(() => {
+        this.setState({ scrolling: false, region: newRegion }, () => {
+          const newItems = this.state.items.map((element, key) => {
+            if (key === item._id) {
+              element.focused = true
+              return element
+            }
+            element.focused = false
+            return element
+          })
+          this.setState({ items: newItems })
+        })
+      }, 0)
+    })
+  }
+
+  handleViewableItemsChanged(upperItem) {
+    if (upperItem.viewableItems.length > 0 && !this.state.scrolling) {      
+      const item = upperItem.viewableItems[0].item
+      this.list.scrollToItem({ item, viewOffset: 15 }) // must be named "item" !
+      const newItems = this.state.items.map((element, key) => {
+        if (key === upperItem.viewableItems[0].index) {
+          element.focused = true
+          return element
+        }
+        element.focused = false
+        return element
+      })
+      this.setState({ items: newItems }, () => {
+        const newRegion = {
+          ...this.state.region,
+          latitude: upperItem.viewableItems[0].item.location[0],
+          longitude: upperItem.viewableItems[0].item.location[1]
+        }
+        this.refs.map.animateToRegion(newRegion)
+      })
     } else {
-      console.log('none')
+      console.log('FlatList items inbetween space')
     }
   }
 
@@ -122,13 +174,16 @@ export default class Map extends Component {
             ref={'map'}
             style={r.map}
             showsCompass={false}
-            region={{
-              latitude: this.state.mapCenter[0],
-              longitude: this.state.mapCenter[1],
-              latitudeDelta: this.state.delta,
-              longitudeDelta: this.state.delta,
-            }}
+            region={this.state.region}
             customMapStyle={MapStyle}
+            loadingEnabled
+            onRegionChangeComplete={region => this.setState({ region })}
+            mapPadding={{
+              top: 50,
+              right: 50,
+              bottom: 50,
+              left: 50
+            }}
           >
             {this.state.items.map((item) => (
               <MapView.Marker
@@ -136,11 +191,8 @@ export default class Map extends Component {
                   latitude: parseFloat(item.location[0]),
                   longitude: parseFloat(item.location[1])
                 }}
-                key={item.id}
-                onPress={() => {
-                  console.log(item.title)
-                  this.list.scrollToIndex({ index: item.id - 1, viewOffset: 15 })
-                }}
+                key={item._id}
+                onPress={() => this.markerPress(item)}
               >
                 <MyMarker {...item} />
               </MapView.Marker>
@@ -155,19 +207,20 @@ export default class Map extends Component {
               <MapRowItem
                 {...item}
                 likePress={() => null}
-                onPress={() => console.log(item.id)}
+                onPress={() => console.log(item._id)}
               />
             )}
-            keyExtractor={item => `${item.id}`}
+            keyExtractor={item => `${item._id}`}
             contentContainerStyle={[r.leftPadd15, r.top10]}
             horizontal
-            ref={ref => { this.list = ref }}
-            showsHorizontalScrollIndicator={false}
-            initialNumToRender={2}
-            keyboardDismissMode={'on-drag'}
             inverted
+            showsHorizontalScrollIndicator={false}
+            ref={ref => { this.list = ref }}
+            initialNumToRender={3}
             onViewableItemsChanged={this.handleViewableItemsChanged}
             viewabilityConfig={this.viewabilityConfig}
+            // onMomentumScrollBegin={() => this.setState({ scrolling: true })}
+            // onMomentumScrollEnd={() => this.setState({ scrolling: false })}
           />
         </View>
       </View>

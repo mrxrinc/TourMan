@@ -4,15 +4,16 @@ import {
   ScrollView,
   Animated
 } from 'react-native'
+import { connect } from 'react-redux'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
+import { Fa, FaBold, FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
 
 const NAVBAR_HEIGHT = 75
 
-export default class HomeDetails extends Component {
+class HomeDetails extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -76,34 +77,34 @@ export default class HomeDetails extends Component {
           <View style={[r.full, r.bgWhite]}>
             <ScrollView style={[r.full, r.padd20]}>
               <View style={r.bottom50}>
-                <a.FaBold size={25}>جزئیات</a.FaBold>
-                <a.FaMulti size={12} style={[r.top20, { lineHeight: 25 }]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد تا با نرم افزارها شناخت بیستری را برای طراحان رایانه ای و فرهنگ پیشرو در زبان فارسی ایجاد کرد. در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
-                </a.FaMulti>
+                <FaBold size={25}>جزئیات</FaBold>
+                <FaMulti size={12} style={[r.top20, { lineHeight: 25 }]}>
+                  {this.props.home.about.details}
+                </FaMulti>
 
-                <a.FaBold size={14} style={r.vertical30}>
+                <FaBold size={14} style={r.vertical30}>
                   مهمان ها به چه چیزهایی دسترسی دارند؟
-                </a.FaBold>
+                </FaBold>
 
-                <a.FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و
-                </a.FaMulti>
+                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                  {this.props.home.about.guestAccessibility}
+                </FaMulti>
 
-                <a.FaBold size={14} style={r.vertical30}>
+                <FaBold size={14} style={r.vertical30}>
                   همسایه ها:
-                </a.FaBold>
+                </FaBold>
 
-                <a.FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                </a.FaMulti>
+                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                  {this.props.home.about.neighborhood}
+                </FaMulti>
 
-                <a.FaBold size={14} style={r.vertical30}>
+                <FaBold size={14} style={r.vertical30}>
                   دسترسی به امکانات شهری:
-                </a.FaBold>
+                </FaBold>
 
-                <a.FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی
-                </a.FaMulti>
+                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                  {this.props.home.about.accessToCityGoods}
+                </FaMulti>
 
               </View>
             </ScrollView>
@@ -114,3 +115,11 @@ export default class HomeDetails extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    home: state.home
+  }
+}
+
+export default connect(mapStateToProps)(HomeDetails)

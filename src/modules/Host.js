@@ -10,6 +10,7 @@ import {
   ToastAndroid
 } from 'react-native'
 import axios from 'axios'
+import StarRating from 'react-native-star-rating'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
@@ -50,7 +51,8 @@ export default class Host extends Component {
         0,
         HEADER_MIN_HEIGHT,
       ),
-      host: {},
+      host: { languages: [] },
+      lastReview: null,
       loading: true,
       homeHeart_01: false,
     }
@@ -60,8 +62,21 @@ export default class Host extends Component {
     const { hostId } = this.props
     axios.get(`${baseURL}api/users/${hostId}`)
       .then(user => {
-        this.setState({ host: user.data, loading: false })
-        console.log('Host data : ', this.state.host)
+        this.setState({ host: user.data }, () => {
+          console.log('Host data : ', this.state.host)
+
+          // getting review and rating
+          axios.get(`${baseURL}api/reviews/${this.state.host._id}`)
+            .then(res => {
+              this.setState({ lastReview: res.data[0], loading: false })
+            })
+            .catch(err => {
+              ToastAndroid.show('در دریافت نظرات کاربران مشکلی پیش آمد!', ToastAndroid.LONG)
+              console.log(err)
+            })
+        })
+
+        
       })
       .catch(err => {
         ToastAndroid.show('مشکلی در دریافت اطلاعات میزبان پیش آمد!', ToastAndroid.SHORT)
@@ -137,10 +152,12 @@ export default class Host extends Component {
         >
           <NavBar animate={navAnimate} back={() => this.props.navigator.pop()} />
           <View>
-            <Animated.Image
-              style={[r.wFull, r.bgLight3, { height: headerHeight, opacity: headerBG }]}
-              source={{ uri: this.state.host.avatar }}
-            />
+            {!this.state.loading && (
+              <Animated.Image
+                style={[r.wFull, r.bgLight3, { height: headerHeight, opacity: headerBG }]}
+                source={{ uri: this.state.host.avatar }}
+              />
+            )}
           </View>
         </Animated.View>
         {this.state.loading ? (
@@ -215,45 +232,59 @@ export default class Host extends Component {
                 </FaMulti>
               </View>
               <View style={g.line} />
-  
-              <View style={[r.top10]}>
-                <FaBold size={18}>
-                  <Text> 15 </Text>
-                  دیدگاه
-                </FaBold>
-                <View style={[r.rtl, r.top15]}>
-                  <Image
-                    style={[g.reviewAvatar]}
-                    source={require('./imgs/profile.jpg')}
-                  />
-                  <View style={[r.verticalCenter, r.rightPadd10]}>
-                    <FaBold size={12} style={r.grayMid}>علیرضا رضایی</FaBold>
-                    <Fa size={9} style={r.grayLight}>1396/6/7</Fa>
+              
+              {this.state.lastReview && (
+                  <View>
+                    <View style={[r.top10]}>
+                      <FaBold size={18}>
+                        <Text> {this.state.host.reviewsCount} </Text>
+                        دیدگاه
+                  </FaBold>
+                      <View style={[r.rtl, r.top15]}>
+                        <Image
+                          style={[g.reviewAvatar]}
+                          source={{ uri: this.state.lastReview.avatar }}
+                        />
+                        <View style={[r.verticalCenter, r.rightPadd10]}>
+                          <FaBold size={12} style={r.grayMid}>{this.state.lastReview.userFullName}</FaBold>
+                          <StarRating
+                            disabled
+                            maxStars={5}
+                            rating={this.state.host.overallRate}
+                            starSize={12}
+                            fullStarColor={'#02a4a4'}
+                            emptyStarColor={'#d3d3d3'}
+                          />
+                          <Fa size={9} style={r.grayLight}>{this.state.lastReview.date}</Fa>
+                        </View>
+                      </View>
+                      <View style={[r.vertical10]}>
+                        <FaMulti size={12} style={[r.grayMid]}>
+                          {this.state.lastReview.comment}
+                        </FaMulti>
+                      </View>
+                    </View>
+
+                    <View style={g.line} />
+                    <View style={r.vertical10}>
+                      <Fa
+                        size={14}
+                        style={g.primary}
+                        onPress={() => {
+                          this.props.navigator.push({
+                            screen: 'mrxrinc.Reviews',
+                            passProps: {
+                              parent: this.props.hostId,
+                              from: 'user',
+                              overallRate: this.state.host.overallRate
+                            }
+                          })
+                        }}
+                      >همه دیدگاه ها</Fa>
+                    </View>
+                    <View style={g.line} />
                   </View>
-                </View>
-                <View style={[r.vertical10]}>
-                  <FaMulti size={12} style={[r.grayMid]}>
-                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                  </FaMulti>
-                </View>
-              </View>
-  
-              <View style={g.line} />
-              <View style={r.vertical10}>
-                <Fa 
-                size={14} 
-                style={g.primary}
-                onPress={() => {
-                  this.props.navigator.push({
-                    screen: 'mrxrinc.Reviews',
-                    passProps:{
-                      parent: this.props.hostId
-                    }
-                  })
-                }}
-                >همه دیدگاه ها</Fa>
-              </View>
-              <View style={g.line} />
+              )}
   
               {this.state.host.verifiedInfo && (
                 <View>

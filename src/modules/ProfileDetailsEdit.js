@@ -68,7 +68,7 @@ class ProfileDetailsEdit extends Component {
             <TouchableNativeFeedback
               delayPressIn={0}
               background={TouchableNativeFeedback.Ripple('#00000022')}
-              onPress={() => this.props.navigator.pop()}>
+              onPress={() => this.props.navigator.dismissModal()}>
               <View pointerEvents={'box-only'} style={[r.full, r.center, { width: 60 }]}>
                 <AirIcon 
                   name={'left-arrow-bold'} 
@@ -89,7 +89,7 @@ class ProfileDetailsEdit extends Component {
                   Keyboard.dismiss()
                   this.props.userToStore(this.state.user)
                   ToastAndroid.show('تغییرات اعمال شد', ToastAndroid.SHORT)
-                  this.props.navigator.push({ screen: 'mrxrinc.ProfileDetails' })
+                  this.props.navigator.dismissModal()
                 })
                 .catch(err => {
                   ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)

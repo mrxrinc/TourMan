@@ -24,7 +24,10 @@ export default function userReducer(state = initialState.user, { type, payload, 
         case 'languages': {
           const newLangs = payload.map(item => item)
           return { ...state, languages: newLangs }
-        }
+        } 
+        case 'messages':       
+          return { ...state, messages: payload }
+
         default:
           return state
       }

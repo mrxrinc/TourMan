@@ -10,3 +10,7 @@ export const USER_TO_STORE = 'USER_TO_STORE'
 export const USER_RESET = 'USER_RESET'
 export const USER_REPORT = 'USER_REPORT'
 
+export const STAGE_HOME = 'STAGE_HOME'
+
+export const FILTER_PROVINCE = 'FILTER_PROVINCE'
+export const FILTER_HOWMANY = 'FILTER_HOWMANY'

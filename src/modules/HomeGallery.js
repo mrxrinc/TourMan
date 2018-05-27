@@ -3,33 +3,24 @@ import {
   Text,
   View,
   Image,
-  Animated,
-  Dimensions,
-  ViewPagerAndroid,
   TouchableNativeFeedback
 } from 'react-native'
+import { connect } from 'react-redux'
+import Swiper from 'react-native-swiper'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
+import { FaBold } from './assets/Font'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-const window = Dimensions.get('window')
-
-export default class HomeGallery extends Component {
+class HomeGallery extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  };
-  constructor(props) {
-    super(props)
-    this.state = {
-      activeImage: 0,
-      allImages: 25,
-    }
   }
+  state = { current: 0 }    
 
   pagerPage(e) {
     const index = e.nativeEvent.position
@@ -37,9 +28,8 @@ export default class HomeGallery extends Component {
   }
 
   render() {
-    const imagesHeight = 450
     return (
-      <View style={[r.full, r.verticalCenter, r.bgBlack]}>
+      <View style={[r.full, r.bgBlack]}>
         <View style={[g.navBar, r.top]}>
           <View style={[r.full, r.rtl]}>
             <TouchableNativeFeedback
@@ -47,53 +37,68 @@ export default class HomeGallery extends Component {
                 this.props.navigator.pop()
               }}
               background={TouchableNativeFeedback.Ripple('#ffffff33',true)}
-              delayPressIn={0}>
+              delayPressIn={0}
+            >
               <View pointerEvents='box-only' style={[g.navBarBtn, r.center]}>
-                <Animated.Text style={[r.white, r.flipX, g.navBarBtnIcon]}>
+                <Text style={[r.white, r.flipX, g.navBarBtnIcon]}>
                   <AirIcon name={'left-arrow-bold'} size={18} />
-                </Animated.Text>
+                </Text>
               </View>
             </TouchableNativeFeedback>
           </View>
         </View>
 
-        <View>
-          <ViewPagerAndroid
-            style={{ height: imagesHeight }}
-            onPageSelected={(e) => { this.pagerPage(e) }}
+        <View style={[r.full]}>
+
+          <Swiper
+            paginationStyle={{ bottom: 5 }}
+            dotStyle={{ 
+              backgroundColor: '#ffffff55',
+              width: 3,
+              height: 3,
+              borderRadius: 6
+            }}
+            activeDotStyle={{
+              backgroundColor: '#ffffffdd',
+              width: 6,
+              height: 6,
+              marginHorizontal: 2
+            }}
+            onIndexChanged={(index) => this.setState({ current: index })}
+            loop={false}
+            loadMinimal
+            loadMinimalSize={3}
+            loadMinimalLoader={<Loading />}
           >
-            <View style={[r.center]}>
-              <Image
-                style={{ height: imagesHeight, }}
-                resizeMode={'contain'}
-                source={require('./imgs/exTest01.jpg')}
-              />
-            </View>
-            <View style={[r.center]}>
-              <Image
-                style={{ height: imagesHeight, }}
-                resizeMode={'contain'}
-                source={require('./imgs/hmTest01.jpg')}
-              />
-            </View>
-            <View style={[r.center]}>
-              <Image
-                style={{ height: imagesHeight, }}
-                resizeMode={'contain'}
-                source={require('./imgs/hmTest01.jpg')}
-              />
-            </View>
-          </ViewPagerAndroid>
+            {this.props.home.images.map((item, index) => (
+              <View key={index}>
+                <Image
+                  style={[{ height: '100%' }]}
+                  resizeMode={'contain'}
+                  source={{ uri: item }}
+                />
+              </View>
+            ))}
+          </Swiper>
+
         </View>
-        <View style={[r.absolute, r.bottom, r.padd20, {width: 120}]}>
-          <a.FaBold style={[r.centerText, { color: '#ffffff88' }]} size={20}>
-            <Text>{this.state.activeImage + 1}</Text>
+        <View style={[r.absolute, r.bottom, r.padd20, { width: 120 }]}>
+          <FaBold style={[r.centerText, { color: '#ffffff88' }]} size={20}>
+            <Text>{this.state.current + 1}</Text>
             <Text> / </Text>
-            <Text>{this.state.allImages}</Text>
-          </a.FaBold>
+            <Text>{this.props.home.images.length}</Text>
+          </FaBold>
         </View>
 
       </View>
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    home: state.home
+  }
+}
+
+export default connect(mapStateToProps)(HomeGallery)

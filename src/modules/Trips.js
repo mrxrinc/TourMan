@@ -3,59 +3,66 @@ import {
   FlatList,
   TouchableOpacity
 } from 'react-native'
+import axios from 'axios'
+import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
-import { View, createAnimatableComponent } from 'react-native-animatable'
+import { View } from 'react-native-animatable'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { ItemBig } from './assets/Assets'
 import { Fa, FaBold } from './assets/Font'
 import airConfig from './assets/air_font_config.json'
 import Tabs from './assets/Tabs'
+import Loading from './assets/Loading'
+import { baseURL } from '../constants/api'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-export default class Trips extends Component {
+class Trips extends Component {
   static navigatorStyle = {
     navBarHidden: true,
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
   }
   state={
-    // data: [
-    //   {
-    //     id: 1,
-    //     title: 'ویلای فول در شهر نور، مازندران',
-    //     image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-    //     price: 1250,
-    //     reviews: 152,
-    //     stars: 5,
-    //     like: true,
-    //     verified: true,
-    //     type: 'کل ملک'
-    //   },
-    //   {
-    //     id: 2,
-    //     title: 'آپارتمان لوکس سعادت آباد',
-    //     image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-    //     price: 1250,
-    //     reviews: 152,
-    //     stars: 5,
-    //     like: false,
-    //     verified: false,
-    //     type: 'کل ملک'
-    //   },
-    // ]
-    data: null
+    data: [],
+    loading: true
   }
+
+  componentWillMount() {
+    if (this.props.user.trips.length) {
+      this.props.user.trips.forEach(element => {
+        axios.get(`${baseURL}api/homes/${element}`)
+          .then(res => {
+            this.state.data.push(res.data)
+            console.log(this.state.data)
+            this.setState({ loading: false })
+          })
+          .catch(err => {
+            ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+            console.log(err)
+          })
+      })
+    } else {
+      this.setState({ loading: false })
+    }
+  }
+
   render() {
     return (
       <View style={[r.full, r.bgWhite]}>
         <View style={[r.full]}>
 
-          {this.state.data !== null ? (
+          {this.state.loading === true && (
+            <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+              <Loading />
+            </View>
+          )}
+
+          {this.state.data.length > 0 && !this.state.loading && (
             <View>
               <FaBold
                 size={22}
-                style={[r.rightMargin20, r.grayDark, r.top60, r.bottom20]}
+                style={[r.rightMargin20, r.grayDark, r.top50, r.bottom20]}
               >
                 سفرهای من
               </FaBold>
@@ -63,26 +70,27 @@ export default class Trips extends Component {
                 data={this.state.data}
                 renderItem={({ item }) => (
                   <ItemBig
-                    key={item.id}
+                    key={item._id}
                     title={item.title}
-                    image={item.image}
-                    rate={5}
-                    reviews={168}
-                    price={1260}
+                    image={item.images[0]}
+                    rate={item.overallRate}
+                    reviews={item.reviewsCount}
+                    price={item.price}
                     like={item.like}
                     verified={item.verified}
-                    type={item.type}
+                    type={item.homeType}
                     likePress={() => null}
                     onPress={() => console.log(item.id)}
                   />
                 )}
-                keyExtractor={item => `${item.id}`}
+                keyExtractor={item => item._id}
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={3}
-                ListFooterComponent={() => <View style={{ marginTop: 190 }} />}
+                ListFooterComponent={() => <View style={{ height: 160 }} />}
               />
             </View>
-          ) : (
+          )}
+          {this.state.data.length === 0 && !this.state.loading && (
             <View style={[r.full, r.horizCenter, r.paddHoriz30]}>
               <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                 <Fa size={16} style={[r.centerText, r.grayLight]}>
@@ -129,7 +137,7 @@ export default class Trips extends Component {
             })
           }}
           explore={() => {
-            this.props.navigator.push({
+            this.props.navigator.resetTo({
               screen: 'mrxrinc.Explore',
               animationType: 'fade'
             })
@@ -152,12 +160,20 @@ export default class Trips extends Component {
   }
 }
 
+let interval = null
 class MovingIcons extends Component {
-  state = {
-    position: 0
+  constructor(props) {
+    super(props)
+    this.state = {
+      position: 0
+    }
   }
   componentDidMount() {
-    setInterval(() => this.movingAnimation(), 2000)
+    interval = setInterval(() => this.movingAnimation(), 2000)
+  }
+
+  componentWillUnmount() {
+    clearInterval(interval) // this prevent it of throwing an error in navigator.pop()
   }
   movingAnimation() {
     if (this.state.position > -834) {
@@ -174,11 +190,8 @@ class MovingIcons extends Component {
   }
   render() {
     return (
-      <View
-        style={[r.horizCenter, { width: 140, height: 140, paddingTop: 43 }]}
-        useNativeDriver
-      >
-        <View ref={'movingIcons'} style={[]}>
+      <View style={[r.horizCenter, { width: 140, height: 140, paddingTop: 43 }]} >
+        <View ref={'movingIcons'} style={[]} useNativeDriver>
           <AirIcon name={'meetups'} size={45} style={[r.white, g.movingIcon]} />
           <AirIcon name={'camper'} size={45} style={[r.white, g.movingIcon]} />
           <AirIcon name={'plane'} size={45} style={[r.white, g.movingIcon]} />
@@ -196,3 +209,13 @@ class MovingIcons extends Component {
     )
   }
 }
+
+
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+
+export default connect(mapStateToProps)(Trips)

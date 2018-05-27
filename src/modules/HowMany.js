@@ -4,27 +4,21 @@ import {
   View,
   TouchableNativeFeedback
 } from 'react-native'
+import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
-import * as asset from './assets/Assets'
+import { Fa, FaBold } from './assets/Font'
+import { IncDec, Switch } from './assets/Assets'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
+import { filterHowMany } from '../actions/generalActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-export default class HowMany extends Component {
+class HowMany extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  }
-  constructor(props) {
-    super(props)
-    this.state = {
-      adultQuantity: 1,
-      childrenQuantity: 0,
-      pets: false
-    }
   }
 
   render() {
@@ -47,34 +41,50 @@ export default class HowMany extends Component {
           <View style={[r.full, r.padd15]} />
         </View>
         <View style={r.paddHoriz20}>
-          <asset.IncDec
+          <IncDec
             title={'بزرگسال'}
-            count={this.state.adultQuantity}
+            count={this.props.filter.howMany.adultQuantity}
             incPress={() => {
-              if (this.state.adultQuantity < 16) {
-                this.setState({ adultQuantity: this.state.adultQuantity + 1 })
+              if (this.props.filter.howMany.adultQuantity < 16) {
+                const newData = {
+                  ...this.props.filter.howMany,
+                  adultQuantity: this.props.filter.howMany.adultQuantity + 1
+                }
+                this.props.filterHowMany(newData)
               }
             }}
             decPress={() => {
-              if (this.state.adultQuantity > 1) {
-                this.setState({ adultQuantity: this.state.adultQuantity - 1 })
+              if (this.props.filter.howMany.adultQuantity > 1) {
+                const newData = {
+                  ...this.props.filter.howMany,
+                  adultQuantity: this.props.filter.howMany.adultQuantity - 1
+                }
+                this.props.filterHowMany(newData)
               }
             }}
           />
 
           <View style={[g.line, { marginVertical: 0 }]} />
 
-          <asset.IncDec
+          <IncDec
             title={'کودک'}
-            count={this.state.childrenQuantity}
+            count={this.props.filter.howMany.childrenQuantity}
             incPress={() => {
-              if (this.state.childrenQuantity < 16) {
-                this.setState({ childrenQuantity: this.state.childrenQuantity + 1 })
+              if (this.props.filter.howMany.childrenQuantity < 16) {
+                const newData = {
+                  ...this.props.filter.howMany,
+                  childrenQuantity: this.props.filter.howMany.childrenQuantity + 1
+                }
+                this.props.filterHowMany(newData)
               }
             }}
             decPress={() => {
-              if (this.state.childrenQuantity > 0) {
-                this.setState({ childrenQuantity: this.state.childrenQuantity - 1 })
+              if (this.props.filter.howMany.childrenQuantity > 0) {
+                const newData = {
+                  ...this.props.filter.howMany,
+                  childrenQuantity: this.props.filter.howMany.childrenQuantity - 1
+                }
+                this.props.filterHowMany(newData)
               }
             }}
           />
@@ -82,13 +92,17 @@ export default class HowMany extends Component {
           <View style={[g.line, { marginVertical: 0 }]} />
 
           <View style={[r.rtl, r.horizCenter, r.spaceBetween]}>
-            <a.Fa style={[r.rightMargin5, { flex: 1.5 }]} size={15}>حیوان خانگی</a.Fa>
+            <Fa style={[r.rightMargin5, { flex: 1.5 }]} size={15}>حیوان خانگی</Fa>
             <View style={[r.center, { flex: 1, height: 75 }]}>
-              <asset.Switch
+              <Switch
+                state={this.props.filter.howMany.pets}
                 onPress={() => {
-                  this.setState({ pets: !this.state.pets })
+                  const newData = {
+                    ...this.props.filter.howMany,
+                    pets: !this.props.filter.howMany.pets
+                  }
+                  this.props.filterHowMany(newData)
                 }}
-                state={this.state.pets}
               />
             </View>
           </View>
@@ -96,7 +110,11 @@ export default class HowMany extends Component {
 
         </View>
 
-        <Footer />
+        <Footer 
+          onPress={() => {
+            this.props.navigator.dismissModal()
+          }}
+        />
       </View>
     )
   }
@@ -115,7 +133,7 @@ class Footer extends Component {
             onPress={this.props.onPress}
           >
             <View style={[r.full, r.center]} pointerEvents={'box-only'}>
-              <a.FaBold style={[r.white]} size={18}>ذخیره</a.FaBold>
+              <FaBold style={[r.white]} size={18}>ذخیره</FaBold>
             </View>
           </TouchableNativeFeedback>
         </View>
@@ -123,3 +141,17 @@ class Footer extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    filter: state.filter  
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    filterHowMany: data => dispatch(filterHowMany(data))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HowMany)

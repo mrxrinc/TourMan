@@ -11,7 +11,6 @@ import Host from './modules/Host'
 import HomeDetails from './modules/HomeDetails'
 import Amenities from './modules/Amenities'
 import HomeGallery from './modules/HomeGallery'
-import Reviews from './modules/Reviews'
 import HomeRules from './modules/HomeRules'
 import Cancelation from './modules/Cancelation'
 import ReportUser from './modules/ReportUser'
@@ -28,6 +27,8 @@ import ProfileDetails from './modules/ProfileDetails'
 import ProfileDetailsEdit from './modules/ProfileDetailsEdit'
 import FeedBack from './modules/FeedBack'
 import Notification from './modules/assets/Notification'
+import Reviews from './modules/Reviews'
+import ReviewSend from './modules/ReviewSend'
 
 export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Splash', () => Splash, store, Provider)
@@ -41,7 +42,6 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.HomeDetails', () => HomeDetails, store, Provider)
   Navigation.registerComponent('mrxrinc.Amenities', () => Amenities, store, Provider)
   Navigation.registerComponent('mrxrinc.HomeGallery', () => HomeGallery, store, Provider)
-  Navigation.registerComponent('mrxrinc.Reviews', () => Reviews, store, Provider)
   Navigation.registerComponent('mrxrinc.HomeRules', () => HomeRules, store, Provider)
   Navigation.registerComponent('mrxrinc.Cancelation', () => Cancelation, store, Provider)
   Navigation.registerComponent('mrxrinc.ReportUser', () => ReportUser, store, Provider)
@@ -57,5 +57,7 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.ProfileDetails', () => ProfileDetails, store, Provider)
   Navigation.registerComponent('mrxrinc.ProfileDetailsEdit', () => ProfileDetailsEdit, store, Provider)
   Navigation.registerComponent('mrxrinc.FeedBack', () => FeedBack, store, Provider)
-  Navigation.registerComponent('mrxrinc.Notification', () => Notification, store, Provider) 
+  Navigation.registerComponent('mrxrinc.Notification', () => Notification, store, Provider)
+  Navigation.registerComponent('mrxrinc.Reviews', () => Reviews, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReviewSend', () => ReviewSend, store, Provider) 
 }

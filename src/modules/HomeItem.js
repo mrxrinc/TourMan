@@ -5,37 +5,38 @@ import {
   ScrollView,
   Image,
   Animated,
-  Dimensions,
-  ViewPagerAndroid,
   TouchableOpacity,
-  TouchableHighlight,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  ToastAndroid,
+  FlatList,
+  Share
 } from 'react-native'
+import axios from 'axios'
+import { connect } from 'react-redux'
 import MapView from 'react-native-maps'
+import Swiper from 'react-native-swiper'
+import StarRating from 'react-native-star-rating'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
-import InvertibleScrollView from 'react-native-invertible-scroll-view'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBold, FaMulti, FaBoldMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
-import { HeartFull, HeartEmpty, MapStyle } from './assets/Assets'
+import { RowItem, MapStyle } from './assets/Assets'
+import { baseURL } from '../constants/api'
 import airConfig from './assets/air_font_config.json'
 import lineConfig from './assets/line_font_config.json'
+import { stageHome, resetHome } from '../actions/generalActions'
+import { userToStore } from '../actions/userActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 const LineIcon = createIconSetFromFontello(lineConfig)
-// import * as Animatable from 'react-native-animatable'
-// import {createAnimatableComponent} from 'react-native-animatable'
-// const AnimatableLineIcon = createAnimatableComponent(LineIcon)
-const Pager = Animated.createAnimatedComponent(ViewPagerAndroid)
-const window = Dimensions.get('window')
 
 const HEADER_MAX_HEIGHT = 250
 const HEADER_MIN_HEIGHT = 75
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT
 
-export default class HomeItem extends Component {
+class HomeItem extends Component {
   static navigatorStyle = {
     navBarHidden: true
   };
@@ -59,9 +60,8 @@ export default class HomeItem extends Component {
         0,
         HEADER_MIN_HEIGHT,
       ),
-      locLat: 38.246744,
-      locLong: 48.298332,
-      delta: 0.005,
+      loading: true,
+      lastReview: {},
       activeImage: 0,
       homeHeart_01: false,
       reviewExtendLines: 2,
@@ -69,33 +69,32 @@ export default class HomeItem extends Component {
     }
   }
 
-  pagerPage(e) {
-    switch (e.nativeEvent.position) {
-      case 0:
-        this.setState({ activeImage: 0 })
-        break
-      case 1:
-        this.setState({ activeImage: 1 })
-        break
-      case 2:
-        this.setState({ activeImage: 2 })
-        break
-      case 3:
-        this.setState({ activeImage: 3 })
-        break
-      case 4:
-        this.setState({ activeImage: 4 })
-        break
-      default:
-        this.setState({ activeImage: 0 })
-    }
+  componentWillMount() {
+    const { homeId } = this.props
+    axios.get(`${baseURL}api/homes/${homeId}`)
+      .then(result => {
+        this.props.stageHome(result.data)
+        setTimeout(() => {
+          this.setState({ loading: false })
+          console.log('home data : ', this.props.home)
+
+          // getting review and rating
+          axios.get(`${baseURL}api/reviews/${this.props.home._id}`)
+            .then(res => {
+              this.setState({ lastReview: res.data[0] })            
+            })
+            .catch(err => {
+              ToastAndroid.show('در دریافت نظرات کاربران مشکلی پیش آمد!', ToastAndroid.LONG)
+              console.log(err)
+            })
+        }, 0)
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی در دریافت اطلاعات خانه پیش آمد!', ToastAndroid.SHORT)
+        console.log(err)
+      })
   }
-  pagerNavDot(e) {
-    if (this.state.activeImage === e) {
-      return 'rgba(255,255,255,0.9)'
-    }
-    return 'rgba(255,255,255,0.3)'
-  }
+
   onScroll(event) {
     Animated.event(
       [{ nativeEvent: { contentOffset: { y: this.state.scrollY } } }]
@@ -104,6 +103,62 @@ export default class HomeItem extends Component {
       Animated.event(
         [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }]
       )(event)
+    }
+  }
+
+  share = () => {
+    Share.share({
+      message: `
+        ${this.props.home.title}
+        فقط ${this.props.home.price} هزار تومن برای هر شب! 
+        مشاهده و رزرو در تورمن 
+        http://www.mrxrinc.com
+      `,
+      url: 'http://www.mrxrinc.com',
+      dialogTitle: this.props.home.title
+    })
+  }
+
+  liked = () => {
+    if (this.props.user.likes.indexOf(this.props.home._id) === -1) {
+      return false
+    }
+    return true
+  }
+
+  handleLike = (homeId) => {
+    const sendToServer = (data, status = 'add') => {
+      const msg = status === 'remove' ? 
+        'از لیست علاقه مندی ها حذف شد' : 
+        'به لیست علاقه مندی های شما اضافه شد'
+      axios.put(`${baseURL}api/users/update/${this.props.user._id}`, data)
+        .then(res => {
+          ToastAndroid.show(msg, ToastAndroid.LONG)
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
+    }
+    if (this.props.user.likes.indexOf(homeId) === -1) {
+      const likes = this.props.user.likes.map(item => item)
+      likes.push(homeId)
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data)
+    } else {
+      const index = this.props.user.likes.indexOf(homeId)
+      const likes = this.props.user.likes.slice(0, index)
+        .concat(this.props.user.likes.slice(index + 1))
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data, 'remove')
     }
   }
 
@@ -139,451 +194,444 @@ export default class HomeItem extends Component {
           <NavBar
             animate={navAnimate}
             back={() => this.props.navigator.pop()}
-            like={() => console.log('like pressed!')}
-            share={() => console.log('share pressed!')}
+            liked={this.liked()}
+            pressLike={() => this.handleLike(this.props.home._id)}
+            pressShare={() => this.share()}
           />
-          <View>
-            <Pager
-              style={{ height: headerHeight }}
-              onPageSelected={(e) => this.pagerPage(e)}
-            >
-              <View>
-                <TouchableNativeFeedback
-                  background={TouchableNativeFeedback.Ripple('#ffffff33', true)}
-                  delayPressIn={0}
-                  onPress={() => {
-                    this.props.navigator.push({
-                      screen: 'mrxrinc.HomeGallery'
-                    })
-                  }}
-                >
-                  <Animated.Image
-                    style={{ height: headerHeight, opacity: headerBG }}
-                    source={require('./imgs/hmTest01.jpg')}
-                  />
-                </TouchableNativeFeedback>
-              </View>
-              <View>
-                <TouchableNativeFeedback
-                  background={TouchableNativeFeedback.Ripple('#ffffff33', true)}
-                  delayPressIn={0}
-                  onPress={() => {
-                    this.props.navigator.push({
-                      screen: 'mrxrinc.HomeGallery'
-                    })
-                  }}
-                >
-                  <Animated.Image
-                    style={{ height: headerHeight, opacity: headerBG }}
-                    source={require('./imgs/hmTest01.jpg')}
-                  />
-                </TouchableNativeFeedback>
-              </View>
-              <View>
-                <TouchableNativeFeedback
-                  background={TouchableNativeFeedback.Ripple('#ffffff33', true)}
-                  delayPressIn={0}
-                  onPress={() => {
-                    this.props.navigator.push({
-                      screen: 'mrxrinc.HomeGallery'
-                    })
-                  }}
-                >
-                  <Animated.Image
-                    style={{ height: headerHeight, opacity: headerBG }}
-                    source={require('./imgs/hmTest01.jpg')}
-                  />
-                </TouchableNativeFeedback>
-              </View>
-            </Pager>
-            <View style={[r.absolute, r.bottom, r.horizCenter, { width: window.width }]}>
-              <View style={[g.pagerNav, r.horizCenter, r.row]}>
-                <View style={[g.pagerNavDot, { backgroundColor: this.pagerNavDot(0) }]} />
-                <View style={[g.pagerNavDot, { backgroundColor: this.pagerNavDot(1) }]} />
-                <View style={[g.pagerNavDot, { backgroundColor: this.pagerNavDot(2) }]} />
-              </View>
-            </View>
-          </View>
-        </Animated.View>
-        <ScrollView
-          contentContainerStyle={{ marginTop: HEADER_MAX_HEIGHT, paddingBottom: HEADER_MAX_HEIGHT }}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={this.onScroll.bind(this)}
-        >
-          <View style={r.margin15}>
-            <FaBoldMulti style={[r.grayDark]} size={16}>
-              ویلا در شهر نور با تمامی امکانات
-            </FaBoldMulti>
-            <View style={[r.row, r.top10, { height: 100 }]}>
-              <View style={[r.center, { flex: 1 }]}>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    this.props.navigator.push({
-                      screen: 'mrxrinc.Host',
-                      passProps: { hostId: '5afafc77af0ab5136416c969' }
-                    })
-                  }}
-                >
-                  <View>
-                    <Image
-                      style={[g.profileThumb]}
-                      source={require('./imgs/profile.jpg')}
-                    />
-                    <View style={[g.thumbBadge, r.absolute, r.center]}>
-                      <LineIcon
-                        name={'certificate'}
-                        size={20}
-                        style={[g.primaryLight]}
-                      />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={[r.verticalCenter, r.rightItems, { flex: 2 }]}>
-                <View>
-                  <Fa style={[r.grayMid]} size={13}>کل ملک</Fa>
-                  <View style={[r.rtl, r.verticalCenter]}>
-                    <Fa style={[r.grayMid, r.top3]} size={12}>میزبانی توسط</Fa>
-                    <TouchableOpacity
-                      activeOpacity={0.8}
+          <View style={[r.full]}>
+            {!this.state.loading && 
+              <Swiper
+                paginationStyle={{ bottom: 5 }}
+                dotStyle={{ 
+                  backgroundColor: '#ffffff55',
+                  width: 3,
+                  height: 3,
+                  borderRadius: 6
+                }}
+                activeDotStyle={{
+                  backgroundColor: '#ffffffdd',
+                  width: 6,
+                  height: 6,
+                  marginHorizontal: 2
+                }}
+                autoplay
+                autoplayTimeout={6}
+                loadMinimal
+                loadMinimalSize={3}
+                loadMinimalLoader={<Loading />}
+              >
+                {this.props.home.images.map((item, index) => (
+                  <View key={index}>
+                    <TouchableNativeFeedback
+                      background={TouchableNativeFeedback.Ripple('#ffffff33', true)}
+                      delayPressIn={0}
                       onPress={() => {
                         this.props.navigator.push({
-                          screen: 'mrxrinc.Host',
-                          passProps: { hostId: '5afafc77af0ab5136416c969' }
+                          screen: 'mrxrinc.HomeGallery'
                         })
                       }}
                     >
-                      <FaBold style={[g.primaryLight, r.rightMargin10]}>
-                        علیرضا رضایی
-                      </FaBold>
-                    </TouchableOpacity>
+                      <Animated.Image
+                        style={[ r.bgLight3, { height: headerHeight, opacity: headerBG }]}
+                        source={{ uri: item }}
+                      />
+                    </TouchableNativeFeedback>
                   </View>
-                </View>
-              </View>
-            </View>
-            <View style={g.line}></View>
-            <View style={[r.rtl, r.spaceBetween, {height: 100, alignItems:'center'}]}>
-              <View style={r.horizCenter}>
-                <Text style={[r.centerText,{width: 40, height: 40}]}>
-                  <AirIcon name={'group'} size={35} style={[r.grayDark]} />
-                </Text>
-                <Fa style={[r.grayDark]} size={12}>5 مهمان</Fa>
-              </View>
-              <View style={r.horizCenter}>
-                <Text style={[r.centerText,{width: 40, height: 40}]}>
-                  <AirIcon name={'rooms'} size={35} style={[r.grayDark]} />
-                </Text>
-                <Fa style={[r.grayDark]} size={12}>3 اتاق</Fa>
-              </View>
-              <View style={r.horizCenter}>
-                <Text style={[r.centerText,{width: 40, height: 40}]}>
-                  <AirIcon name={'sofa-bed'} size={35} style={[r.grayDark]} />
-                </Text>
-                <Fa style={[r.grayDark]} size={12}>4 تختخواب</Fa>
-              </View>
-              <View style={r.horizCenter}>
-                <Text style={[r.centerText,{width: 40, height: 40}]}>
-                  <AirIcon name={'bathtub'} size={35} style={[r.grayDark]} />
-                </Text>
-                <Fa style={[r.grayDark]} size={12}>2 سرویس بهداشتی</Fa>
-              </View>
-            </View>
-            <View style={g.line}></View>
-
-            <View style={[r.verticalPadd20]}>
-              <TouchableNativeFeedback
-                delayPressIn={0}
-                background={TouchableNativeFeedback.Ripple('#00000011',true)}
-                onPress={() => {
-                  this.props.navigator.push({
-                    screen: 'mrxrinc.HomeDetails'
-                  })
-                }}>
-                <View pointerEvents='box-only'>
-                  <FaBold style={r.grayDark} size={14}>درباره این ملک</FaBold>
-                  <FaMulti style={[r.grayMid, r.top5]} size={12}>
-                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                  </FaMulti>
-                  <Fa style={[g.primaryLight, r.leftMargin15, {alignSelf: 'flex-start'}]} size={12}>
-                    بیشتر بخوانید ...
-                  </Fa>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-            <View style={g.line}></View>
-            <View style={r.vertical10}>
-              <Fa style={[g.grayDark,]} size={12}>حداقل یک شب اقامت</Fa>
-            </View>
-            <View style={g.line}></View>
-            <View>
-              <TouchableNativeFeedback
-                delayPressIn={0}
-                background={TouchableNativeFeedback.Ripple('#00000011',false)}
-                onPress={() => {
-                  this.props.navigator.push({
-                    screen: 'mrxrinc.Amenities'
-                  })
-                }}>
-                <View style={[r.topPadd10]} pointerEvents={'box-only'}>
-                  <FaBold style={[r.grayDark]} size={15}>امکانات</FaBold>
-                  <View style={[r.rtl, r.vertical10, r.center, r.spaceBetween,{height:50}]}>
-                    <AirIcon name={'wifi'} size={30}  style={[r.grayMid]}/>
-                    <AirIcon name={'bathtub'} size={30}  style={[r.grayMid]}/>
-                    <AirIcon name={'air-conditioning'} size={30}  style={[r.grayMid]}/>
-                    <AirIcon name={'meal'} size={30}  style={[r.grayMid]}/>
-                    <AirIcon name={'heating'} size={30}  style={[r.grayMid]}/>
-                    <View style={[r.row,r.center, r.paddHoriz10,r.leftMargin10,r.topPadd5]}>
-                      <Fa style={[g.primary]} size={30}>5</Fa>
-                      <Fa size={15} style={[g.primary, r.leftMargin3]}>+</Fa>
-                    </View>
-                  </View>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
+                ))}
+              </Swiper>
+            }
           </View>
-          <View>
-            <MapView
-              ref={'map'}
-              style={[r.map, g.homeItemMap, r.vertical10]}
-              showsCompass={false}
-              region={{
-                latitude: this.state.locLat + 0.0018,
-                longitude: this.state.locLong,
-                latitudeDelta: this.state.delta,
-                longitudeDelta: this.state.delta,
-              }}
-              liteMode={true}
-              customMapStyle={MapStyle}>
-              <MapView.Circle
-                center={{
-                  latitude: parseFloat(this.state.locLat),
-                  longitude: parseFloat(this.state.locLong)
-                }}
-                radius={270}
-                strokeWidth={1.5}
-                strokeColor={'#32888b'}
-                fillColor={'rgba(23, 228, 216, 0.06)'} />
-            </MapView>
-            <InfoBox
-              address={'تهران ، اقدسیه'}
-              style={[r.absolute,{top:20}]} />
+        </Animated.View>
+        {this.state.loading ? (
+          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+            <Loading />
           </View>
-          <View style={r.margin15}>
-            <View style={[r.rtl, r.spaceBetween,{marginBottom:10}]}>
-              <Fa style={g.grayDark} size={13}>ساعت شروع بازدید</Fa>
-              <Fa style={g.grayDark} size={13}>14 به بعد</Fa>
-            </View>
-            <View style={g.line}></View>
-            <View style={[r.vertical10, r.rtl, r.spaceBetween]}>
-              <Fa style={g.grayDark} size={13}>ساعت اتمام بازدید</Fa>
-              <Fa style={g.grayDark} size={13}>23 شب</Fa>
-            </View>
-            <View style={g.line}></View>
-
-            <View style={[r.top10]}>
-              <FaBold style={[r.grayDark]} size={15}>دیدگاه ها</FaBold>
-              <View style={[r.rtl, r.top5]}>
-                <Image
-                  style={[g.reviewAvatar]}
-                  source={require('./imgs/profile.jpg')}/>
-                <View style={[r.verticalCenter, r.rightPadd10]}>
-                  <FaBold size={12} style={r.grayMid}>علیرضا رضایی</FaBold>
-                  <Fa size={9} style={r.grayLight}>1396/6/7</Fa>
-                </View>
-              </View>
-              <View style={[r.vertical10]}>
-                <FaMulti size={12} style={[r.grayMid]}
-                  numberOfLines={this.state.reviewExtendLines} >
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                </FaMulti>
-
-                {this.state.reviewExtendLines == 2 ? (
-                  <Fa style={[g.primary, r.leftMargin10, {alignSelf: 'flex-start'}]}
-                    size={12}
-                    onPress={()=> this.setState({reviewExtendLines: 20})}>
-                    ادامه ...
-                  </Fa>
-                ):null}
-
-                <View style={[r.row, r.spaceBetween, r.horizCenter, r.top20]}>
-                  <Text>
-                    <LineIcon name={'star'} style={g.primary} size={12} />
-                    <LineIcon name={'star'} style={g.primary} size={12} />
-                    <LineIcon name={'star'} style={g.primary} size={12} />
-                    <LineIcon name={'star'} style={g.primary} size={12} />
-                    <LineIcon name={'star'} style={g.primary} size={12} />
-                  </Text>
-                  <Fa style={[g.primary, r.rightMargin5]} size={14}
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ marginTop: HEADER_MAX_HEIGHT, paddingBottom: HEADER_MAX_HEIGHT }}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={this.onScroll.bind(this)}
+          >
+            <View style={r.margin15}>
+              <FaBoldMulti style={[r.grayDark]} size={16}>
+                {this.props.home.title}
+              </FaBoldMulti>
+              <View style={[r.row, r.top10, { height: 100 }]}>
+                <View style={[r.center, { flex: 1 }]}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
                     onPress={() => {
                       this.props.navigator.push({
-                        screen: 'mrxrinc.Reviews'
+                        screen: 'mrxrinc.Host',
+                        passProps: { hostId: '5afafc77af0ab5136416c969' }
                       })
-                    }}>
-                    همه <Text> 285 </Text> نظر
-                  </Fa>
+                    }}
+                  >
+                    <View>
+                      <Image
+                        style={[g.profileThumb]}
+                        source={{ uri: this.props.home.host.avatar }}
+                      />
+                      {this.props.home.host.verified && 
+                        <View style={[g.thumbBadge, r.absolute, r.center]}>
+                          <LineIcon
+                            name={'certificate'}
+                            size={20}
+                            style={[g.primaryLight]}
+                          />
+                        </View>
+                      }
+                    </View>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            </View>
-          </View>
-          <View>
-            <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
-            <View>
-              <TouchableNativeFeedback
-                delayPressIn={0}
-                background={TouchableNativeFeedback.Ripple('#00000011', false)}
-                onPress={() => {
-                  this.props.navigator.push({
-                    screen: 'mrxrinc.HomeRules'
-                  })
-                }}
-              >
-                <View
-                  style={[r.rtl, r.horizCenter, r.spaceBetween, r.verticalPadd20, r.paddHoriz20]}
-                  pointerEvents={'box-only'}
-                >
-                  <Fa style={[r.grayDark]} size={14}>قوانین مکان</Fa>
-                  <Fa style={[g.primary]} size={14}>بخوان ...</Fa>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-            <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
-            <View>
-              <TouchableNativeFeedback
-                delayPressIn={0}
-                background={TouchableNativeFeedback.Ripple('#00000011',false)}
-                onPress={() => {
-                  this.props.navigator.push({
-                    screen: 'mrxrinc.Cancelation'
-                  })
-                }}>
-                <View style={[r.rtl, r.horizCenter, r.spaceBetween, r.verticalPadd20 ,
-                r.paddHoriz20]}
-                  pointerEvents={'box-only'}>
-                  <Fa style={[r.grayDark]} size={14}>شرایط لغو رزرو</Fa>
-                  <Fa style={[g.primary]} size={14}>سختگیرانه</Fa>
-                </View>
-              </TouchableNativeFeedback>
-            </View>
-            <View style={[g.line,{marginVertical:0, marginHorizontal:15}]}></View>
-          </View>
-
-          <View style={[r.top40, r.bottom20]}>
-            <View style={[r.rtl, r.spaceBetween, r.paddHoriz15]}>
-              <FaBold size={15} style={[r.grayDark]}>
-                خانه های مشابه
-              </FaBold>
-              <Fa size={13} style={[r.grayLight]}>
-                همه
-              </Fa>
-            </View>
-            <InvertibleScrollView
-              contentContainerStyle={[r.leftPadd15, r.top10]}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              keyboardDismissMode={'on-drag'}
-              inverted
-            >
-              <View style={[g.hmItem]}>
-                <TouchableHighlight
-                  underlayColor={'rgba(0,0,0,0.1)'}
-                  onPress={()=> console.log('hey')}
-                >
+                <View style={[r.verticalCenter, r.rightItems, { flex: 2 }]}>
                   <View>
-                    <Image
-                      source={require('./imgs/hmTest01.jpg')}
-                      style={[g.hmItemImg, g.round]}
-                      resizeMode={'cover'} />
-                    <View style={r.topPadd5}>
-                      <FaMulti numberOfLines={2} style={r.grayDark}>
-                        ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس
-                      </FaMulti>
-                      <View style={[r.rtl, r.spaceBetween, r.rightPadd5]}>
-                        <View style={[r.row]}>
-                          <FaBold size={19} style={[g.hmItemPrice]}>1250</FaBold>
-                          <LineIcon name={'money'} size={20} style={r.gray}/>
-                        </View>
-                        <View style={[r.rtl, r.top5]}>
-                          <Text>
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                          </Text>
-                          <Fa style={[r.gray, r.rightMargin5]} size={9}>259 نظر</Fa>
-                        </View>
-                      </View>
+                    <Fa style={[r.grayMid]} size={13}>
+                      {this.props.home.homeType.entire && <Text>کل ملک</Text>}
+                      {this.props.home.homeType.privateRoom && <Text>اتاق اختصاصی</Text>}
+                      {this.props.home.homeType.sharedRoom && <Text>اتاق مشترک</Text>}
+                    </Fa>
+                    <View style={[r.rtl, r.verticalCenter]}>
+                      <Fa style={[r.grayMid, r.top3]} size={12}>میزبانی توسط</Fa>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                          this.props.navigator.push({
+                            screen: 'mrxrinc.Host',
+                            passProps: { hostId: '5afafc77af0ab5136416c969' }
+                          })
+                        }}
+                      >
+                        <FaBold style={[g.primaryLight, r.rightMargin10]}>
+                            {this.props.home.host.fullName}
+                        </FaBold>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </TouchableHighlight>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={[r.absolute, r.left, r.margin5, r.center, g.heartWrapper]}
-                  onPress={()=>{
-                    this.state.exItemHeart_01 == true ?
-                      this.setState({exItemHeart_01: false}) :
-                      this.setState({exItemHeart_01: true})
+                </View>
+              </View>
+              <View style={g.line} />
+              <View style={[r.rtl, r.spaceBetween, { height: 100, alignItems: 'center' }]}>
+                <View style={r.horizCenter}>
+                  <Text style={[r.centerText, {width: 40, height: 40 }]}>
+                    <AirIcon name={'group'} size={35} style={[r.grayDark]} />
+                  </Text>
+                  <Fa style={[r.grayDark]} size={12}>{this.props.home.capacity} مهمان</Fa>
+                </View>
+                <View style={r.horizCenter}>
+                  <Text style={[r.centerText, { width: 40, height: 40 }]}>
+                    <AirIcon name={'rooms'} size={35} style={[r.grayDark]} />
+                  </Text>
+                  <Fa style={[r.grayDark]} size={12}>{this.props.home.rooms} اتاق</Fa>
+                </View>
+                <View style={r.horizCenter}>
+                  <Text style={[r.centerText, { width: 40, height: 40 }]}>
+                    <AirIcon name={'sofa-bed'} size={35} style={[r.grayDark]} />
+                  </Text>
+                  <Fa style={[r.grayDark]} size={12}>{this.props.home.beds} تختخواب</Fa>
+                </View>
+                <View style={r.horizCenter}>
+                  <Text style={[r.centerText, { width: 40, height: 40 }]}>
+                    <AirIcon name={'bathtub'} size={35} style={[r.grayDark]} />
+                  </Text>
+                  <Fa style={[r.grayDark]} size={12}>{this.props.home.bathrooms} سرویس بهداشتی</Fa>
+                </View>
+              </View>
+              <View style={g.line} />
+
+              <View style={[r.verticalPadd20]}>
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  background={TouchableNativeFeedback.Ripple('#00000011', true)}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.HomeDetails'
+                    })
+                  }}>
+                  <View pointerEvents='box-only'>
+                    <FaBold style={r.grayDark} size={14}>درباره این ملک</FaBold>
+                    <FaMulti style={[r.grayMid, r.top5]} size={12} numberOfLines={5}>
+                      {this.props.home.about.details}
+                    </FaMulti>
+                    <Fa style={[g.primaryLight, r.leftMargin15, { alignSelf: 'flex-start' }]} size={12}>
+                      بیشتر بخوانید ...
+                    </Fa>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+              <View style={g.line} />
+              <View style={r.vertical10}>
+                <Fa style={[g.grayDark]} size={12}>
+                حداقل 
+                <Text> {this.props.home.minimumNights} </Text>
+                 شب اقامت
+                </Fa>
+              </View>
+              <View style={g.line} />
+              <View>
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  background={TouchableNativeFeedback.Ripple('#00000011', false)}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.Amenities'
+                    })
                   }}
                 >
-                  {this.state.exItemHeart_01 == true ? <HeartFull/> : <HeartEmpty/>}
-                </TouchableOpacity>
-              </View>
-
-              <View style={[g.hmItem]}>
-                <TouchableHighlight
-                  underlayColor={'rgba(0,0,0,0.1)'}
-                  onPress={()=> console.log('hey')}
-                >
-                  <View>
-                    <Image
-                      source={require('./imgs/hmTest01.jpg')}
-                      style={[g.hmItemImg, g.round]}
-                      resizeMode={'cover'} />
-                    <View style={r.topPadd5}>
-                      <FaMulti numberOfLines={2} style={r.grayDark}>
-                        ویلای فول در شهر نور
-                      </FaMulti>
-                      <View style={[r.rtl, r.spaceBetween, r.rightPadd5]}>
-                        <View style={[r.row]}>
-                          <FaBold size={19} style={[g.hmItemPrice]}>1250</FaBold>
-                          <LineIcon name={'money'} size={20} style={r.gray}/>
-                        </View>
-                        <View style={[r.rtl, r.top5]}>
-                          <Text>
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                            <LineIcon name={'star'} style={g.primary} size={11} />
-                          </Text>
-                          <Fa style={[r.gray, r.rightMargin5]} size={9}>259 نظر</Fa>
-                        </View>
+                  <View style={[r.topPadd10]} pointerEvents={'box-only'}>
+                    <FaBold style={[r.grayDark]} size={15}>امکانات</FaBold>
+                    <View style={[r.rtl, r.vertical10, r.center, r.spaceBetween, { height: 50 }]}>
+                      {this.props.home.amenities.wifi && 
+                        <AirIcon name={'wifi'} size={30} style={[r.grayMid]} />
+                      }
+                      {this.props.home.amenities.cooler &&
+                        <AirIcon name={'air-conditioning'} size={30} style={[r.grayMid]} />
+                      }
+                      {this.props.home.amenities.kitchen &&
+                        <AirIcon name={'meal'} size={30} style={[r.grayMid]} />
+                      }
+                      {this.props.home.amenities.heat &&
+                        <AirIcon name={'heating'} size={30} style={[r.grayMid]} />
+                      }
+                      {this.props.home.amenities.accessories &&
+                        <AirIcon name={'bathtub'} size={30} style={[r.grayMid]} />
+                      }
+                      <View style={[r.center, r.paddHoriz10, r.leftMargin10]}>
+                        <AirIcon name={'arrow-left'} size={20} style={[g.primary]} />
                       </View>
                     </View>
                   </View>
-                </TouchableHighlight>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={[r.absolute, r.left, r.margin5, r.center, g.heartWrapper]}
-                  onPress={()=>{
-                    this.state.exItemHeart_01 == true ?
-                      this.setState({exItemHeart_01: false}) :
-                      this.setState({exItemHeart_01: true})
-                  }}>
-                  {this.state.exItemHeart_01 == true ? <HeartFull/> : <HeartEmpty/>}
-                </TouchableOpacity>
+                </TouchableNativeFeedback>
               </View>
-            </InvertibleScrollView>
-          </View>
+            </View>
+            <View>
+              <MapView
+                ref={'map'}
+                style={[r.map, g.homeItemMap, r.vertical10]}
+                showsCompass={false}
+                region={{
+                  latitude: this.props.home.location[0] + 0.0018,
+                  longitude: this.props.home.location[1],
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                }}
+                liteMode
+                customMapStyle={MapStyle}
+              >
+                <MapView.Circle
+                  center={{
+                    latitude: parseFloat(this.props.home.location[0]),
+                    longitude: parseFloat(this.props.home.location[1])
+                  }}
+                  radius={270}
+                  strokeWidth={1.5}
+                  strokeColor={'#32888b'}
+                  fillColor={'rgba(23, 228, 216, 0.06)'} 
+                />
+              </MapView>
+              <InfoBox 
+                address={`ایران ، ${this.props.home.provience}`} 
+                style={[r.absolute, { top: 20 }]} 
+              />
+            </View>
+            <View style={r.margin15}>
+              <View style={[r.rtl, r.spaceBetween, { marginBottom: 10 }]}>
+                <Fa style={g.grayDark} size={13}>ساعت شروع بازدید</Fa>
+                <Fa style={g.grayDark} size={13}>{this.props.home.visitHours[0]} به بعد</Fa>
+              </View>
+              <View style={g.line} />
+              <View style={[r.vertical10, r.rtl, r.spaceBetween]}>
+                <Fa style={g.grayDark} size={13}>ساعت اتمام بازدید</Fa>
+                <Fa style={g.grayDark} size={13}>{this.props.home.visitHours[1]} شب</Fa>
+              </View>
+              <View style={g.line} />
 
-        </ScrollView>
+              <View style={[r.top10]}>
+                <FaBold style={[r.grayDark]} size={15}>دیدگاه ها</FaBold>
+                <View style={[r.rtl, r.top5]}>
+                  <Image
+                    style={[g.reviewAvatar]}
+                    source={{ uri: this.state.lastReview.avatar }}/>
+                  <View style={[r.verticalCenter, r.rightPadd10]}>
+                    <FaBold size={12} style={r.grayMid}>{this.state.lastReview.userFullName}</FaBold>
+                    <StarRating
+                      disabled
+                      maxStars={5}
+                      rating={this.state.lastReview.rate}
+                      starSize={12}
+                      fullStarColor={'#02a4a4'}
+                      emptyStarColor={'#d3d3d3'}
+                    />
+                    <Fa size={9} style={r.grayLight}>{this.state.lastReview.date}</Fa>
+                  </View>
+                </View>
+                <View style={[r.vertical10]}>
+                  <FaMulti 
+                    size={12} style={[r.grayMid]}
+                    numberOfLines={this.state.reviewExtendLines} 
+                    onPress={() => this.setState({ reviewExtendLines: 20 })} 
+                  >
+                    {this.state.lastReview.comment}
+                  </FaMulti>
+
+                  <View style={[r.row, r.spaceBetween, r.horizCenter, r.top20]}>
+                    <StarRating
+                      disabled
+                      maxStars={5}
+                      rating={this.props.home.overallRate}
+                      starSize={12}
+                      fullStarColor={'#02a4a4'}
+                      emptyStarColor={'#d3d3d3'}
+                    />
+                    <Fa 
+                      style={[g.primary, r.rightMargin5]} size={14}
+                      onPress={() => {
+                        this.props.navigator.push({
+                          screen: 'mrxrinc.Reviews',
+                          passProps: { parent: this.props.home._id, from: 'home' }
+                        })
+                      }}
+                    >
+                      همه <Text> {this.props.home.reviewsCount } </Text> نظر
+                    </Fa>
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View>
+              <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
+              <View>
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  background={TouchableNativeFeedback.Ripple('#00000011', false)}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.HomeRules'
+                    })
+                  }}
+                >
+                  <View
+                    style={[r.rtl, r.horizCenter, r.spaceBetween, r.verticalPadd20, r.paddHoriz20]}
+                    pointerEvents={'box-only'}
+                  >
+                    <Fa style={[r.grayDark]} size={14}>قوانین مکان</Fa>
+                    <Fa style={[g.primary]} size={14}>بخوان ...</Fa>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+              <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
+              <View>
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  background={TouchableNativeFeedback.Ripple('#00000011', false)}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.Cancelation'
+                    })
+                  }}
+                >
+                  <View 
+                    style={[r.rtl, r.horizCenter, r.spaceBetween, r.verticalPadd20, r.paddHoriz20]}
+                    pointerEvents={'box-only'}
+                  >
+                    <Fa style={[r.grayDark]} size={14}>شرایط لغو رزرو</Fa>
+                    <Fa style={[g.primary]} size={14}>
+                      {this.props.home.cancelation === 1 ? 'سختگیرانه' : null}
+                      {this.props.home.cancelation === 2 ? 'متعادل' : null}
+                      {this.props.home.cancelation === 3 ? 'انعطاف پذیر' : null}
+                    </Fa>
+                  </View>
+                </TouchableNativeFeedback>
+              </View>
+              <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]}></View>
+            </View>
+
+            <View style={[r.top40, r.bottom20]}>
+              <View style={[r.rtl, r.spaceBetween, r.paddHoriz15]}>
+                <FaBold size={15} style={[r.grayDark]}>
+                  خانه های مشابه
+                </FaBold>
+                <Fa size={13} style={[r.grayLight]}>
+                  همه
+                </Fa>
+              </View>
+              <FlatList
+                data={[
+                  {
+                    id: 1,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: true,
+                  },
+                  {
+                    id: 2,
+                    title: 'آپارتمان لوکس سعادت آباد',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                  {
+                    id: 3,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                  {
+                    id: 4,
+                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
+                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
+                    price: 1250,
+                    reviews: 152,
+                    stars: 5,
+                    like: false,
+                  },
+                ]}
+                renderItem={({ item }) => (
+                  <RowItem
+                    key={item.id}
+                    title={item.title}
+                    image={item.image}
+                    rate={5}
+                    reviews={168}
+                    price={1260}
+                    like={item.like}
+                    likePress={() => null}
+                    onPress={() => console.log(item.id)}
+                  />
+                )}
+                keyExtractor={item => `${item.id}`}
+                contentContainerStyle={[r.leftPadd15, r.top10]}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                initialNumToRender={2}
+                keyboardDismissMode={'on-drag'}
+                inverted
+              />
+            </View>
+
+          </ScrollView>
+        )}
+
         <View style={[g.homeItemFooter, r.bgWhite, r.bottom, r.wFull, r.row]}>
           <View style={[r.center, { flex: 5 }]}>
             <View style={[g.checkAccessBtn, r.overhide]}>
               <TouchableNativeFeedback
                 delayPressIn={0}
+                onPress={() => {
+                  this.props.navigator.showModal({
+                    screen: 'mrxrinc.When',
+                    // passProps: { homeId: this.state._id }
+                  })
+                }}
               >
                 <View
                   style={[r.full, r.center, { backgroundColor: '#ff5555' }]}
@@ -601,7 +649,9 @@ export default class HomeItem extends Component {
               <View style={[r.rtl, g.hmItemBigTitle]}>
                 <View style={[r.rtl]}>
                   <LineIcon name={'money'} size={20} style={r.gray} />
-                  <FaBold size={19} style={[g.hmItemPrice, r.grayDark]}>1250</FaBold>
+                  <FaBold size={19} style={[g.hmItemPrice, r.grayDark]}>
+                    {this.props.home.price}
+                  </FaBold>
                 </View>
                 <Fa style={[r.grayMid, r.top5]} size={12}>
                   هر شب
@@ -612,20 +662,22 @@ export default class HomeItem extends Component {
                 delayPressIn={0}
                 onPress={() => {
                   this.props.navigator.push({
-                    screen: 'mrxrinc.Reviews'
+                    screen: 'mrxrinc.Reviews',
+                    passProps: { parent: this.props.home._id, from: 'home' }
                   })
                 }}
               >
                 <View style={[r.rtl, { width: 100 }]} pointerEvents='box-only'>
-                  <Text>
-                    <LineIcon name={'star'} style={g.primary} size={11} />
-                    <LineIcon name={'star'} style={g.primary} size={11} />
-                    <LineIcon name={'star'} style={g.primary} size={11} />
-                    <LineIcon name={'star'} style={g.primary} size={11} />
-                    <LineIcon name={'star'} style={g.primary} size={11} />
-                  </Text>
+                  <StarRating
+                    disabled
+                    maxStars={5}
+                    rating={this.props.home.overallRate}
+                    starSize={12}
+                    fullStarColor={'#02a4a4'}
+                    emptyStarColor={'#d3d3d3'}
+                  />
                   <FaBold style={[r.gray, r.rightMargin5]} size={9}>
-                    259 نظر
+                    {this.props.home.reviewsCount} نظر
                   </FaBold>
                 </View>
               </TouchableNativeFeedback>
@@ -638,7 +690,7 @@ export default class HomeItem extends Component {
 }
 
 
-class InfoBox extends Component{
+class InfoBox extends Component {
   render() {
     return (
       <View style={[r.horizCenter, r.wFull, { height: 70 }, this.props.style]}>
@@ -671,3 +723,19 @@ class InfoBox extends Component{
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    home: state.home,
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    stageHome: homeInfo => dispatch(stageHome(homeInfo)),
+    userToStore: homeInfo => dispatch(userToStore(homeInfo))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeItem)

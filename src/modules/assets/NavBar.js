@@ -5,6 +5,7 @@ import {
   Easing,
   TouchableNativeFeedback
 } from 'react-native'
+import * as Animatable from 'react-native-animatable'
 import LinearGradient from 'react-native-linear-gradient'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from '../styles/Rinc'
@@ -13,6 +14,7 @@ import { FaBold } from './Font'
 import airConfig from './air_font_config.json'
 
 const AirIcon = createIconSetFromFontello(airConfig)
+const AnimatableAirIcon = Animatable.createAnimatableComponent(AirIcon)
 
 export default class NavBar extends Component {
   constructor(props) {
@@ -27,7 +29,7 @@ export default class NavBar extends Component {
       outputRange: ['#fff', '#fff', '#697989'],
       extrapolate: 'clamp',
       easing: Easing.ease
-    });
+    }) 
     const bottomBorder = this.state.animate.interpolate({
       inputRange: [0, 0.99, 1],
       outputRange: [0, 0, 1],
@@ -46,9 +48,10 @@ export default class NavBar extends Component {
         <Animated.View style={[g.navBarGradient, { opacity: gradient }]}>
           <LinearGradient
             style={g.navBarGradient}
-            colors={["rgba(0,0,0,0.4)", "transparent"]}
+            colors={['rgba(0,0,0,0.4)', 'transparent']}
             start={{ x: 0, y: 0.5 }}
-            end={{ x: 0, y: 1 }} />
+            end={{ x: 0, y: 1 }} 
+          />
         </Animated.View>
 
         <View style={[r.rtl, { width: 50 }]}>
@@ -72,26 +75,72 @@ export default class NavBar extends Component {
           </View>
         )}
         <View style={[r.full, r.row, { paddingLeft: 10 }]}>
-          {this.props.like && (
+          {this.props.pressLike && (
             <TouchableNativeFeedback
-              onPress={this.props.like}
-              background={TouchableNativeFeedback.Ripple('#00000011',true)}
-              delayPressIn={0}>
+              onPress={this.props.pressLike}
+              background={TouchableNativeFeedback.Ripple('#00000011', true)}
+              delayPressIn={0}
+            >
               <View pointerEvents='box-only' style={[g.navBarBtn, r.center]}>
-                <Animated.Text style={[{color:iconColor}, g.navBarBtnIcon]}>
-                  <AirIcon name={"heart-outlined-bold"} size={18}/>
+                  {this.props.liked ? (
+                    <Animatable.View
+                      animation={'zoomIn'}
+                      duration={300}
+                      easing={'ease-out-back'}
+                    >
+                      <AirIcon
+                        name={'heart'}
+                        size={17}
+                        style={[r.red, r.centerText, { width: 20 }]}
+                      />
+                      <AirIcon
+                        name={'heart-alt'}
+                        size={19}
+                        color={'#fff'}
+                        style={[r.absolute, r.centerText, { top: -1, left: 0, width: 20 }]}
+                      />
+                    </Animatable.View>
+                  ) : (
+                    <Animatable.View
+                      animation={'zoomOut'}
+                      duration={300}
+                      easing={'ease-in-back'}
+                      direction={'reverse'}
+                    >
+                      <AnimatableAirIcon
+                        name={'heart-outlined-bold'}
+                        size={16}
+                        style={[r.centerText, { width: 20, color: iconColor }]}
+                      />
+                    </Animatable.View>
+                  )}
+              </View>
+            </TouchableNativeFeedback>)
+          }
+
+          {this.props.pressShare && (
+            <TouchableNativeFeedback
+              onPress={this.props.pressShare}
+              background={TouchableNativeFeedback.Ripple('#00000011', true)}
+              delayPressIn={0}
+            >
+              <View pointerEvents='box-only' style={[g.navBarBtn, r.center]}>
+                <Animated.Text style={[{ color: iconColor }, g.navBarBtnIcon]}>
+                  <AirIcon name={'share-android-bold'} size={18} />
                 </Animated.Text>
               </View>
             </TouchableNativeFeedback>)
           }
-          {this.props.share && (
+
+          {this.props.sendReview && (
             <TouchableNativeFeedback
-              onPress={this.props.share}
-              background={TouchableNativeFeedback.Ripple('#00000011',true)}
-              delayPressIn={0}>
+              onPress={this.props.sendReview}
+              background={TouchableNativeFeedback.Ripple('#00000011', true)}
+              delayPressIn={0}
+            >
               <View pointerEvents='box-only' style={[g.navBarBtn, r.center]}>
-                <Animated.Text style={[{color:iconColor}, g.navBarBtnIcon]}>
-                  <AirIcon name={"share-android-bold"} size={18}/>
+                <Animated.Text style={[g.primary, g.navBarBtnIcon]}>
+                  <AirIcon name={'add'} size={22} />
                 </Animated.Text>
               </View>
             </TouchableNativeFeedback>)

@@ -26,3 +26,29 @@
 // })
 
 
+{/*<ViewPagerAndroid
+            style={{ height: imagesHeight }}
+            onPageSelected={(e) => { this.pagerPage(e) }}
+          >
+            <View style={[r.center]}>
+              <Image
+                style={{ height: imagesHeight, }}
+                resizeMode={'contain'}
+                source={require('./imgs/exTest01.jpg')}
+              />
+            </View>
+            <View style={[r.center]}>
+              <Image
+                style={{ height: imagesHeight, }}
+                resizeMode={'contain'}
+                source={require('./imgs/hmTest01.jpg')}
+              />
+            </View>
+            <View style={[r.center]}>
+              <Image
+                style={{ height: imagesHeight, }}
+                resizeMode={'contain'}
+                source={require('./imgs/hmTest01.jpg')}
+              />
+            </View>
+          </ViewPagerAndroid>*/}

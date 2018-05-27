@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import * as Animatable from 'react-native-animatable'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
+import StarRating from 'react-native-star-rating'
 import { Fa, FaBold, FaMulti, EnBold } from './Font'
 import r from '../styles/Rinc'
 import g from '../styles/General'
@@ -18,7 +19,7 @@ import lineConfig from './line_font_config.json'
 const LineIcon = createIconSetFromFontello(lineConfig)
 const AirIcon = createIconSetFromFontello(airConfig)
 
-export class HeartEmpty extends Component{
+export class HeartEmpty extends Component {
   render() {
     return (
       <Animatable.View
@@ -38,7 +39,7 @@ export class HeartEmpty extends Component{
   }
 }
 
-export class HeartFull extends Component{
+export class HeartFull extends Component {
   render() {
     return (
       <Animatable.View
@@ -109,6 +110,9 @@ export class IncDec extends Component {
 }
 
 export class Switch extends Component{
+  componentDidMount() {
+    this.switchAnimation()
+  }
   componentDidUpdate() {
     this.switchAnimation()
   }
@@ -212,13 +216,14 @@ export class Stars extends Component{
   render() {
     return (
       <View style={[r.rtl, r.top5, this.props.style]}>
-        <Text>
-          <LineIcon name={'star'} style={g.primary} size={11} />
-          <LineIcon name={'star'} style={g.primary} size={11} />
-          <LineIcon name={'star'} style={g.primary} size={11} />
-          <LineIcon name={'star'} style={g.primary} size={11} />
-          <LineIcon name={'star'} style={g.primary} size={11} />
-        </Text>
+        <StarRating
+          disabled
+          maxStars={5}
+          rating={this.props.rate}
+          starSize={12}
+          fullStarColor={'#02a4a4'}
+          emptyStarColor={'#d3d3d3'}
+        />
         <Fa style={[r.gray, r.rightMargin5]} size={9}>{this.props.reviews} نظر</Fa>
       </View>
     )
@@ -334,20 +339,19 @@ export class ItemBig extends Component {
                   <FaBold size={19} style={[g.hmItemPrice, r.grayDark]}>
                     {this.props.price}
                   </FaBold>
-                  {this.props.verified &&
-                    <LineIcon name={'certificate'} size={18} style={[r.leftPadd5]} />}
+                  {this.props.verified && <LineIcon name={'certificate'} size={18} style={[r.leftPadd5]} />}
                 </View>
                 <View style={[r.full]}>
-                  <Fa>{this.props.title}</Fa>
+                  <FaBold>{this.props.title}</FaBold>
                 </View>
               </View>
               <View style={[r.rtl]}>
-                <Fa style={[r.grayLight, r.top]} size={12}>{this.props.type}</Fa>
-                {this.props.luxury &&
-                  <EnBold style={[g.luxuryBadge]} size={9}>Luxury</EnBold>
-                }
+                {this.props.type.entire && <Fa style={[r.grayLight, r.top]} size={12}>کل ملک</Fa>}
+                {this.props.type.privateRoom && <Fa style={[r.grayLight, r.top]} size={12}>اتاق اختصاصی</Fa>}
+                {this.props.type.sharedRoom && <Fa style={[r.grayLight, r.top]} size={12}>اتاق اشتراکی</Fa>}
+                {this.props.luxury && <EnBold style={[g.luxuryBadge]} size={9}>Luxury</EnBold>}
               </View>
-              <Stars rate={this.props.stars} reviews={this.props.reviews} />
+              <Stars rate={this.props.rate} reviews={this.props.reviews} />
             </View>
           </View>
         </TouchableHighlight>
@@ -431,7 +435,8 @@ export class MapFilter extends Component {
 export const MapStyle =
  [{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#333333"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#ffffff"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#fefefe"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#fefefe"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#eaeaea"},{"lightness":20},{"weight":"1"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#f5f5f5"},{"lightness":21}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#dedede"},{"lightness":21}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"lightness":17},{"color":"#ffffff"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#ffffff"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#ffffff"},{"lightness":16}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#f2f2f2"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#e9e9e9"},{"lightness":17}]}]
 
-export class MyMarker extends Component {
+
+ export class MyMarker extends Component {
   render() {
     const { focused } = this.props
     const focusedText = focused ? '#fff' : '#697989'
@@ -463,7 +468,7 @@ export class MessageItem extends Component {
           </FaMulti>
         </View>
         <View style={[r.bgLight3, r.row, r.top10, r.spaceBetween, { height: 40 }]}>
-          {this.props.archive && (
+          {!this.props.archive && (
             <TouchableOpacity
               style={[r.center, { width: 80, backgroundColor: '#079e9e' }]}
               onPress={this.props.archivePress}

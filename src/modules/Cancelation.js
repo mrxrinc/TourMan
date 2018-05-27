@@ -5,15 +5,16 @@ import {
   ScrollView,
   Animated
 } from 'react-native'
+import { connect } from 'react-redux'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
+import { Fa, FaBold, FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
 
 const NAVBAR_HEIGHT = 75
 
-export default class Cancelation extends Component {
+class Cancelation extends Component {
   static navigatorStyle = {
     navBarHidden: true
   };
@@ -53,7 +54,7 @@ export default class Cancelation extends Component {
 
   defRule() {
     for (let i = 0; i < rules.length; i++) {
-      if (this.state.rule === rules[i].key) {
+      if (this.props.home.cancelation === rules[i].id) {
         this.setState({ currentRule: rules[i] })
       }
     }
@@ -70,6 +71,18 @@ export default class Cancelation extends Component {
       outputRange: [0, -(NAVBAR_HEIGHT)],
       extrapolate: 'clamp',
     })
+    const titleColor = () => {
+      switch (this.props.home.cancelation) {
+        case 1:
+          return r.red
+        case 2:
+          return r.grayMid
+        case 3:
+          return r.green
+        default:
+          return r.grayMid
+      }
+    }
     return (
       <View style={[r.full, r.bgWhite]}>
         <Animated.View
@@ -89,36 +102,36 @@ export default class Cancelation extends Component {
           onScroll={this.onScroll.bind(this)}
         >
           <View style={[r.bottom50, r.padd20]}>
-            <a.FaBold size={25}>شرایط لغو رزرو</a.FaBold>
+            <FaBold size={25}>شرایط لغو رزرو</FaBold>
             {this.state.currentRule && (
               <View>
-                <a.Fa size={10} style={[r.grayMid, r.top10]}>
+                <Fa size={10} style={[titleColor(), r.top10]}>
                   {this.state.currentRule.title}
-                </a.Fa>
-                <a.FaMulti size={14} style={[r.top30]}>
+                </Fa>
+                <FaMulti size={14} style={[r.top30]}>
                   {this.state.currentRule.rules.r01}
-                </a.FaMulti>
-                <a.FaMulti size={14} style={[r.top20]}>
+                </FaMulti>
+                <FaMulti size={14} style={[r.top20]}>
                   {this.state.currentRule.rules.r02}
-                </a.FaMulti>
-                <a.FaMulti size={14} style={[r.top20]}>
+                </FaMulti>
+                <FaMulti size={14} style={[r.top20]}>
                   {this.state.currentRule.rules.r03}
-                </a.FaMulti>
+                </FaMulti>
               </View>
             )}
 
-            <a.FaMulti size={14} style={[r.top20]}>
+            <FaMulti size={14} style={[r.top20]}>
               هزینه تمیزکاری محیط همیشه قابل باز پس دهی می باشد.
-            </a.FaMulti>
-            <a.FaMulti size={14} style={[r.top20]}>
+            </FaMulti>
+            <FaMulti size={14} style={[r.top20]}>
               در صورت بروز هرگونه اختلاف ، طرفین ملزم به اطلاع رسانی حداکثر 24 ساعت پس از تاریخ رزرو به تورمن هستند.
-            </a.FaMulti>
-            <a.FaMulti size={14} style={[r.top20]}>
+            </FaMulti>
+            <FaMulti size={14} style={[r.top20]}>
               تورمن مجری حل اختلاف خواهد بود و طرفین ملزم به پیروی هستند.
-            </a.FaMulti>
-            <a.FaMulti size={14} style={[r.top20]}>
+            </FaMulti>
+            <FaMulti size={14} style={[r.top20]}>
               یک رزرو در صورتی کاملا لغو می شود که مهمان مراحل کنسل رزرو را از صفحه سفرهای من ->تغییر یا لغو طی نماید.
-            </a.FaMulti>
+            </FaMulti>
           </View>
 
         </ScrollView>
@@ -142,7 +155,7 @@ const rules = [
   {
     id: 2,
     key: 'moderate',
-    title: 'در حد متوسط',
+    title: 'متعادل',
     rules: {
       r01: 'برای دریافت کل مبلغ پرداختی، باید حداقل پنج روز قبل از موعد مقرر درخواست لغو کنید . برای مثال اگر برای روز جمعه رزرو کرده باشید تا روز یکشنبه می توانید درخواست لغو بدید و کل مبلغ خود را دریافت کنید.',
       r02: 'اگر مهمان در کمتر از پنج روز درخواست لغو کند، مبلغ شب اول پرداخت نشده و 50% مبلغ باقی شبها پرداخت می شود.',
@@ -160,3 +173,11 @@ const rules = [
     }
   }
 ]
+
+function mapStateToProps(state) {
+  return {
+    home: state.home
+  }
+}
+
+export default connect(mapStateToProps)(Cancelation)

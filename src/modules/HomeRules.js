@@ -5,18 +5,18 @@ import {
   ScrollView,
   Animated
 } from 'react-native'
+import { connect } from 'react-redux'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
-import Loading from './assets/Loading'
+import { Fa, FaBold, FaMulti } from './assets/Font'
 import NavBar from './assets/NavBar'
 
 const NAVBAR_HEIGHT = 75
 
-export default class HomeRules extends Component {
+class HomeRules extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  };
+  }
   constructor(props) {
     super(props)
     const scrollAnim = new Animated.Value(0)
@@ -76,32 +76,50 @@ export default class HomeRules extends Component {
           onScroll={this.onScroll.bind(this)}
         >
           <View style={[r.bottom50, r.padd20]}>
-            <a.FaBold size={25}>قوانین خانه علیرضا</a.FaBold>
-            <a.FaMulti size={12} style={r.top10}>
+            <FaBold size={25}>
+            قوانین خانه 
+            <Text> {this.props.home.host.fullName}</Text>
+            </FaBold>
+            <FaMulti size={12} style={r.top10}>
               شما در خانه
-              <Text> علیرضا </Text>
+              <Text> {this.props.home.host.fullName} </Text>
               خواهید بود. چند قانون برای استفاده از این مکان وجود دارد که باید رعایت کنید :
-            </a.FaMulti>
+            </FaMulti>
 
-            <View style={[r.vertical10, r.top30]}>
-              <a.Fa size={14}>عدم استعمال دخانیات</a.Fa>
-            </View>
-            <View style={g.line} />
+            {!this.props.home.homeRules.smokingAllowed && (
+              <View>
+                <View style={[r.vertical10, r.top30]}>
+                  <Fa size={14}>عدم استعمال دخانیات</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
+            {!this.props.home.homeRules.petAllowed && (
+              <View>
+                <View style={[r.vertical10]}>
+                  <Fa size={14}>آوردن حیوان خانگی ممنوع</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
+            {!this.props.home.homeRules.celebrationAllowed && (
+              <View>
+              <View style={[r.vertical10]}>
+                <Fa size={14}>عدم برگزاری جشن و پارتی</Fa>
+              </View>
+              <View style={g.line} />
+              </View>
+            )}
             <View style={[r.vertical10]}>
-              <a.Fa size={14}>آوردن حیوان خانگی ممنوع</a.Fa>
+              <Fa size={14}>
+                <Text>ساعت مناسب برای بازدید  </Text>
+                {this.props.home.visitHours[0] + 1}
+              </Fa>
             </View>
             <View style={g.line} />
-            <View style={[r.vertical10]}>
-              <a.Fa size={14}>عدم برگزاری جشن و پارتی</a.Fa>
-            </View>
-            <View style={g.line} />
-            <View style={[r.vertical10]}>
-              <a.Fa size={14}>ساعت مناسب برای بازدید 15</a.Fa>
-            </View>
-            <View style={g.line} />
-            <a.FaMulti size={12} style={[r.top20]}>
-              لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-            </a.FaMulti>
+            <FaMulti size={12} style={[r.top20]}>
+              {this.props.home.homeRules.description}
+            </FaMulti>
           </View>
 
         </ScrollView>
@@ -109,3 +127,11 @@ export default class HomeRules extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    home: state.home
+  }
+}
+
+export default connect(mapStateToProps)(HomeRules)

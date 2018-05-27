@@ -77,38 +77,6 @@ date = date.map((month, key) => ({ ...month, id: key }))
 
 export default {
   loading: false,
-  user: {
-    firstName: null,
-    lastName: null,
-    email: null,
-    mobile: null,
-    password: null,
-    birthday: [1370, 9, 21],
-    token: null,
-    forget: null,
-    location: null,
-    about: null,
-    education: null,
-    job: null,
-    languages: ['FA'],
-    sex: 'male',
-    avatar: null
-
-    // firstName: 'محمد',
-    // lastName: 'میرزایی',
-    // email: 'mrxrinc@gmail.com',
-    // mobile: '09114556318',
-    // password: null,
-    // birthday: [1370, 9, 21],
-    // token: null,
-    // forget: null,
-    // location: null,
-    // about: 'متن درباره من. کمی توضیح درباره پروفایل کاربر و سلیقه ها، علایق و دیگر خصوصیات ',
-    // education: 'کارشناسی گردشگری',
-    // job: 'کارمند بانک',
-    // languages: ['FA'],
-    // sex: 'male',
-  },
   date: {
     loadedDate: date,
     days: [],
@@ -116,5 +84,14 @@ export default {
     startDate: 'تاریخ شروع',
     endDate: 'تاریخ پایان'
   },
-  reportUser: {}
+  user: {},
+  reportUser: {},
+  home: {},
+  filter: {
+    howMany: {
+      adultQuantity: 1,
+      childrenQuantity: 0,
+      pets: false
+    }
+  }
 }

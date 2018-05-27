@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import {
+  Text,
   Animated,
   TouchableWithoutFeedback
 } from 'react-native'
@@ -86,6 +87,12 @@ class Explore extends Component {
     })
   }
 
+  placeName = () => {
+    if (this.props.filter.province === 'all') return 'کل کشور'
+    if (this.props.filter.province) return this.props.filter.province
+    return 'کجا؟'
+  }
+
   render() {
     return (
       <View style={[r.full, r.bgWhite]}>
@@ -123,7 +130,7 @@ class Explore extends Component {
                   <View style={[g.headBox, r.rtl, r.horizCenter]}>
                     <LineIcon name={'globe'} size={18} color={'white'} />
                     <FaBold style={[r.white, r.paddHoriz10]}>
-                      کجا
+                      {this.placeName()}
                     </FaBold>
                   </View>
                 </TouchableWithoutFeedback>
@@ -135,11 +142,17 @@ class Explore extends Component {
                     this.props.navigator.showModal({
                       screen: 'mrxrinc.When'
                     })
-                  }}>
+                  }}
+                >
                   <View style={[g.headBox, r.rtl, r.horizCenter]}>
                     <LineIcon name={"calendar"} size={18} color={"white"} />
                     <FaBold style={[r.white, r.paddHoriz10]}>
-                      چه زمانی
+                      {typeof this.props.date.startDate === 'object' ?
+                        this.props.date.startDate.join(' ') : 'چه زمانی؟'
+                      }
+                      {typeof this.props.date.endDate === 'object' ? 
+                        `  تا  ${this.props.date.endDate.join(' ')}` : null
+                      }
                     </FaBold>
                   </View>
                 </TouchableWithoutFeedback>
@@ -155,7 +168,16 @@ class Explore extends Component {
                   <View style={[g.headBox, r.rtl, r.horizCenter]}>
                     <LineIcon name={"group"} size={18} color={"white"} />
                     <FaBold style={[r.white, r.paddHoriz10]}>
-                      چند نفر
+                      {this.props.filter.howMany.adultQuantity !== 1 ?
+                        `${this.props.filter.howMany.adultQuantity} بزرگسال ` : 'چند نفر؟'
+                      }
+                      {this.props.filter.howMany.childrenQuantity !== 0 ?
+                        ` ، ${this.props.filter.howMany.childrenQuantity} کودک` : null
+                      }
+                      {this.props.filter.howMany.adultQuantity !== 1 &&
+                        this.props.filter.howMany.pets ?
+                        ' و همچنین حیوان خانگی' : null
+                      }
                     </FaBold>
                   </View>
                 </TouchableWithoutFeedback>
@@ -207,7 +229,7 @@ class Explore extends Component {
             })
           }}
           explore={() => {
-            this.props.navigator.push({
+            this.props.navigator.resetTo({
               screen: 'mrxrinc.Explore',
               animated: true,
               animationType: 'fade'
@@ -216,6 +238,7 @@ class Explore extends Component {
           favorites={() => {
             this.props.navigator.push({
               screen: 'mrxrinc.HomeItem',
+              passProps: { homeId: '5b032f6cb33fc62ba879cd56' },
               animated: true,
               // animationType: "fade"
             })
@@ -235,7 +258,9 @@ class Explore extends Component {
 
 function mapStateToProps(state) {
   return {
-    user: state.user
+    user: state.user,
+    date: state.date,
+    filter: state.filter
   }
 }
 

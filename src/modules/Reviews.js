@@ -1,27 +1,28 @@
 import React, { Component } from 'react'
 import {
   View,
-  Text,
   Image,
   ScrollView,
-  Animated
+  FlatList,
+  Animated,
+  ToastAndroid
 } from 'react-native'
+import { connect } from 'react-redux'
+import axios from 'axios'
+import StarRating from 'react-native-star-rating'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
+import { Fa, FaBold, FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
-
-import { createIconSetFromFontello } from 'react-native-vector-icons'
-import lineConfig from './assets/line_font_config.json'
-const LineIcon = createIconSetFromFontello(lineConfig)
+import { baseURL } from '../constants/api'
 
 const NAVBAR_HEIGHT = 75
 
-export default class Reviews extends Component {
+class Reviews extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  };
+  }
   constructor(props) {
     super(props)
     const scrollAnim = new Animated.Value(0)
@@ -42,13 +43,36 @@ export default class Reviews extends Component {
         0,
         NAVBAR_HEIGHT,
       ),
-    }
+      data: null
+    } 
+  }
+
+  componentWillMount() {
+    const { parent } = this.props
+    axios.get(`${baseURL}api/reviews/${parent}`)
+      .then(res => {
+        this.setState({ data: res.data })
+      })
+      .catch(err => {
+        ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+        console.log(err)
+      })
   }
 
   onScroll(event) {
     Animated.event(
       [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }]
     )(event)
+  }
+
+  selectorHomeOrUser = () => {
+    switch (this.props.from) {
+      case 'home':
+        return this.props.home.overallRate
+      case 'user':
+        return this.props.overallRate
+      default: return 0
+    }
   }
 
   render() {
@@ -71,85 +95,85 @@ export default class Reviews extends Component {
         >
           <NavBar
             animate={DimWhiteNavBar}
+            sendReview={() => {
+              this.props.navigator.showModal({
+                screen: 'mrxrinc.ReviewSend',
+                passProps: { parent: this.props.parent }
+              })
+            }}
             back={() => this.props.navigator.pop()}
           />
         </Animated.View>
-        <ScrollView
-          contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={this.onScroll.bind(this)}
-        >
-          <View style={[r.bottom50, r.padd20]}>
-            <a.FaBold size={25}>نظرات</a.FaBold>
-            <View style={[r.rtl, r.top10, r.bottom20]}>
-              <Text>
-                <LineIcon name={'star'} style={g.primary} size={13} />
-                <LineIcon name={'star'} style={g.primary} size={13} />
-                <LineIcon name={'star'} style={g.primary} size={13} />
-                <LineIcon name={'star'} style={g.primary} size={13} />
-                <LineIcon name={'star'} style={g.primary} size={13} />
-              </Text>
-            </View>
 
-            <View>
-              <View style={[r.rtl, r.top15]}>
-                <Image
-                  style={[g.reviewAvatar]}
-                  source={require('./imgs/profile.jpg')} />
-                <View style={[r.verticalCenter, r.rightPadd10]}>
-                  <a.FaBold size={12} style={r.grayMid}>علیرضا رضایی</a.FaBold>
-                  <a.Fa size={9} style={r.grayLight}>1396/6/7</a.Fa>
-                </View>
-              </View>
-              <View style={[r.vertical10]}>
-                <a.FaMulti size={12} style={[r.grayMid]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                </a.FaMulti>
-              </View>
-            </View>
-
-            <View style={[g.line, r.vertical20]} />
-
-            <View>
-              <View style={[r.rtl, r.top15]}>
-                <Image
-                  style={[g.reviewAvatar]}
-                  source={require('./imgs/profile.jpg')} />
-                <View style={[r.verticalCenter, r.rightPadd10]}>
-                  <a.FaBold size={12} style={r.grayMid}>علیرضا رضایی</a.FaBold>
-                  <a.Fa size={9} style={r.grayLight}>1396/6/7</a.Fa>
-                </View>
-              </View>
-              <View style={[r.vertical10]}>
-                <a.FaMulti size={12} style={[r.grayMid]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                </a.FaMulti>
-              </View>
-            </View>
-
-            <View style={[g.line, r.vertical20]} />
-
-            <View>
-              <View style={[r.rtl, r.top15]}>
-                <Image
-                  style={[g.reviewAvatar]}
-                  source={require('./imgs/profile.jpg')} />
-                <View style={[r.verticalCenter, r.rightPadd10]}>
-                  <a.FaBold size={12} style={r.grayMid}>علیرضا رضایی</a.FaBold>
-                  <a.Fa size={9} style={r.grayLight}>1396/6/7</a.Fa>
-                </View>
-              </View>
-              <View style={[r.vertical10]}>
-                <a.FaMulti size={12} style={[r.grayMid]}>
-                  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است. چاپگرها و متون بلکه روزنامه و مجله در ستون و سطر آنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد. کتابهای زیادی در شصت و سه درصد گذشته، حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد.
-                </a.FaMulti>
-              </View>
-            </View>
-
+        {this.state.data === null ? (
+          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+            <Loading />
           </View>
-        </ScrollView>
+        ) : (
+          <ScrollView
+            contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={this.onScroll.bind(this)}
+          >
+            <View style={[r.bottom50, r.padd20]}>
+              <View style={[r.rtl, r.top10, r.bottom30, r.spaceBetween, r.horizCenter]}>
+                <FaBold size={25}>نظرات</FaBold>
+                <StarRating
+                  disabled
+                  maxStars={5}
+                  rating={this.selectorHomeOrUser()}
+                  starSize={22}
+                  halfStarEnabled
+                  fullStarColor={'#007979'}
+                  emptyStarColor={'#d3d3d3'}
+                />
+              </View>
+
+              <FlatList
+                data={this.state.data}
+                renderItem={({ item }) => (
+                  <View>
+                    <View style={[r.rtl, r.top15]}>
+                      <Image style={[g.reviewAvatar]} source={{ uri: item.avatar }} />
+                      <View style={[r.verticalCenter, r.rightPadd10]}>
+                        <FaBold size={12} style={r.grayMid}>{item.userFullName}</FaBold>
+                        <StarRating
+                          disabled
+                          maxStars={5}
+                          rating={item.rate}
+                          starSize={12}
+                          fullStarColor={'#02a4a4'}
+                          emptyStarColor={'#d3d3d3'}
+                        />
+                        <Fa size={9} style={r.grayLight}>{item.date}</Fa>
+                      </View>
+                    </View>
+                    <View style={[r.vertical10]}>
+                      <FaMulti size={12} style={[r.grayMid]}>
+                        {item.comment}
+                      </FaMulti>
+                    </View>
+                  </View>
+                )}
+                keyExtractor={item => `${item._id}`}
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={7}
+                ItemSeparatorComponent={() => <View style={[g.line, r.vertical20]} />}
+              />
+            </View>
+          </ScrollView>
+        )}
       </View>
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    home: state.home,
+    user: state.user
+  }
+}
+
+export default connect(mapStateToProps)(Reviews)

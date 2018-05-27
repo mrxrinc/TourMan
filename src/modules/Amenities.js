@@ -4,18 +4,18 @@ import {
   ScrollView,
   Animated
 } from 'react-native'
+import { connect } from 'react-redux'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
-import Loading from './assets/Loading'
+import { Fa, FaBold, FaMulti } from './assets/Font'
 import NavBar from './assets/NavBar'
 
 const NAVBAR_HEIGHT = 75
 
-export default class Amenities extends Component {
+class Amenities extends Component {
   static navigatorStyle = {
     navBarHidden: true
-  };
+  }
   constructor(props) {
     super(props)
     const scrollAnim = new Animated.Value(0)
@@ -75,107 +75,152 @@ export default class Amenities extends Component {
           onScroll={this.onScroll.bind(this)}
         >
           <View style={[r.bottom50, r.padd20]}>
-            <a.FaBold size={25}>امکانات</a.FaBold>
+            <FaBold size={25}>امکانات</FaBold>
 
-            <View style={[r.vertical10, r.top30]}>
-              <a.Fa size={15}>وای فای</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                دسترسی مستمر به اینترنت
-              </a.FaMulti>
-            </View>
+            {this.props.home.amenities.wifi && (
+              <View>
+                <View style={[r.vertical10, r.top30]}>
+                  <Fa size={15}>وای فای</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    دسترسی مستمر به اینترنت
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.heat && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>گرمایش</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    مجهز به سیستم گرمایش مرکزی یا مستقل
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>گرمایش</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                مجهز به سیستم گرمایش مرکزی یا مستقل
-              </a.FaMulti>
-            </View>
+            {this.props.home.amenities.washingMachine && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>شستشو</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    ماشین لباسشویی در داخل ساختمان
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.iron && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>اتو</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>شستشو</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                ماشین لباسشویی در داخل ساختمان
-              </a.FaMulti>
-            </View>
+            {this.props.home.amenities.laptopFriendly && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>مناسب برای کار با لپ تاپ</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    یک میز با فضای کافی برای لپ تاپ به همراه یک صندلی که مناسب کار هستند
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.accessories && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>لوازم ضروری</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    حوله، ملافه، صابون، دستمال توالت و ...
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>اتو</a.Fa>
-            </View>
+            {this.props.home.amenities.fireplace && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>شومینه</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.cooler && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>کولر</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>مناسب برای کار با لپ تاپ</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                یک میز با فضای کافی برای لپ تاپ به همراه یک صندلی که مناسب کار هستند
-              </a.FaMulti>
-            </View>
+            {this.props.home.amenities.tv && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>تلویزیون</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.parkingLot && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>محل پارک مناسب</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>لوازم ضروری</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                حوله، ملافه، صابون، دستمال توالت و ...
-              </a.FaMulti>
-            </View>
+            {this.props.home.amenities.kitchen && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>آشپزخانه</Fa>
+                  <FaMulti size={12} style={[r.top5, r.grayMid]}>
+                    مناسب برای پخت غذای دلخواه مهمانان
+                  </FaMulti>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.hairDryer && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>سشوار</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>شومینه</a.Fa>
-            </View>
+            {this.props.home.amenities.firstAids && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>جعبه کمکهای اولیه</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={g.line} />
+            {this.props.home.amenities.smokeDetector && (
+              <View>
+                <View style={r.vertical10}>
+                  <Fa size={15}>سنسور دود</Fa>
+                </View>
+                <View style={g.line} />
+              </View>
+            )}
 
-            <View style={r.vertical10}>
-              <a.Fa size={15}>کولر</a.Fa>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>تلویزیون</a.Fa>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>محل پارک مناسب</a.Fa>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>آشپزخانه</a.Fa>
-              <a.FaMulti size={12} style={[r.top5, r.grayMid]}>
-                مناسب برای پخت غذای دلخواه مهمانان
-              </a.FaMulti>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>سشوار</a.Fa>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>جعبه کمکهای اولیه</a.Fa>
-            </View>
-
-            <View style={g.line} />
-
-            <View style={r.vertical10}>
-              <a.Fa size={15}>سنسور دود</a.Fa>
-            </View>
           </View>
 
         </ScrollView>
@@ -183,3 +228,10 @@ export default class Amenities extends Component {
     )
   }
 }
+function mapStateToProps(state) {
+  return {
+    home: state.home
+  }
+}
+
+export default connect(mapStateToProps)(Amenities)

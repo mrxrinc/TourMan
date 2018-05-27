@@ -235,7 +235,7 @@ class ProfileDetails extends Component {
               <TouchableOpacity
                 style={r.top10}
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'name' }
                   })
@@ -253,7 +253,7 @@ class ProfileDetails extends Component {
               <TouchableOpacity
                 style={r.selfCenter}
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'about' }
                   })
@@ -352,7 +352,7 @@ class ProfileDetails extends Component {
                 title={'ایمیل'}
                 value={this.props.user.email}
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'email' }
                   })
@@ -363,7 +363,7 @@ class ProfileDetails extends Component {
                 value={this.props.user.mobile}
                 noBottomLine
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'mobile' }
                   })
@@ -432,7 +432,7 @@ class ProfileDetails extends Component {
                 title={'تحصیلات'}
                 value={this.props.user.education}
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'education' }
                   })
@@ -442,7 +442,7 @@ class ProfileDetails extends Component {
                 title={'شغل'}
                 value={this.props.user.job}
                 onPress={() => {
-                  this.props.navigator.push({
+                  this.props.navigator.showModal({
                     screen: 'mrxrinc.ProfileDetailsEdit',
                     passProps: { page: 'job' }
                   })

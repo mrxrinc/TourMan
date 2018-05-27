@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
+  BackHandler
 } from 'react-native'
 import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
@@ -31,7 +32,10 @@ class Registration extends Component {
     navBarHidden: true,
     statusBarColor: 'rgba(0, 0, 0, 0.3)'
   }
-  state={ showPass: false, debug: 'nothin' }
+  state={ 
+    showPass: false,
+    loading: false 
+  }
 
   componentDidMount() {
     Realm.open({
@@ -43,17 +47,11 @@ class Registration extends Component {
         axios.defaults.headers.common.Authorization = `Bearer ${realm.objects('localToken')[0].key}` 
       }
     }) 
-    // this.props.navigator.showInAppNotification({
-    //   screen: 'mrxrinc.Notification',
-    //   autoDismissTimerSec: 2,
-    //   passProps: {
-    //     message: 'یک متن نمونه!',
-    //     alarm: false,
-    //   }
-    // })
   }
 
+
   handleSignup = () => {
+    this.setState({ loading: true })
     axios.post(`${baseURL}api/users/signup`, { ...this.props.user })
     .then(res => {
       console.log('Register Raw result : ', res)      
@@ -68,13 +66,14 @@ class Registration extends Component {
           })
           console.log('realm : ', realm.objects('localToken'))
           this.props.userToStore(res.data)
-          this.props.navigator.push({
+          this.props.navigator.resetTo({
             screen: 'mrxrinc.Splash'
           })
           console.log(this.props.user)
         })
       } else { // duplicated user found
         console.log('Duplicate user')   
+        this.setState({ loading: false })
         this.props.navigator.showInAppNotification({
           screen: 'mrxrinc.Notification',
           passProps: {
@@ -85,16 +84,28 @@ class Registration extends Component {
         })      
       }
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      this.setState({ loading: false })
+      this.props.navigator.showInAppNotification({
+        screen: 'mrxrinc.Notification',
+        autoDismissTimerSec: 2,
+        passProps: { 
+          alarm: true, 
+          message: 'مشکلی در ارسال  درخواست شما بوجود آمد. لطفا بعدا تلاش بفرمایید.' 
+        }
+      })
+      console.log(err)
+    })
   }
 
   handleSignin = () => {
+    this.setState({ loading: true })
     axios.post(`${baseURL}api/users/signin`, { 
       email: this.props.user.email,
       password: this.props.user.password
     })
     .then(res => {
-      console.log('res DATA ===> ', res.data)        
+      // console.log('res DATA ===> ', res.data)        
       if (res.data.userState !== 'noUser') {
         Realm.open({
           schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
@@ -103,15 +114,16 @@ class Registration extends Component {
             realm.delete(realm.objects('localToken'))
             realm.create('localToken', { key: res.data.token, id: res.data._id })
           })
-          console.log('Login realm : ', realm.objects('localToken')[0].key)
+          // console.log('Login realm : ', realm.objects('localToken')[0].key)
           this.props.userToStore(res.data)
-          this.props.navigator.push({
+          this.props.navigator.resetTo({
             screen: 'mrxrinc.Splash'
           })
-          console.log(this.props.user)
+          // console.log(this.props.user)
         }) 
       } else { // no user found
         console.log('No user!')    
+        this.setState({ loading: false })
         this.props.navigator.showInAppNotification({
           screen: 'mrxrinc.Notification',
           passProps: {
@@ -122,7 +134,18 @@ class Registration extends Component {
         })      
       }
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      this.setState({ loading: false })
+      this.props.navigator.showInAppNotification({
+        screen: 'mrxrinc.Notification',
+        autoDismissTimerSec: 3,
+        passProps: {
+          alarm: true,
+          message: 'مشکلی در ارسال  درخواست شما بوجود آمد. لطفا بعدا تلاش بفرمایید.'
+        }
+      })
+      console.log(err)
+    })
   }
 
   render() {
@@ -136,14 +159,11 @@ class Registration extends Component {
             showPass={this.state.showPass}
             back={() => this.props.navigator.pop()}
             signIn={() => this.handleSignin()}
+            loading={this.state.loading}
             forgetPassword={() => {
-              // this.props.navigator.push({
-              //   screen: 'mrxrinc.Registration',
-              //   passProps: { page: 'ForgetPassword' }
-              // })
-              this.props.navigator.showInAppNotification({
-                screen: 'mrxrinc.Notification',
-                autoDismissTimerSec: 2
+              this.props.navigator.push({
+                screen: 'mrxrinc.Registration',
+                passProps: { page: 'ForgetPassword' }
               })
             }}
           />
@@ -211,6 +231,7 @@ class Registration extends Component {
         renderPage = (
           <RegisterBirthday
             {...this.props}
+            loading={this.state.loading}
             back={() => this.props.navigator.pop()}
             next={() => this.handleSignup()}
           />
@@ -234,6 +255,7 @@ class Registration extends Component {
             privacy={() => {
               this.props.navigator.push({ screen: 'mrxrinc.Privacy' })
             }}
+            exit={() => BackHandler.exitApp()}
           />
         )
     }
@@ -252,21 +274,6 @@ class Registration extends Component {
     )
   }
 }
-function mapStateToProps(state) {
-  return {
-    user: state.user
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    userRegister: (data, section) => dispatch(userRegister(data, section)),
-    userToStore: userInfo => dispatch(userToStore(userInfo)) 
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Registration)
-
 
 class SignUp extends Component {
   render() {
@@ -277,7 +284,7 @@ class SignUp extends Component {
             <TouchableNativeFeedback
               delayPressIn={0}
               background={TouchableNativeFeedback.Ripple('#ffffff22')}
-              onPress={() => console.log('close')}>
+              onPress={this.props.exit}>
               <View pointerEvents={'box-only'} style={[r.full, r.center]}>
                 <AirIcon name={'close-bold'} size={16} color={'#fff'} />
               </View>
@@ -391,7 +398,12 @@ class SignIn extends Component {
             onSubmitEditing={activeBTN ? this.props.signIn : null}
           />
         </View>
-          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+        <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+          {this.props.loading === true ? (
+            <View style={[r.absolute, r.wFull, r.hFull, r.center]}>
+              <Loading style={{ transform: [{ scale: 0.8 }] }} />
+            </View>
+          ) : (
             <TouchableNativeFeedback
               delayPressIn={0}
               background={TouchableNativeFeedback.Ripple('#00000022')}
@@ -406,7 +418,8 @@ class SignIn extends Component {
                 />
               </View>
             </TouchableNativeFeedback>
-          </View>
+          )}
+        </View>
       </KeyboardAvoidingView>
     )
   }
@@ -634,19 +647,25 @@ class RegisterBirthday extends Component {
 
         </View>
           <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
-            <TouchableNativeFeedback
-              delayPressIn={0}
-              background={TouchableNativeFeedback.Ripple('#00000022')}
-              onPress={activeBTN ? this.props.next : null}
-            >
-              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-                <AirIcon
-                  name={'ok-alt'}
-                  size={18}
-                  color={'#007e90'}
-                />
+            {this.props.loading === true ? (
+              <View style={[r.absolute, r.wFull, r.hFull, r.center]}>
+                <Loading style={{ transform: [{ scale: 0.8 }] }} />
               </View>
-            </TouchableNativeFeedback>
+            ) : (
+              <TouchableNativeFeedback
+                delayPressIn={0}
+                background={TouchableNativeFeedback.Ripple('#00000022')}
+                onPress={activeBTN ? this.props.next : null}
+              >
+                <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+                  <AirIcon
+                    name={'ok-alt'}
+                    size={18}
+                    color={'#007e90'}
+                  />
+                </View>
+              </TouchableNativeFeedback>
+            )}
           </View>
       </ScrollView>
     )
@@ -720,3 +739,18 @@ class ForgetPassword extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userRegister: (data, section) => dispatch(userRegister(data, section)),
+    userToStore: userInfo => dispatch(userToStore(userInfo))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Registration)
