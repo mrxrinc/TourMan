@@ -5,21 +5,24 @@ import {
   ScrollView,
   TouchableNativeFeedback
 } from 'react-native'
+// import axios from 'axios'
+import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import r from './styles/Rinc'
 import g from './styles/General'
-import * as a from './assets/Font'
-import * as asset from './assets/Assets'
+import { Fa, FaBold } from './assets/Font'
+import { Switch, IncDec, Checkbox, CustomMarker } from './assets/Assets'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
 import lineConfig from './assets/line_font_config.json'
+import { filtersToStore, filtersResult } from '../actions/generalActions'
 
 
 const AirIcon = createIconSetFromFontello(airConfig)
 const LineIcon = createIconSetFromFontello(lineConfig)
 
-export default class Filters extends Component {
+class Filters extends Component {
   static navigatorStyle = {
     navBarHidden: true,
     screenBackgroundColor: 'transparent'
@@ -46,7 +49,8 @@ export default class Filters extends Component {
               <TouchableNativeFeedback
                 delayPressIn={0}
                 background={TouchableNativeFeedback.Ripple('#00000011', true)}
-                onPress={() => this.props.navigator.dismissModal()}>
+                onPress={() => this.props.navigator.dismissModal()}
+              >
                 <View pointerEvents={'box-only'} style={[r.full, r.center]}>
                   <AirIcon name={'close-bold'} size={14} />
                 </View>
@@ -56,9 +60,12 @@ export default class Filters extends Component {
               <TouchableNativeFeedback
                 delayPressIn={0}
                 background={TouchableNativeFeedback.Ripple('#00000011', true)}
-                onPress={() => this.props.navigator.dismissModal()}>
+                onPress={() => {
+                  this.props.filtersToStore(null)
+                  this.props.navigator.dismissModal()
+                }}>
                 <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-                  <a.Fa size={12}>حذف همه</a.Fa>
+                  <Fa size={12}>حذف همه</Fa>
                 </View>
               </TouchableNativeFeedback>
             </View>
@@ -68,17 +75,17 @@ export default class Filters extends Component {
         <ScrollView style={r.paddHoriz20}>
           <View style={[r.rtl, r.horizCenter, r.spaceBetween]}>
             <View style={[r.rightMargin5, { flex: 2 }]}>
-              <a.Fa size={15}>رزرو آنی</a.Fa>
-              <a.Fa style={r.grayLight} size={10}>
+              <Fa size={15}>رزرو آنی</Fa>
+              <Fa style={r.grayLight} size={10}>
                 رزروهای بدون نیاز به تایید میزبان
-              </a.Fa>
+              </Fa>
             </View>
             <View style={[r.center, { flex: 1, height: 75 }]}>
-              <asset.Switch
+              <Switch
+                state={this.props.filters.instanceReserve}
                 onPress={() => {
-                  this.setState({ instanseReserve: !this.state.instanseReserve })
+                  this.props.filtersToStore('instanceReserve', !this.props.filters.instanceReserve)
                 }}
-                state={this.state.instanseReserve}
               />
             </View>
           </View>
@@ -87,25 +94,28 @@ export default class Filters extends Component {
 
           <View style={r.top20}>
             <View style={[r.rtl, r.horizCenter, r.spaceBetween]}>
-              <a.Fa size={15}>محدوده قیمت</a.Fa>
+              <Fa size={15}>محدوده قیمت</Fa>
               <View style={[r.rtl, r.center]}>
-                <a.Fa style={[r.grayLight, { height: 25 }]} size={17}>
-                  <Text>{this.state.priceRange[0]}</Text>
+                <Fa style={[r.grayLight, { height: 25 }]} size={17}>
+                  <Text>{this.props.filters.price[0]}</Text>
                   <Text> - </Text>
-                  <Text>{this.state.priceRange[1]}</Text>
-                </a.Fa>
+                  <Text>{this.props.filters.price[1]}</Text>
+                </Fa>
                 <LineIcon name={'money'} size={20} style={[r.grayLight, r.rightMargin5]} />
               </View>
 
             </View>
             <View style={[r.top20, r.horizCenter]}>
               <MultiSlider
-                values={[this.state.priceRange[0], this.state.priceRange[1]]}
-                onValuesChange={(values) => this.setState({ priceRange: values })}
+                values={[this.props.filters.price[0], this.props.filters.price[1]]}
+                onValuesChange={(values) => {
+                  console.log(values)
+                  this.props.filtersToStore('price', values)
+                }}
                 min={10}
                 max={1000}
-                step={10}
-                customMarker={asset.CustomMarker}
+                step={1}
+                customMarker={CustomMarker}
                 trackStyle={{ height: 5, backgroundColor: '#ebebeb', marginTop: -2 }}
                 selectedStyle={{ backgroundColor: '#039fa4' }}
               />
@@ -115,42 +125,63 @@ export default class Filters extends Component {
           <View style={g.line} />
 
           <View style={r.top20}>
-            <a.Fa size={15}>نوع رزرو</a.Fa>
+            <Fa size={15}>نوع رزرو</Fa>
             <View style={[r.rtl, r.top20, r.horizCenter, r.spaceBetween]}>
               <View>
-                <a.Fa style={[r.grayMid]} size={13}>کل ملک</a.Fa>
-                <a.Fa style={[r.grayMid]} size={10}>
+                <Fa style={[r.grayMid]} size={13}>کل ملک</Fa>
+                <Fa style={[r.grayMid]} size={10}>
                   کل خانه در اختیار شما باشد.
-                </a.Fa>
+                </Fa>
               </View>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Checkbox
+                active={this.props.filters.entire}
+                onPress={() => {
+                  this.props.filtersToStore('entire', !this.props.filters.entire)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top20, r.horizCenter, r.spaceBetween]}>
               <View>
-                <a.Fa style={[r.grayMid]} size={13}>اتاق اختصاصی</a.Fa>
-                <a.Fa style={[r.grayMid]} size={10}>
+                <Fa style={[r.grayMid]} size={13}>اتاق اختصاصی</Fa>
+                <Fa style={[r.grayMid]} size={10}>
                   اتاقتان اختصاصی باشه با چند سرویس اشتراکی.
-                </a.Fa>
+                </Fa>
               </View>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Checkbox
+                active={this.props.filters.privateRoom}
+                onPress={() => {
+                  this.props.filtersToStore('privateRoom', !this.props.filters.privateRoom)
+                }}
               />
             </View>
 
             <View style={[r.rtl, r.top20, r.horizCenter, r.spaceBetween]}>
               <View>
-                <a.Fa style={[r.grayMid]} size={13}>اتاق اشتراکی</a.Fa>
-                <a.Fa style={[r.grayMid]} size={10}>
+                <Fa style={[r.grayMid]} size={13}>اتاق اشتراکی</Fa>
+                <Fa style={[r.grayMid]} size={10}>
                   اتاقهای مشترک با مهمان های دیگر.
-                </a.Fa>
+                </Fa>
               </View>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Checkbox
+                active={this.props.filters.sharedRoom}
+                onPress={() => {
+                  this.props.filtersToStore('sharedRoom', !this.props.filters.sharedRoom)
+                }}
+              />
+            </View>
+
+            <View style={[r.rtl, r.top20, r.horizCenter, r.spaceBetween]}>
+              <View>
+                <Fa style={[r.grayMid]} size={13}>لاکچری</Fa>
+                <Fa style={[r.grayMid]} size={10}>
+                  خانه های لاکچری در بهترین نقاط شهر
+                </Fa>
+              </View>
+              <Checkbox
+                active={this.props.filters.luxury}
+                onPress={() => {
+                  this.props.filtersToStore('luxury', !this.props.filters.luxury)
+                }}
               />
             </View>
           </View>
@@ -158,52 +189,52 @@ export default class Filters extends Component {
           <View style={[g.line, r.top20]} />
 
           <View style={r.top20}>
-            <a.Fa size={15}>تعداد تخت و سرویس</a.Fa>
-            <asset.IncDec
+            <Fa size={15}>تعداد تخت و سرویس</Fa>
+            <IncDec
               title={'اتاق خواب'}
               titleStyle={[r.grayMid, { fontSize: 12 }]}
               height={50}
-              count={this.state.bedCount}
+              count={this.props.filters.rooms}
               incPress={() => {
-                if (this.state.bedCount < 16) {
-                  this.setState({ bedCount: this.state.bedCount + 1 })
+                if (this.props.filters.rooms < 16) {
+                  this.props.filtersToStore('rooms', this.props.filters.rooms + 1)
                 }
               }}
               decPress={() => {
-                if (this.state.bedCount > 0) {
-                  this.setState({ bedCount: this.state.bedCount - 1 })
+                if (this.props.filters.rooms > 1) {
+                  this.props.filtersToStore('rooms', this.props.filters.rooms - 1)
                 }
               }}
             />
-            <asset.IncDec
+            <IncDec
               title={'تخت خواب'}
               titleStyle={[r.grayMid, { fontSize: 12 }]}
               height={50}
-              count={this.state.bedCount}
+              count={this.props.filters.beds}
               incPress={() => {
-                if (this.state.bedCount < 16) {
-                  this.setState({ bedCount: this.state.bedCount + 1 })
+                if (this.props.filters.beds < 11) {
+                  this.props.filtersToStore('beds', this.props.filters.beds + 1)
                 }
               }}
               decPress={() => {
-                if (this.state.bedCount > 0) {
-                  this.setState({ bedCount: this.state.bedCount - 1 })
+                if (this.props.filters.beds > 1) {
+                  this.props.filtersToStore('beds', this.props.filters.beds - 1)
                 }
               }}
             />
-            <asset.IncDec
+            <IncDec
               title={'سرویس بهداشتی'}
               titleStyle={[r.grayMid, { fontSize: 12 }]}
               height={50}
-              count={this.state.bedCount}
+              count={this.props.filters.bathrooms}
               incPress={() => {
-                if (this.state.bedCount < 16) {
-                  this.setState({ bedCount: this.state.bedCount + 1 })
+                if (this.props.filters.bathrooms < 16) {
+                  this.props.filtersToStore('bathrooms', this.props.filters.bathrooms + 1)
                 }
               }}
               decPress={() => {
-                if (this.state.bedCount > 0) {
-                  this.setState({ bedCount: this.state.bedCount - 1 })
+                if (this.props.filters.bathrooms > 1) {
+                  this.props.filtersToStore('bathrooms', this.props.filters.bathrooms - 1)
                 }
               }}
             />
@@ -212,54 +243,68 @@ export default class Filters extends Component {
           <View style={[g.line]} />
 
           <View style={r.top20}>
-            <a.Fa size={15}>امکانات</a.Fa>
+            <Fa size={15}>امکانات</Fa>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>وای فای</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>وای فای</Fa>
+              <Checkbox
+                active={this.props.filters.wifi}
+                onPress={() => {
+                  this.props.filtersToStore('wifi', !this.props.filters.wifi)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>تلویزیون</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>تلویزیون</Fa>
+              <Checkbox
+                active={this.props.filters.tv}
+                onPress={() => {
+                  this.props.filtersToStore('tv', !this.props.filters.tv)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>لوازم ضروری استحمام</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>لوازم ضروری استحمام</Fa>
+              <Checkbox
+                active={this.props.filters.accessories}
+                onPress={() => {
+                  this.props.filtersToStore('accessories', !this.props.filters.accessories)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>آشپزخانه</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>آشپزخانه</Fa>
+              <Checkbox
+                active={this.props.filters.kitchen}
+                onPress={() => {
+                  this.props.filtersToStore('kitchen', !this.props.filters.kitchen)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>ماشین لباسشویی</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>ماشین لباسشویی</Fa>
+              <Checkbox
+                active={this.props.filters.washingMachine}
+                onPress={() => {
+                  this.props.filtersToStore('washingMachine', !this.props.filters.washingMachine)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>کولر</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>کولر</Fa>
+              <Checkbox
+                active={this.props.filters.cooler}
+                onPress={() => {
+                  this.props.filtersToStore('cooler', !this.props.filters.cooler)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>پارکینگ</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>پارکینگ</Fa>
+              <Checkbox
+                active={this.props.filters.parkingLot}
+                onPress={() => {
+                  this.props.filtersToStore('parkingLot', !this.props.filters.parkingLot)
+                }}
               />
             </View>
           </View>
@@ -267,49 +312,62 @@ export default class Filters extends Component {
           <View style={[g.line, r.top20]} />
 
           <View style={[r.top20, r.bottom10]}>
-            <a.Fa size={15}>قوانین خانه</a.Fa>
+            <Fa size={15}>قوانین خانه</Fa>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>مناسب برای مراسمات</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>مناسب برای مراسمات</Fa>
+              <Checkbox
+                active={this.props.filters.celebrationAllowed}
+                onPress={() => {
+                  this.props.filtersToStore('celebrationAllowed', !this.props.filters.celebrationAllowed)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>آوردن حیوان خانگی مجاز باشد</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>آوردن حیوان خانگی مجاز باشد</Fa>
+              <Checkbox
+                active={this.props.filters.petsAllowed}
+                onPress={() => {
+                  this.props.filtersToStore('petsAllowed', !this.props.filters.petsAllowed)
+                }}
               />
             </View>
             <View style={[r.rtl, r.top10, r.horizCenter, r.spaceBetween]}>
-              <a.Fa style={[r.grayMid]} size={13}>سیگار کشیدن مجاز باشد</a.Fa>
-              <asset.Checkbox
-                active={this.state.checkbox}
-                onPress={() => this.setState({ checkbox: !this.state.checkbox })}
+              <Fa style={[r.grayMid]} size={13}>سیگار کشیدن مجاز باشد</Fa>
+              <Checkbox
+                active={this.props.filters.smokingAllowed}
+                onPress={() => {
+                  this.props.filtersToStore('smokingAllowed', !this.props.filters.smokingAllowed)
+                }}
               />
             </View>
           </View>
 
         </ScrollView>
 
-        <Footer />
+        <Footer 
+          onPress={() => {
+            this.props.filtersResult(this.props.filters)
+            this.props.navigator.dismissModal()
+          }}
+        />
       </View>
     )
   }
+  
 }
+
 
 class Footer extends Component {
   render() {
     return (
-      <View style={[g.reportFooter, r.wFull, r.padd20, r.bgWhite ]}>
-        <View style ={[g.bgAccent, r.round5, r.full, { height:45 }]}>
+      <View style={[g.reportFooter, r.wFull, r.padd20, r.bgWhite]}>
+        <View style={[g.bgAccent, r.round5, r.full, { height: 45 }]}>
           <TouchableNativeFeedback
             delayPressIn={0}
             background={TouchableNativeFeedback.Ripple('#ffffff33', false)}
             onPress={this.props.onPress}>
             <View style={[r.full, r.center]} pointerEvents={'box-only'}>
-              <a.FaBold style={[r.white]} size={15}>مشاهده</a.FaBold>
+              <FaBold style={[r.white]} size={15}>مشاهده</FaBold>
             </View>
           </TouchableNativeFeedback>
         </View>
@@ -317,3 +375,18 @@ class Footer extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    filters: state.filters
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    filtersToStore: (key, value) => dispatch(filtersToStore(key, value)),
+    filtersResult: (data) => dispatch(filtersResult(data))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Filters)

@@ -5,7 +5,10 @@ import dateReducer from './pages/dateReducer'
 import { 
   reportUserReducer,
   homeReducer,
-  filterReducer
+  filtersReducer,
+  reviewsReducer,
+  homesListReducer,
+  luxuryReducer
  } from './pages/generalReducers'
 
 const rootReducer = combineReducers({
@@ -13,7 +16,10 @@ const rootReducer = combineReducers({
   date: dateReducer,
   reportUser: reportUserReducer,
   home: homeReducer,
-  filter: filterReducer,
+  luxury: luxuryReducer,
+  reviews: reviewsReducer,
+  filters: filtersReducer,
+  filteredHomesList: homesListReducer
 })
 
 export default rootReducer

@@ -87,11 +87,32 @@ export default {
   user: {},
   reportUser: {},
   home: {},
-  filter: {
-    howMany: {
-      adultQuantity: 1,
-      childrenQuantity: 0,
-      pets: false
-    }
-  }
+  luxury: [],
+  reviews: [],
+  filters: {
+    province: 'all',
+    adults: 1,
+    children: 0,
+    instanceReserve: false,
+    entire: false,
+    privateRoom: false,
+    sharedRoom: false,
+    luxury: false,
+    price: [10, 1000],
+    rooms: 1,
+    beds: 1,
+    bathrooms: 1,
+    wifi: false,
+    tv: false,
+    accessories: false,
+    kitchen: false,
+    washingMachine: false,
+    cooler: false,
+    parkingLot: false,
+    celebrationAllowed: false,
+    petsAllowed: false,
+    smokingAllowed: false,
+    popular: false
+  },
+  filteredHomesList: []
 }

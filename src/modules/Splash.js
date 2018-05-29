@@ -13,7 +13,7 @@ import { userToStore } from '../actions/userActions'
 class Splash extends Component {
   static navigatorStyle = {
     navBarHidden: true,
-    statusBarColor: 'rgba(0, 0, 0, 0.1)'
+    statusBarColor: 'rgba(0, 0, 0, 0)'
   }
 
   componentWillMount() {
@@ -23,12 +23,12 @@ class Splash extends Component {
       // realm.write(() => {
       //   realm.delete(realm.objects('localToken'))
       // })
-      console.log('Have realm ? : ', realm.objects('localToken')[0] != null)
+      // console.log('Have realm ? : ', realm.objects('localToken')[0] != null)
       if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
         this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
       } else {
-        console.log('WE HAVE LOCAL DATABASE')        
-        console.log('realm data: ', realm.objects('localToken')[0])
+        // console.log('WE HAVE LOCAL DATABASE')        
+        // console.log('realm data: ', realm.objects('localToken')[0])
 
         const userId = realm.objects('localToken')[0].id
         const userKey = realm.objects('localToken')[0].key
@@ -36,7 +36,7 @@ class Splash extends Component {
         axios.get(`${baseURL}api/users/${userId}`)
           .then(user => {
             this.props.userToStore(user.data)
-            console.log('in Splash : ', this.props)      
+            // console.log('in Splash : ', this.props)      
             this.props.navigator.resetTo({ screen: 'mrxrinc.Explore', passProps: { homeId: '5b032f6cb33fc62ba879cd56' } })
           })
           .catch(err => console.log(err))

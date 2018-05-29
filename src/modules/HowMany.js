@@ -12,18 +12,19 @@ import { Fa, FaBold } from './assets/Font'
 import { IncDec, Switch } from './assets/Assets'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
-import { filterHowMany } from '../actions/generalActions'
+import { filtersToStore, filtersResult } from '../actions/generalActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
 class HowMany extends Component {
   static navigatorStyle = {
-    navBarHidden: true
+    navBarHidden: true,
+    screenBackgroundColor: 'white',
   }
 
   render() {
     return (
-      <View style={[r.full, r.bgWhite]}>
+      <View style={[r.full]}>
         <View style={[r.wFull, { height: 75, borderBottomWidth: 1, borderColor: '#e7e7e7' }]}>
           <View style={[r.wFull, r.rtl, { height: 75, paddingTop: 25 }]}>
             <View style={{ width: 60, height: 50 }}>
@@ -43,23 +44,15 @@ class HowMany extends Component {
         <View style={r.paddHoriz20}>
           <IncDec
             title={'بزرگسال'}
-            count={this.props.filter.howMany.adultQuantity}
+            count={this.props.filters.adults}
             incPress={() => {
-              if (this.props.filter.howMany.adultQuantity < 16) {
-                const newData = {
-                  ...this.props.filter.howMany,
-                  adultQuantity: this.props.filter.howMany.adultQuantity + 1
-                }
-                this.props.filterHowMany(newData)
+              if (this.props.filters.adults < 16) {
+                this.props.filtersToStore('adults', this.props.filters.adults + 1)
               }
             }}
             decPress={() => {
-              if (this.props.filter.howMany.adultQuantity > 1) {
-                const newData = {
-                  ...this.props.filter.howMany,
-                  adultQuantity: this.props.filter.howMany.adultQuantity - 1
-                }
-                this.props.filterHowMany(newData)
+              if (this.props.filters.adults > 1) {
+                this.props.filtersToStore('adults', this.props.filters.adults - 1)
               }
             }}
           />
@@ -68,23 +61,15 @@ class HowMany extends Component {
 
           <IncDec
             title={'کودک'}
-            count={this.props.filter.howMany.childrenQuantity}
+            count={this.props.filters.children}
             incPress={() => {
-              if (this.props.filter.howMany.childrenQuantity < 16) {
-                const newData = {
-                  ...this.props.filter.howMany,
-                  childrenQuantity: this.props.filter.howMany.childrenQuantity + 1
-                }
-                this.props.filterHowMany(newData)
+              if (this.props.filters.children < 16) {
+                this.props.filtersToStore('children', this.props.filters.children + 1)
               }
             }}
             decPress={() => {
-              if (this.props.filter.howMany.childrenQuantity > 0) {
-                const newData = {
-                  ...this.props.filter.howMany,
-                  childrenQuantity: this.props.filter.howMany.childrenQuantity - 1
-                }
-                this.props.filterHowMany(newData)
+              if (this.props.filters.children > 0) {
+                this.props.filtersToStore('children', this.props.filters.children - 1)
               }
             }}
           />
@@ -95,13 +80,9 @@ class HowMany extends Component {
             <Fa style={[r.rightMargin5, { flex: 1.5 }]} size={15}>حیوان خانگی</Fa>
             <View style={[r.center, { flex: 1, height: 75 }]}>
               <Switch
-                state={this.props.filter.howMany.pets}
+                state={this.props.filters.petsAllowed}
                 onPress={() => {
-                  const newData = {
-                    ...this.props.filter.howMany,
-                    pets: !this.props.filter.howMany.pets
-                  }
-                  this.props.filterHowMany(newData)
+                  this.props.filtersToStore('petsAllowed', !this.props.filters.petsAllowed)
                 }}
               />
             </View>
@@ -112,7 +93,14 @@ class HowMany extends Component {
 
         <Footer 
           onPress={() => {
+            this.props.filtersResult(this.props.filters)
             this.props.navigator.dismissModal()
+            if (this.props.pushToSearchPage === true) {
+              this.props.navigator.push({
+                screen: 'mrxrinc.Search',
+                animationType: 'fade'
+              })
+            }
           }}
         />
       </View>
@@ -144,13 +132,14 @@ class Footer extends Component {
 
 function mapStateToProps(state) {
   return {
-    filter: state.filter  
+    filters: state.filters  
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    filterHowMany: data => dispatch(filterHowMany(data))
+    filtersToStore: (key, value) => dispatch(filtersToStore(key, value)),
+    filtersResult: (data) => dispatch(filtersResult(data))
   }
 }
 

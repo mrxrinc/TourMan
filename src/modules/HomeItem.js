@@ -26,7 +26,7 @@ import { RowItem, MapStyle } from './assets/Assets'
 import { baseURL } from '../constants/api'
 import airConfig from './assets/air_font_config.json'
 import lineConfig from './assets/line_font_config.json'
-import { stageHome, resetHome } from '../actions/generalActions'
+import { stageHome } from '../actions/generalActions'
 import { userToStore } from '../actions/userActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
@@ -93,6 +93,10 @@ class HomeItem extends Component {
         ToastAndroid.show('مشکلی در دریافت اطلاعات خانه پیش آمد!', ToastAndroid.SHORT)
         console.log(err)
       })
+  }
+
+  componentWillUnmount() {
+    this.props.stageHome({})
   }
 
   onScroll(event) {
@@ -317,7 +321,7 @@ class HomeItem extends Component {
                   <Text style={[r.centerText, {width: 40, height: 40 }]}>
                     <AirIcon name={'group'} size={35} style={[r.grayDark]} />
                   </Text>
-                  <Fa style={[r.grayDark]} size={12}>{this.props.home.capacity} مهمان</Fa>
+                  <Fa style={[r.grayDark]} size={12}>{this.props.home.capacity.adults} مهمان</Fa>
                 </View>
                 <View style={r.horizCenter}>
                   <Text style={[r.centerText, { width: 40, height: 40 }]}>
@@ -431,7 +435,7 @@ class HomeItem extends Component {
                 />
               </MapView>
               <InfoBox 
-                address={`ایران ، ${this.props.home.provience}`} 
+                address={`ایران ، ${this.props.home.province}`} 
                 style={[r.absolute, { top: 20 }]} 
               />
             </View>

@@ -12,7 +12,7 @@ import g from './styles/General'
 import { Fa } from './assets/Font'
 import airConfig from './assets/air_font_config.json'
 import provinces from './assets/provinces.json'
-import { filterProvince } from '../actions/generalActions'
+import { filtersToStore, filtersResult } from '../actions/generalActions'
 
 
 const AirIcon = createIconSetFromFontello(airConfig)
@@ -21,9 +21,7 @@ class Where extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
-  state={
-    data: []
-  }
+  state={ data: [] }
 
   handleSearch = (query) => {
     const cases = provinces.items
@@ -78,8 +76,17 @@ class Where extends Component {
               <Item
                 title={item.name}
                 onPress={() => {
-                  this.props.filterProvince(item.name)
-                  this.props.navigator.dismissModal()
+                  this.props.filtersToStore('province', item.name)
+                  setTimeout(() => {
+                    this.props.filtersResult(this.props.filters)
+                    this.props.navigator.dismissModal()
+                    if (this.props.pushToSearchPage === true) {
+                      this.props.navigator.push({
+                        screen: 'mrxrinc.Search',
+                        animationType: 'fade'
+                      })
+                    }
+                  }, 0)
                 }}
               />
             )}
@@ -87,13 +94,23 @@ class Where extends Component {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             initialNumToRender={7}
+            keyboardShouldPersistTaps={'always'}
             ListHeaderComponent={() => (
               <View>
                 <Item
                   title={'کل کشور'}
                   onPress={() => {
-                    this.props.filterProvince('all')
-                    this.props.navigator.dismissModal()
+                    this.props.filtersToStore('province', 'all')
+                    setTimeout(() => {
+                      this.props.filtersResult(this.props.filters)
+                      this.props.navigator.dismissModal()
+                      if (this.props.pushToSearchPage === true) {
+                        this.props.navigator.push({
+                          screen: 'mrxrinc.Search',
+                          animationType: 'fade'
+                        })
+                      }
+                    }, 0)
                   }}
                 />
                 <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
@@ -132,13 +149,14 @@ class Item extends Component {
 
 function mapStateToProps(state) {
   return {
-    filter: state.filter  
+    filters: state.filters 
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    filterProvince: data => dispatch(filterProvince(data))
+    filtersToStore: (key, value) => dispatch(filtersToStore(key, value)),
+    filtersResult: (data) => dispatch(filtersResult(data))
   }
 }
 

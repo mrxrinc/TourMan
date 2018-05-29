@@ -215,7 +215,15 @@ class When extends Component {
           initialNumToRender={1}
         />
 
-        <Footer onPress={() => this.props.loadDays()}/>
+        <Footer onPress={() => {
+          this.props.navigator.dismissModal()
+          if (this.props.pushToSearchPage === true) {
+            this.props.navigator.push({
+              screen: 'mrxrinc.Search',
+              animationType: 'fade'
+            })
+          }
+        }}/>
       </View>
     )
   }
@@ -225,7 +233,7 @@ class Footer extends Component {
   render() {
     return (
       <View style={[g.reportFooter, r.wFull, r.padd20, r.bgWhite ]}>
-        <View style ={[g.bgPrimary, r.round5, r.full, { height:45 }]}>
+        <View style = {[g.bgPrimary, r.round5, r.full, { height: 45 }]}>
           <TouchableNativeFeedback
             delayPressIn={0}
             background={TouchableNativeFeedback.Ripple('#ffffff33', false)}

@@ -17,7 +17,7 @@ module.exports = StyleSheet.create({
   round:{borderRadius: 3},
   bottomSafeSpace:{height: 40},
   tabBox:{
-    width: window.width,
+    width: '100%',
     height: 80,
     overflow: 'hidden',
     zIndex: 50
@@ -32,7 +32,7 @@ module.exports = StyleSheet.create({
     textShadowRadius: 10
   },
   tabIconContainer:{
-    width: window.width,
+    width: '100%',
     zIndex:1
   },
   tabItem:{
@@ -56,8 +56,8 @@ module.exports = StyleSheet.create({
     top: 23
   },
   header:{
-    width: window.width,
-    height: 125,
+    width: '100%',
+    height: 125
   },
   headBox:{
     height: 45,
@@ -132,7 +132,7 @@ module.exports = StyleSheet.create({
   },
   hmItemBigImg:{
     height: 230,
-    width: window.width- 30,
+    width: '100%'- 30,
     resizeMode:'cover'
   },
   hmItemBigTitle:{
@@ -150,7 +150,7 @@ module.exports = StyleSheet.create({
     lineHeight: 10,
     height: 15,
     marginRight: 15,
-    top: 3,
+    top: 1,
     paddingHorizontal: 10
   },
   featuredDest:{
@@ -164,7 +164,7 @@ module.exports = StyleSheet.create({
   },
   navBar:{
     height: 75,
-    width: window.width,
+    width: '100%',
     marginBottom: 15,
     borderBottomColor: '#cfcfcf',
     paddingTop: 25,
@@ -179,7 +179,7 @@ module.exports = StyleSheet.create({
     textAlign: 'center'
   },
   navBarGradient:{
-    width: window.width,
+    width: '100%',
     height: 75,
     position: 'absolute'
   },
@@ -319,7 +319,7 @@ module.exports = StyleSheet.create({
     height: 30,
     borderRadius: 20,
     alignSelf: 'center',
-    bottom: 40,
+    bottom: 100,
     borderColor: '#c4c4c4',
     borderWidth: 0.5,
   },

@@ -6,6 +6,7 @@ import Profile from './modules/Profile'
 import Messages from './modules/Messages'
 import Favorites from './modules/Favorites'
 import Trips from './modules/Trips'
+import Search from './modules/Search'
 import HomeItem from './modules/HomeItem'
 import Host from './modules/Host'
 import HomeDetails from './modules/HomeDetails'
@@ -37,6 +38,7 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Messages', () => Messages, store, Provider)
   Navigation.registerComponent('mrxrinc.Favorites', () => Favorites, store, Provider)
   Navigation.registerComponent('mrxrinc.Trips', () => Trips, store, Provider)
+  Navigation.registerComponent('mrxrinc.Search', () => Search, store, Provider)
   Navigation.registerComponent('mrxrinc.HomeItem', () => HomeItem, store, Provider)
   Navigation.registerComponent('mrxrinc.Host', () => Host, store, Provider)
   Navigation.registerComponent('mrxrinc.HomeDetails', () => HomeDetails, store, Provider)

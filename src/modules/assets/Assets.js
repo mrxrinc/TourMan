@@ -120,11 +120,11 @@ export class Switch extends Component{
     if (this.props.state === true) {
       this.refs.switch.transitionTo({ transform: [{ translateX: -1 }] }, 1000, 'ease-out-circ')
       setTimeout(() => {
-        this.refs.switcherWrap.transitionTo({ backgroundColor: '#008489' })
+        // this.refs.switcherWrap.transitionTo({ backgroundColor: '#008489' })
       }, 50)
     } else {
       this.refs.switch.transitionTo({ transform: [{ translateX: 14 }] }, 1000, 'ease-out-circ')
-      this.refs.switcherWrap.transitionTo({ backgroundColor: '#fff' })
+      // this.refs.switcherWrap.transitionTo({ backgroundColor: '#fff' })
     }
   }
   render() {
@@ -279,7 +279,7 @@ export class MapRowItem extends Component {
         >
           <View>
             <Image
-              source={{ uri: this.props.image }}
+              source={{ uri: this.props.images[0] }}
               style={[g.mapHmItemImg, g.round]}
               resizeMode={'cover'}
             />
@@ -293,8 +293,8 @@ export class MapRowItem extends Component {
               </View>
               <View style={[r.rtl]}>
                 <Stars
-                  rate={this.props.rate}
-                  reviews={this.props.reviews}
+                  rate={this.props.overallRate}
+                  reviews={this.props.reviewsCount}
                   style={{ marginTop: -5 }}
                 />
                 {this.props.luxury &&

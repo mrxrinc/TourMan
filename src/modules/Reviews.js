@@ -16,6 +16,7 @@ import { Fa, FaBold, FaMulti } from './assets/Font'
 import Loading from './assets/Loading'
 import NavBar from './assets/NavBar'
 import { baseURL } from '../constants/api'
+import { storeReviews } from '../actions/generalActions'
 
 const NAVBAR_HEIGHT = 75
 
@@ -42,8 +43,7 @@ class Reviews extends Component {
         ),
         0,
         NAVBAR_HEIGHT,
-      ),
-      data: null
+      )
     } 
   }
 
@@ -51,12 +51,16 @@ class Reviews extends Component {
     const { parent } = this.props
     axios.get(`${baseURL}api/reviews/${parent}`)
       .then(res => {
-        this.setState({ data: res.data })
+        this.props.storeReviews(res.data)
       })
       .catch(err => {
         ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
         console.log(err)
       })
+  }
+
+  componentWillUnmount() {
+    this.props.storeReviews({})
   }
 
   onScroll(event) {
@@ -105,7 +109,7 @@ class Reviews extends Component {
           />
         </Animated.View>
 
-        {this.state.data === null ? (
+        {!this.props.reviews.length ? (
           <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
             <Loading />
           </View>
@@ -131,7 +135,7 @@ class Reviews extends Component {
               </View>
 
               <FlatList
-                data={this.state.data}
+                data={this.props.reviews}
                 renderItem={({ item }) => (
                   <View>
                     <View style={[r.rtl, r.top15]}>
@@ -172,8 +176,16 @@ class Reviews extends Component {
 function mapStateToProps(state) {
   return {
     home: state.home,
-    user: state.user
+    user: state.user,
+    reviews: state.reviews
   }
 }
 
-export default connect(mapStateToProps)(Reviews)
+function mapDispatchToProps(dispatch) {
+  return {
+    storeReviews: (data) => dispatch(storeReviews(data))
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Reviews)

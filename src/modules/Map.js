@@ -1,25 +1,21 @@
 import React, { Component } from 'react'
 import {
   View,
-  Text,
   FlatList,
   TouchableNativeFeedback
 } from 'react-native'
+import { connect } from 'react-redux'
 import MapView from 'react-native-maps'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
-import { Fa, FaBold } from './assets/Font'
 import { MapRowItem, MapStyle, MyMarker, FilterInMap } from './assets/Assets'
-import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
-import lineConfig from './assets/line_font_config.json'
-
 
 const AirIcon = createIconSetFromFontello(airConfig)
-const LineIcon = createIconSetFromFontello(lineConfig)
+let timeout 
 
-export default class Map extends Component {
+class Map extends Component {
   static navigatorStyle = {
     navBarHidden: true,
     screenBackgroundColor: 'transparent'
@@ -33,64 +29,7 @@ export default class Map extends Component {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05
       },
-      items: [
-        {
-          _id: 111,
-          title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
-          image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-          price: 1250,
-          reviews: 152,
-          stars: 5,
-          like: true,
-          verified: true,
-          type: 'کل ملک',
-          luxury: true,
-          focused: true,
-          location: [35.733609, 51.365425]
-        },
-        {
-          _id: 222,
-          title: 'آپارتمان لوکس سعادت آباد',
-          image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-          price: 1250,
-          reviews: 152,
-          stars: 5,
-          like: false,
-          verified: false,
-          type: 'کل ملک',
-          luxury: true,
-          focused: false,
-          location: [35.732911, 51.358988]
-        },
-        {
-          _id: 333,
-          title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
-          image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-          price: 1250,
-          reviews: 152,
-          stars: 5,
-          like: false,
-          verified: true,
-          type: 'کل ملک',
-          luxury: true,
-          focused: false,
-          location: [35.730890, 51.359331]
-        },
-        {
-          _id: 444,
-          title: 'ویلای فول در شهر نور',
-          image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-          price: 1250,
-          reviews: 152,
-          stars: 5,
-          like: false,
-          verified: false,
-          type: 'کل ملک',
-          luxury: true,
-          focused: false,
-          location: [35.729774, 51.364009]
-        },
-      ],
+      items: [],
       scrolling: false,
       scrollItem: null
     }
@@ -98,9 +37,21 @@ export default class Map extends Component {
     this.handleViewableItemsChanged = this.handleViewableItemsChanged.bind(this)
     this.viewabilityConfig = { viewAreaCoveragePercentThreshold: 80 }
   }
-
+  
+  componentWillMount() {
+    if (this.props.page === 'luxury') {
+      this.setState({ items: this.props.luxury })
+    } else {
+      this.setState({ items: this.props.filteredHomesList })
+    }
+  }
+  
   componentDidMount() {
-    setTimeout(() => this.refs.map.fitToElements(true), 2000)
+    timeout = setTimeout(() => this.refs.map.fitToElements(true), 2000) 
+  }
+
+  componentWillUnmount() {
+    clearTimeout(timeout)
   }
 
   markerPress = (item) => {
@@ -227,3 +178,12 @@ export default class Map extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    luxury: state.luxury,
+    filteredHomesList: state.filteredHomesList
+  }
+}
+
+export default connect(mapStateToProps)(Map)

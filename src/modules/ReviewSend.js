@@ -3,8 +3,7 @@ import {
   View,
   TextInput,
   TouchableNativeFeedback,
-  ToastAndroid,
-  Keyboard
+  ToastAndroid
 } from 'react-native'
 import { connect } from 'react-redux'
 import axios from 'axios'
@@ -13,8 +12,8 @@ import { createIconSetFromFontello } from 'react-native-vector-icons'
 import airConfig from './assets/air_font_config.json'
 import r from './styles/Rinc'
 import g from './styles/General'
-import { Fa, FaBold } from './assets/Font'
-import { userRegister, userToStore } from '../actions/userActions'
+import { FaBold } from './assets/Font'
+import { addReview } from '../actions/generalActions'
 import { baseURL } from '../constants/api'
 import Loading from './assets/Loading'
 
@@ -26,8 +25,8 @@ class ReviewSend extends Component {
   }
   state = { 
     borderColor: '#e6e6e6',
-    review: '',
-    rate: 0
+    rate: 0,
+    review: ''
   }
 
   onStarRatingPress(rating) {
@@ -46,7 +45,7 @@ class ReviewSend extends Component {
     if (this.state.review.trim() !== '') {
       axios.post(`${baseURL}api/reviews`, data)
         .then(res => {
-          this.setState({ review: null })
+          this.props.addReview(res.data)
           console.log(res.data)
           ToastAndroid.show('دیدگاه شما دریافت شد.', ToastAndroid.SHORT)
           this.props.navigator.dismissModal()
@@ -135,4 +134,11 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(ReviewSend)
+function mapDispatchToProps(dispatch) {
+  return {
+    addReview: (data) => dispatch(addReview(data))
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(ReviewSend)

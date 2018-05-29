@@ -59,8 +59,7 @@ class ProfileDetails extends Component {
       languagesModal: false,
       // English(EN) - Turkish(TR) - Farsi(FA) - Kurdi(KR) - Gilaki(GL)
       languagesValue: this.props.user.languages.map(item => item), // mutation avoiding
-      imageLoading: true,
-      // avatar: 'http://192.168.1.3:3000/uploads/userAvatars/1526681741781by0u3rmao2l.jpg'
+      imageLoading: true
     }
   }
 
@@ -71,6 +70,7 @@ class ProfileDetails extends Component {
   }
 
   chooseLang = (lang) => {
+    this.setState({ languagesModal: false })
     const index = this.state.languagesValue.indexOf(lang)
     const array = this.state.languagesValue
     if (index > -1 && array.length > 1) {
@@ -380,6 +380,7 @@ class ProfileDetails extends Component {
               />
               <Modal
                 isVisible={this.state.locationModal}
+                useNativeDriver
                 onBackdropPress={() => this.setState({ locationModal: false })}
                 onBackButtonPress={() => this.setState({ locationModal: false })}
               >
@@ -397,6 +398,7 @@ class ProfileDetails extends Component {
                         <RadioBTN
                           active={this.props.user.location === item.name}
                           onPress={() => {
+                            this.setState({ locationModal: false })
                             axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { location: item.name })
                               .then(res => {
                                 this.props.userToStore(res.data)
@@ -408,7 +410,7 @@ class ProfileDetails extends Component {
                                 console.log(err)
                               })
                             // this.props.userRegister(item.name, 'location')
-                            this.setState({ locationModal: false })
+                            
                           }}
                         />
                       </View>
@@ -456,6 +458,7 @@ class ProfileDetails extends Component {
               />
               <Modal
                 isVisible={this.state.languagesModal}
+                useNativeDriver
                 onBackdropPress={() => this.setState({ languagesModal: false })}
                 onBackButtonPress={() => this.setState({ languagesModal: false })}
               >
