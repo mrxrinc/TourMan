@@ -31,6 +31,21 @@ import Notification from './modules/assets/Notification'
 import Reviews from './modules/Reviews'
 import ReviewSend from './modules/ReviewSend'
 
+import Listings from './modules/hosting/Listings'
+import BeginHosting from './modules/hosting/BeginHosting'
+import HostingHomeTypes from './modules/hosting/firstSteps/1_HomeTypes'
+import HostingCapacity from './modules/hosting/firstSteps/2_Capacity'
+import HostingRooms from './modules/hosting/firstSteps/3_Rooms'
+import HostingAmenities from './modules/hosting/firstSteps/4_Amenities'
+import HostingLocation from './modules/hosting/firstSteps/5_Location'
+import HostingPhoto from './modules/hosting/secondSteps/1_Photo'
+import HostingAbout from './modules/hosting/secondSteps/2_About'
+import HostingTitle from './modules/hosting/secondSteps/3_Title'
+import HostingHomeRules from './modules/hosting/thirdSteps/1_HomeRules'
+import HostingReservation from './modules/hosting/thirdSteps/2_Reservation'
+import HostingPrice from './modules/hosting/thirdSteps/3_Price'
+import HostingCancelation from './modules/hosting/thirdSteps/4_Cancelation'
+
 export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Splash', () => Splash, store, Provider)
   Navigation.registerComponent('mrxrinc.Explore', () => Explore, store, Provider)
@@ -61,5 +76,19 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.FeedBack', () => FeedBack, store, Provider)
   Navigation.registerComponent('mrxrinc.Notification', () => Notification, store, Provider)
   Navigation.registerComponent('mrxrinc.Reviews', () => Reviews, store, Provider)
-  Navigation.registerComponent('mrxrinc.ReviewSend', () => ReviewSend, store, Provider) 
+  Navigation.registerComponent('mrxrinc.ReviewSend', () => ReviewSend, store, Provider)
+  Navigation.registerComponent('mrxrinc.Listings', () => Listings, store, Provider)
+  Navigation.registerComponent('mrxrinc.BeginHosting', () => BeginHosting, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingHomeTypes', () => HostingHomeTypes, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingCapacity', () => HostingCapacity, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingRooms', () => HostingRooms, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingAmenities', () => HostingAmenities, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingLocation', () => HostingLocation, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingPhoto', () => HostingPhoto, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingAbout', () => HostingAbout, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingTitle', () => HostingTitle, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingHomeRules', () => HostingHomeRules, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingReservation', () => HostingReservation, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingPrice', () => HostingPrice, store, Provider)
+  Navigation.registerComponent('mrxrinc.HostingCancelation', () => HostingCancelation, store, Provider) 
 }

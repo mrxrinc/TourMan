@@ -18,7 +18,7 @@ const AirIcon = createIconSetFromFontello(airConfig)
 
 class PopularHomes extends Component {
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.filtersToStore('popular', true)
     setTimeout(() => {
       this.props.filtersResult(this.props.filters)

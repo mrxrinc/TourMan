@@ -14,7 +14,8 @@ import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import PersianDatePicker from 'react-native-persian-date-picker'
 import Modal from 'react-native-modal'
-import ImagePicker from 'react-native-image-picker'
+import ImagePicker from 'react-native-image-crop-picker'
+// import ImagePicker from 'react-native-image-picker'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaMulti, FaBold } from './assets/Font'
@@ -94,27 +95,25 @@ class ProfileDetails extends Component {
   }
 
   pickImage() {
-    const options = {
-      quality: 1.0,
-      maxWidth: 1000,
-      maxHeight: 700,
-      storageOptions: {
-        skipBackup: true
-      }
-    }
     this.setState({ upload: false })
-    ImagePicker.launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        // console.log('upload canceled!');
-      } else if (response.error) {
-        ToastAndroid.show('تصویر انتخابی مناسب نیست!', ToastAndroid.LONG)
-      } else {   
+    ImagePicker.openPicker({
+      width: 700,
+      height: 600,
+      cropping: true,
+      cropperActiveWidgetColor: '#008A8A',
+      cropperStatusBarColor: '#09686c',
+      cropperToolbarColor: '#008A8A',
+      cropperToolbarTitle: 'ویرایش تصویر',
+      mediaType: 'photo'
+    })
+    .then(image => {
+      console.log(image) 
         this.setState({ imageLoading: true })  
         const data = new FormData()
         data.append('userAvatar', {
-          uri: response.uri,
-          type: response.type,
-          name: response.fileName
+          uri: image.path,
+          type: image.mime,
+          name: `TourMan_users_avatar${image.path.substr(-4)}` // adding extention
         })
         axios.post(`${baseURL}api/users/avatar`, data, {
           headers: {
@@ -122,7 +121,7 @@ class ProfileDetails extends Component {
           }
         })
           .then(res => {
-            // console.log(res.data)
+            console.log(res.data)
             this.props.userToStore({ avatar: res.data })
             // now updating database with new user information(including avatar URL)
             axios.put(`${baseURL}api/users/update/${this.props.user._id}`, { ...this.props.user })
@@ -133,14 +132,13 @@ class ProfileDetails extends Component {
               })
               .catch(err => {
                 ToastAndroid.show('مشکلی در بروزرسانی سرور پیش آمد. لطفا دوباره تلاش کنید!', ToastAndroid.LONG)
-                // console.log(err)
+                console.log(err)
               })
           })
           .catch(err => {
             ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
-            // console.log(err)
+            console.log(err)
           })
-      }
     })
   }
 
@@ -409,8 +407,6 @@ class ProfileDetails extends Component {
                                 ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
                                 console.log(err)
                               })
-                            // this.props.userRegister(item.name, 'location')
-                            
                           }}
                         />
                       </View>

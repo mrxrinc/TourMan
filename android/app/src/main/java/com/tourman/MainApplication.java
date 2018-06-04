@@ -3,6 +3,7 @@ package com.tourman;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.beefe.picker.PickerViewPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -12,7 +13,7 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 import com.reactnativenavigation.NavigationApplication;
-import com.imagepicker.ImagePickerPackage;
+// import com.imagepicker.ImagePickerPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.realm.react.RealmReactPackage;
@@ -41,11 +42,12 @@ import org.devio.rn.splashscreen.SplashScreenReactPackage;
         // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
             new VectorIconsPackage(),
-            new ImagePickerPackage(),
+            // new ImagePickerPackage(),
             new LinearGradientPackage(),
             new RealmReactPackage(),
             new MapsPackage(),
             new PickerViewPackage(),
+            new PickerPackage(), // added this coz crop image !
             new SplashScreenReactPackage()
         );
     }

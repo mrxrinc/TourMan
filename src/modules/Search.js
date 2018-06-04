@@ -80,6 +80,7 @@ class Search extends Component {
 
         <View style={[g.mapFilter, r.absolute, r.bgLight1, r.rtl, r.horizCenter]}>
           <View style={[r.full]}>
+            {this.props.filters.activeFilterIcon && <View style={[g.filtersActiveDot, g.bgAccent]} />}
             <TouchableOpacity
               onPress={() => {
                 this.props.navigator.showModal({

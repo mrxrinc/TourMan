@@ -165,7 +165,7 @@ export class Checkbox extends Component {
     const activeBox = this.props.active ? 1 : 0
     const borderColor = this.props.active ? '#00a19c' : '#d4d4d4'
     return (
-      <View style={[r.center, { width: 50, height: 50 }]}>
+      <View style={[r.center, { width: 55, height: 55 }]}>
         <TouchableNativeFeedback
           style={r.full}
           delayPressIn={0}
@@ -175,8 +175,8 @@ export class Checkbox extends Component {
           <View
             pointerEvents={'box-only'}
             style={[r.center, {
-              width: 22,
-              height: 22,
+              width: 25,
+              height: 25,
               borderWidth: 1,
               borderColor,
               borderRadius: 5,
@@ -184,7 +184,7 @@ export class Checkbox extends Component {
           >
             <AirIcon
               name='ok-alt'
-              size={15}
+              size={18}
               color={'#00a19c'}
               style={{ opacity: activeBox }}
             />
@@ -432,10 +432,6 @@ export class MapFilter extends Component {
   }
 }
 
-export const MapStyle =
- [{"featureType":"all","elementType":"labels.text.fill","stylers":[{"saturation":36},{"color":"#333333"},{"lightness":40}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"visibility":"on"},{"color":"#ffffff"},{"lightness":16}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#fefefe"},{"lightness":20}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#fefefe"},{"lightness":17},{"weight":1.2}]},{"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#eaeaea"},{"lightness":20},{"weight":"1"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#f5f5f5"},{"lightness":21}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#dedede"},{"lightness":21}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"lightness":17},{"color":"#ffffff"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#ffffff"},{"lightness":29},{"weight":0.2}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"lightness":18}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#ffffff"},{"lightness":16}]},{"featureType":"transit","elementType":"geometry","stylers":[{"color":"#f2f2f2"},{"lightness":19}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#e9e9e9"},{"lightness":17}]}]
-
-
  export class MyMarker extends Component {
   render() {
     const { focused } = this.props
@@ -443,11 +439,13 @@ export const MapStyle =
     return (
       <View>
         <View
-          style={[g.myMarker, r.row, r.horizCenter,
+          style={[g.myMarker, 
           { backgroundColor: focused ? '#08a299' : '#fff', borderWidth: focused ? 0 : 0.5 }]}
         >
-          <Text style={[g.myMarkerText, { color: focusedText }]}>{this.props.price}</Text>
-          <LineIcon name={'money'} size={12} color={focusedText} />
+          <View style={[r.row, r.horizCenter]}>
+            <Text style={[g.myMarkerText, { color: focusedText }]}>{this.props.price}</Text>
+            <LineIcon name={'money'} size={12} color={focusedText} />
+          </View>
         </View>
         <View style={[g.myMarkerArrow, { backgroundColor: focused ? '#08a299' : '#90999f' }]} />
       </View>
@@ -500,3 +498,6 @@ export class RadioBTN extends Component {
     )
   }
 }
+
+export const MapStyle =
+  [{ "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "saturation": 36 }, { "color": "#333333" }, { "lightness": 40 }] }, { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{ "visibility": "on" }, { "color": "#ffffff" }, { "lightness": 16 }] }, { "featureType": "all", "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] }, { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#fefefe" }, { "lightness": 20 }] }, { "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [{ "color": "#fefefe" }, { "lightness": 17 }, { "weight": 1.2 }] }, { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#eaeaea" }, { "lightness": 20 }, { "weight": "1" }] }, { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }, { "lightness": 21 }] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#dedede" }, { "lightness": 21 }] }, { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [{ "lightness": 17 }, { "color": "#ffffff" }] }, { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#ffffff" }, { "lightness": 29 }, { "weight": 0.2 }] }, { "featureType": "road.arterial", "elementType": "geometry", "stylers": [{ "lightness": 18 }] }, { "featureType": "road.local", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }, { "lightness": 16 }] }, { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#f2f2f2" }, { "lightness": 19 }] }, { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e9e9e9" }, { "lightness": 17 }] }]

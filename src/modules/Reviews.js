@@ -19,7 +19,6 @@ import { baseURL } from '../constants/api'
 import { storeReviews } from '../actions/generalActions'
 
 const NAVBAR_HEIGHT = 75
-
 class Reviews extends Component {
   static navigatorStyle = {
     navBarHidden: true
@@ -43,7 +42,8 @@ class Reviews extends Component {
         ),
         0,
         NAVBAR_HEIGHT,
-      )
+      ),
+      loading: true
     } 
   }
 
@@ -52,6 +52,8 @@ class Reviews extends Component {
     axios.get(`${baseURL}api/reviews/${parent}`)
       .then(res => {
         this.props.storeReviews(res.data)
+          console.log('reviews hereeeeee :', this.props.reviews)          
+          this.setState({ loading: false })
       })
       .catch(err => {
         ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
@@ -109,11 +111,13 @@ class Reviews extends Component {
           />
         </Animated.View>
 
-        {!this.props.reviews.length ? (
-          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex1]}>
+        {this.state.loading && (
+          <View style={[r.full, r.center]}>
             <Loading />
           </View>
-        ) : (
+        )}
+        
+        {this.props.reviews.length > 0 ? (
           <ScrollView
             contentContainerStyle={{ marginTop: NAVBAR_HEIGHT, paddingBottom: 20 }}
             showsVerticalScrollIndicator={false}
@@ -167,6 +171,10 @@ class Reviews extends Component {
               />
             </View>
           </ScrollView>
+        ) : (
+          <View style={[r.full, r.center]}>
+            <FaBold size={20} style={[r.light4]}>اولین دیدگاه را ارسال کنید...</FaBold>
+          </View>
         )}
       </View>
     )

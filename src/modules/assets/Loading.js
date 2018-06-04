@@ -54,21 +54,22 @@ export default class Splash extends Component {
   }
 
   render() {
+    const theme = this.props.white ? r.bgWhite : g.bgPrimary
     return (
       <View style={[r.full, r.center]}>
         <View style={[r.row, this.props.style]}>
           <Animated.View
-            style={[g.bgPrimary, g.loadingDot,
+            style={[theme, g.loadingDot,
               { opacity: this.state.opec01,
                 transform: [{ scale: this.state.scale01 }] }]}
           />
           <Animated.View
-            style={[g.bgPrimary, g.loadingDot,
+            style={[theme, g.loadingDot,
               { opacity: this.state.opec02,
                 transform: [{ scale: this.state.scale02 }] }]}
           />
           <Animated.View
-            style={[g.bgPrimary, g.loadingDot,
+            style={[theme, g.loadingDot,
               { opacity: this.state.opec03,
                 transform: [{ scale: this.state.scale03 }] }]}
           />

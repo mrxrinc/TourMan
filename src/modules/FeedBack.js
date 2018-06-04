@@ -24,7 +24,7 @@ class FeedBack extends Component {
   }
   state={
     borderColor: '#e6e6e6',
-    text: null
+    text: ''
   }
 
   sendFeedback = () => {
@@ -32,18 +32,22 @@ class FeedBack extends Component {
       userId: this.props.user._id,
       text: this.state.text
     }
-    axios.post(`${baseURL}api/feedback`, data)
-      .then(res => {
-        this.setState({ text: null })
-        console.log(res.data);
-        
-        ToastAndroid.show('پیام شما دریافت شد.', ToastAndroid.SHORT)
-        this.props.navigator.dismissModal()
-      })
-      .catch(err => {
-        ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
-        console.log(err)
-      })
+    if (this.state.text.trim() !== '') {
+      axios.post(`${baseURL}api/feedback`, data)
+        .then(res => {
+          this.setState({ text: null })
+          console.log(res.data);
+          
+          ToastAndroid.show('پیام شما دریافت شد.', ToastAndroid.SHORT)
+          this.props.navigator.dismissModal()
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
+    } else {
+      this.setState({ borderColor: '#fd5155' })
+    }
   }
 
   render() {  

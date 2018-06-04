@@ -8,7 +8,10 @@ import {
   filtersReducer,
   reviewsReducer,
   homesListReducer,
-  luxuryReducer
+  luxuryReducer,
+  addHomeReducer,
+  addHomeStepsReducer,
+
  } from './pages/generalReducers'
 
 const rootReducer = combineReducers({
@@ -19,7 +22,9 @@ const rootReducer = combineReducers({
   luxury: luxuryReducer,
   reviews: reviewsReducer,
   filters: filtersReducer,
-  filteredHomesList: homesListReducer
+  filteredHomesList: homesListReducer,
+  addHomeState: addHomeReducer,
+  addHomeSteps: addHomeStepsReducer
 })
 
 export default rootReducer

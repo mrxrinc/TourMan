@@ -127,7 +127,7 @@ class Registration extends Component {
         this.props.navigator.showInAppNotification({
           screen: 'mrxrinc.Notification',
           passProps: {
-            message: 'هیچ کاربری با این ایمیل ثبت نشده است!',
+            message: 'مشخصات ورود اشتباه است!',
             alarm: true,
           },
           autoDismissTimerSec: 1

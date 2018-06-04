@@ -60,7 +60,7 @@ class Profile extends Component {
             icon={'id-card-alt'}
             onPress={() => {
               this.props.navigator.push({
-                screen: 'mrxrinc.Profile'
+                screen: 'mrxrinc.Listings'
               })
             }}
           />
@@ -96,7 +96,7 @@ class Profile extends Component {
             icon={'rooms'}
             noBottomLine
             onPress={() => {
-              ToastAndroid.show('در حال خروج از اکانت شما ...', ToastAndroid.SHORT)
+              ToastAndroid.show('از اکانت خود خارج شدید', ToastAndroid.SHORT)
               Realm.open({
                 schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
               }).then(realm => {

@@ -486,7 +486,83 @@ module.exports = StyleSheet.create({
     borderRadius: 3,
     alignSelf: 'center',
     overflow: 'hidden'
-  }
+  },
+  filtersActiveDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    position: 'absolute',
+    top: -1,
+    left: 8,
+    zIndex: 2,
+  },
+  listingThumb: {
+    width: 90,
+    height: 70,
+    borderRadius: 3
+  },
+  beginHostingBTN: {
+    width: 150,
+    height: 40,
+    borderRadius: 25,
+    alignSelf: 'flex-end',
+    backgroundColor: '#00a699'
+  },
+  hostingStepsNextBTN: {
+    height: 50,
+    left: 20,
+    bottom: 20
+  },
+  hostingMarker: {
+    borderColor: '#fff',
+    borderRadius: 3,
+    backgroundColor: '#08a299',
+    borderWidth: 0.5,
+    width: 40,
+    height: 30
+  },
+  hostingMarkerArrow: {
+    width: 10,
+    height: 10,
+    transform: [{ rotate: '45deg' }],
+    bottom: 5,
+    zIndex: 0,
+    alignSelf: 'center'
+  },
+  hostingSelectProvince: { 
+    minWidth: 180,
+    height: 40,
+    borderRadius: 10,
+    borderColor: '#e0e0e0', 
+    borderWidth: 0.5 
+  },
+  hostingImagesWrap: {
+    padding: 10,
+    alignItems: 'center',
+    minHeight: '60%'
+  },
+  hostingImages: {
+    minWidth: '49%',
+    height: 140,
+    borderRadius: 5,
+    margin: 2,
+    overflow: 'hidden',
+    alignSelf: 'center'
+  },
+  hostingImageDelete: {
+    top: 0,
+    left:0,
+    padding: 5,
+    borderRadius: 3,
+    width: 40,
+  },
+  hostingAboutInputs: {
+    height: 150,
+    fontFamily: 'IRANSansMobile',
+    textAlignVertical: 'top',
+    textAlign: 'right',
+    paddingHorizontal: 10,
+  },
 
 
 

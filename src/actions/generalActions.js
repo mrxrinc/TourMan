@@ -47,7 +47,7 @@ export function homesList(data) {
 
 export function generalFilters(data) {
   return {
-    type: types.FILTER_GENERAL_FILTERS,
+    type: types.FILTER_GENERAL,
     payload: data
   }
 }
@@ -79,5 +79,20 @@ export function filtersResult(data) {
     .catch(err => {
       console.log(err)
     })
+  }
+}
+
+export function addHome(payload, section) {
+  return {
+    type: types.ADD_HOME,
+    payload,
+    section
+  }
+}
+
+export function addHomeStepsFunc(payload) {
+  return {
+    type: types.ADD_HOME_STEPS,
+    payload
   }
 }

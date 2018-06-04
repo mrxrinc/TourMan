@@ -56,6 +56,26 @@ class Amenities extends Component {
       outputRange: [0, -(NAVBAR_HEIGHT)],
       extrapolate: 'clamp',
     })
+    const empty = () => {
+      if (
+        this.props.home.amenities.wifi === false &&
+        this.props.home.amenities.heat === false &&
+        this.props.home.amenities.washingMachine === false &&
+        this.props.home.amenities.iron === false &&
+        this.props.home.amenities.laptopFriendly === false &&
+        this.props.home.amenities.accessories === false &&
+        this.props.home.amenities.fireplace === false &&
+        this.props.home.amenities.cooler === false &&
+        this.props.home.amenities.tv === false &&
+        this.props.home.amenities.parkingLot === false &&
+        this.props.home.amenities.kitchen === false &&
+        this.props.home.amenities.hairDryer === false &&
+        this.props.home.amenities.firstAids === false &&
+        this.props.home.amenities.smokeDetecto === false 
+      ) {
+        return true
+      }
+    }
     return (
       <View style={[r.full, r.bgWhite]}>
         <Animated.View
@@ -220,10 +240,16 @@ class Amenities extends Component {
                 <View style={g.line} />
               </View>
             )}
-
           </View>
 
         </ScrollView>
+        
+        {empty && (
+          <View style={[r.full, r.center]}>
+            <FaBold size={17} style={[r.light4]}>هیچ امکاناتی برای این خانه مشخص نشده است !</FaBold>
+          </View>
+        )}
+
       </View>
     )
   }

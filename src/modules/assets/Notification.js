@@ -9,8 +9,10 @@ export default class Notification extends Component {
     navBarHidden: true
   }
   render() {
-    const bg = this.props.alarm ? '#fc0c48' : '#fff'
-    const textColor = this.props.alarm ? '#fff' : '#697989'
+    let bg = '#fff'
+    if (this.props.alarm) bg = '#fc0c48'
+    if (this.props.success) bg = '#16bfc5'
+    const textColor = this.props.alarm || this.props.success ? '#fff' : '#697989'
     return (
       <View 
         style={[r.notification, r.verticalCenter, r.paddHoriz20, { backgroundColor: bg }]}

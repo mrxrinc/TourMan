@@ -140,6 +140,19 @@ class MainHeader extends Component {
             </View>
           </View>
 
+          {this.props.moneyGuid && (
+            <View style={[r.absolute, r.left, r.bottom, r.rtl, r.horizCenter, { height: 30 }]}>
+              <LineIcon
+                name={'money'}
+                color={'rgba(255,255,255,0.7)'}
+                size={16}
+              />
+              <FaBold size={10} style={[r.paddHoriz5, r.top3, { color: 'rgba(255,255,255,0.7)' }]}>
+                = هزار تومان
+            </FaBold>
+            </View>
+          )}
+
         </LinearGradient>
       </View>
     )

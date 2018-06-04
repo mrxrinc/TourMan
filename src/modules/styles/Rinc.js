@@ -67,7 +67,7 @@ module.exports = StyleSheet.create({
   topText:{
     textAlignVertical: 'top'
   },
-  largText:{fontSize: 16},
+  largeText:{fontSize: 16},
   bigText:{fontSize: 14},
   tinyText:{fontSize: 8},
 	text12:{fontSize: 12},
@@ -138,8 +138,9 @@ module.exports = StyleSheet.create({
 	bottom10:{marginBottom: 10},
 	bottom20:{marginBottom: 20},
 	bottom30:{marginBottom: 30},
-	bottom40:{marginBottom: 40},
-	bottom50:{marginBottom: 50},
+  bottom40: { marginBottom: 40 },
+  bottom50: { marginBottom: 50 },
+  bottom70: { marginBottom: 70 },
 	bottomPadd10:{paddingBottom: 10},
 	bottomPadd20:{paddingBottom: 20},
 	bottomPadd30:{paddingBottom: 30},

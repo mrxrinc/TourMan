@@ -82,29 +82,38 @@ class HomeDetails extends Component {
                   {this.props.home.about.details}
                 </FaMulti>
 
-                <FaBold size={14} style={r.vertical30}>
-                  مهمان ها به چه چیزهایی دسترسی دارند؟
-                </FaBold>
+                {this.props.home.about.guestAccessibility && (
+                  <View>
+                    <FaBold size={14} style={r.vertical30}>
+                      مهمان ها به چه چیزهایی دسترسی دارند؟
+                    </FaBold>
+                    <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                      {this.props.home.about.guestAccessibility}
+                    </FaMulti>
+                  </View>
+                )}
+                
+                {this.props.home.about.neighborhood && (
+                  <View>
+                    <FaBold size={14} style={r.vertical30}>
+                      همسایه ها:
+                    </FaBold>
+                    <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                      {this.props.home.about.neighborhood}
+                    </FaMulti>
+                  </View>
+                )}
 
-                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  {this.props.home.about.guestAccessibility}
-                </FaMulti>
-
-                <FaBold size={14} style={r.vertical30}>
-                  همسایه ها:
-                </FaBold>
-
-                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  {this.props.home.about.neighborhood}
-                </FaMulti>
-
-                <FaBold size={14} style={r.vertical30}>
-                  دسترسی به امکانات شهری:
-                </FaBold>
-
-                <FaMulti size={12} style={[{ lineHeight: 25 }]}>
-                  {this.props.home.about.accessToCityGoods}
-                </FaMulti>
+                {this.props.home.about.accessToCityGoods && (
+                  <View>
+                    <FaBold size={14} style={r.vertical30}>
+                      دسترسی به امکانات شهری:
+                    </FaBold>
+                    <FaMulti size={12} style={[{ lineHeight: 25 }]}>
+                      {this.props.home.about.accessToCityGoods}
+                    </FaMulti>
+                  </View>
+                )}
 
               </View>
             </ScrollView>

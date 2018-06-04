@@ -62,6 +62,7 @@ class Filters extends Component {
                 background={TouchableNativeFeedback.Ripple('#00000011', true)}
                 onPress={() => {
                   this.props.filtersToStore(null)
+                  this.props.filtersResult({})
                   this.props.navigator.dismissModal()
                 }}>
                 <View pointerEvents={'box-only'} style={[r.full, r.center]}>

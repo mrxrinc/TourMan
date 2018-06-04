@@ -61,7 +61,7 @@ class HomeItem extends Component {
         HEADER_MIN_HEIGHT,
       ),
       loading: true,
-      lastReview: {},
+      lastReview: null,
       activeImage: 0,
       homeHeart_01: false,
       reviewExtendLines: 2,
@@ -415,18 +415,18 @@ class HomeItem extends Component {
                 style={[r.map, g.homeItemMap, r.vertical10]}
                 showsCompass={false}
                 region={{
-                  latitude: this.props.home.location[0] + 0.0018,
-                  longitude: this.props.home.location[1],
+                  latitude: this.props.home.location.latitude + 0.0018,
+                  longitude: this.props.home.location.longitude,
                   latitudeDelta: 0.005,
-                  longitudeDelta: 0.005,
+                  longitudeDelta: 0.005
                 }}
                 liteMode
                 customMapStyle={MapStyle}
               >
                 <MapView.Circle
                   center={{
-                    latitude: parseFloat(this.props.home.location[0]),
-                    longitude: parseFloat(this.props.home.location[1])
+                    latitude: this.props.home.location.latitude,
+                    longitude: this.props.home.location.longitude
                   }}
                   radius={270}
                   strokeWidth={1.5}
@@ -441,65 +441,75 @@ class HomeItem extends Component {
             </View>
             <View style={r.margin15}>
               <View style={[r.rtl, r.spaceBetween, { marginBottom: 10 }]}>
-                <Fa style={g.grayDark} size={13}>ساعت شروع بازدید</Fa>
+                <Fa style={g.grayDark} size={13}>ساعت ورود</Fa>
                 <Fa style={g.grayDark} size={13}>{this.props.home.visitHours[0]} به بعد</Fa>
               </View>
               <View style={g.line} />
               <View style={[r.vertical10, r.rtl, r.spaceBetween]}>
-                <Fa style={g.grayDark} size={13}>ساعت اتمام بازدید</Fa>
-                <Fa style={g.grayDark} size={13}>{this.props.home.visitHours[1]} شب</Fa>
+                <Fa style={g.grayDark} size={13}>ساعت خروج</Fa>
+                <Fa style={g.grayDark} size={13}>قبل از {this.props.home.visitHours[1]}</Fa>
               </View>
               <View style={g.line} />
 
               <View style={[r.top10]}>
                 <FaBold style={[r.grayDark]} size={15}>دیدگاه ها</FaBold>
-                <View style={[r.rtl, r.top5]}>
-                  <Image
-                    style={[g.reviewAvatar]}
-                    source={{ uri: this.state.lastReview.avatar }}/>
-                  <View style={[r.verticalCenter, r.rightPadd10]}>
-                    <FaBold size={12} style={r.grayMid}>{this.state.lastReview.userFullName}</FaBold>
-                    <StarRating
-                      disabled
-                      maxStars={5}
-                      rating={this.state.lastReview.rate}
-                      starSize={12}
-                      fullStarColor={'#02a4a4'}
-                      emptyStarColor={'#d3d3d3'}
-                    />
-                    <Fa size={9} style={r.grayLight}>{this.state.lastReview.date}</Fa>
-                  </View>
-                </View>
-                <View style={[r.vertical10]}>
-                  <FaMulti 
-                    size={12} style={[r.grayMid]}
-                    numberOfLines={this.state.reviewExtendLines} 
-                    onPress={() => this.setState({ reviewExtendLines: 20 })} 
-                  >
-                    {this.state.lastReview.comment}
-                  </FaMulti>
 
-                  <View style={[r.row, r.spaceBetween, r.horizCenter, r.top20]}>
-                    <StarRating
-                      disabled
-                      maxStars={5}
-                      rating={this.props.home.overallRate}
-                      starSize={12}
-                      fullStarColor={'#02a4a4'}
-                      emptyStarColor={'#d3d3d3'}
-                    />
-                    <Fa 
-                      style={[g.primary, r.rightMargin5]} size={14}
-                      onPress={() => {
-                        this.props.navigator.push({
-                          screen: 'mrxrinc.Reviews',
-                          passProps: { parent: this.props.home._id, from: 'home' }
-                        })
-                      }}
-                    >
-                      همه <Text> {this.props.home.reviewsCount } </Text> نظر
-                    </Fa>
+                {this.state.lastReview && (
+                  <View>
+                    <View style={[r.rtl, r.top5]}>
+                      <Image
+                        style={[g.reviewAvatar]}
+                        source={{ uri: this.state.lastReview.avatar }} />
+                      <View style={[r.verticalCenter, r.rightPadd10]}>
+                        <FaBold size={12} style={r.grayMid}>{this.state.lastReview.userFullName}</FaBold>
+                        <StarRating
+                          disabled
+                          maxStars={5}
+                          rating={this.state.lastReview.rate}
+                          starSize={12}
+                          fullStarColor={'#02a4a4'}
+                          emptyStarColor={'#d3d3d3'}
+                        />
+                        <Fa size={9} style={r.grayLight}>{this.state.lastReview.date}</Fa>
+                      </View>
+                    </View>
+                    <View style={[r.vertical10]}>
+                      <FaMulti
+                        size={12} style={[r.grayMid]}
+                        numberOfLines={this.state.reviewExtendLines}
+                        onPress={() => this.setState({ reviewExtendLines: 20 })}
+                      >
+                        {this.state.lastReview.comment}
+                      </FaMulti>
+                    </View>
                   </View>
+                )}
+
+                <View style={[r.row, r.spaceBetween, r.horizCenter, r.top20]}>
+                  <StarRating
+                    disabled
+                    maxStars={5}
+                    rating={this.props.home.overallRate}
+                    starSize={12}
+                    fullStarColor={'#02a4a4'}
+                    emptyStarColor={'#d3d3d3'}
+                  />
+                  <Fa 
+                    style={[g.primary, r.rightMargin5]} size={14}
+                    onPress={() => {
+                      this.props.navigator.push({
+                        screen: 'mrxrinc.Reviews',
+                        passProps: { parent: this.props.home._id, from: 'home' }
+                      })
+                    }}
+                  >
+                    {this.props.home.reviewsCount > 0 ? (
+                      `همه ${this.props.home.reviewsCount} دیدگاه`
+                    ) : (
+                      'ارسال دیدگاه'
+                    )}
+                    
+                  </Fa>
                 </View>
               </View>
             </View>

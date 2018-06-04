@@ -3,7 +3,7 @@ import { View, Image } from 'react-native'
 import { connect } from 'react-redux'
 import axios from 'axios'
 import Realm from 'realm'
-import SplashScreen from 'react-native-splash-screen';
+import SplashScreen from 'react-native-splash-screen'
 import Loading from './assets/Loading'
 import r from './styles/Rinc'
 import { EnBold } from './assets/Font'
@@ -37,7 +37,9 @@ class Splash extends Component {
           .then(user => {
             this.props.userToStore(user.data)
             // console.log('in Splash : ', this.props)      
-            this.props.navigator.resetTo({ screen: 'mrxrinc.Explore', passProps: { homeId: '5b032f6cb33fc62ba879cd56' } })
+            this.props.navigator.resetTo({ 
+              screen: 'mrxrinc.Explore'
+            })
           })
           .catch(err => console.log(err))
       }

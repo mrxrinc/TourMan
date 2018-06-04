@@ -24,10 +24,10 @@ class Map extends Component {
     super(props)
     this.state = {
       region: { // just for initializing region (has no effect after data been recieved)
-        latitude: 35.732911,
-        longitude: 51.358988,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05
+        latitude: 32.719657, 
+        longitude: 53.583574,
+        latitudeDelta: 13,
+        longitudeDelta: 13
       },
       items: [],
       scrolling: false,
@@ -35,19 +35,22 @@ class Map extends Component {
     }
     //this is for preventing an error at FlatList get current item
     this.handleViewableItemsChanged = this.handleViewableItemsChanged.bind(this)
-    this.viewabilityConfig = { viewAreaCoveragePercentThreshold: 80 }
+    this.viewabilityConfig = { viewAreaCoveragePercentThreshold: 80, minimumViewTime: 100 }
   }
   
   componentWillMount() {
+    const newItems = (propName) => propName.map(item => (
+      { ...item, focused: false }
+    ))
     if (this.props.page === 'luxury') {
-      this.setState({ items: this.props.luxury })
+      this.setState({ items: newItems(this.props.luxury) })
     } else {
-      this.setState({ items: this.props.filteredHomesList })
+      this.setState({ items: newItems(this.props.filteredHomesList) })
     }
   }
   
   componentDidMount() {
-    timeout = setTimeout(() => this.refs.map.fitToElements(true), 2000) 
+    timeout = setTimeout(() => this.refs.map.fitToElements(true), 2000)
   }
 
   componentWillUnmount() {
@@ -58,8 +61,8 @@ class Map extends Component {
     console.log(item)
     const newRegion = {
       ...this.state.region,
-      latitude: item.location[0],
-      longitude: item.location[1]
+      latitude: item.location.latitude,
+      longitude: item.location.longitude
     }
     this.setState({ scrolling: true }, () => {
       this.list.scrollToItem({ item, viewOffset: 15 })
@@ -94,8 +97,8 @@ class Map extends Component {
       this.setState({ items: newItems }, () => {
         const newRegion = {
           ...this.state.region,
-          latitude: upperItem.viewableItems[0].item.location[0],
-          longitude: upperItem.viewableItems[0].item.location[1]
+          latitude: upperItem.viewableItems[0].item.location.latitude,
+          longitude: upperItem.viewableItems[0].item.location.longitude
         }
         this.refs.map.animateToRegion(newRegion)
       })
@@ -139,8 +142,8 @@ class Map extends Component {
             {this.state.items.map((item) => (
               <MapView.Marker
                 coordinate={{
-                  latitude: parseFloat(item.location[0]),
-                  longitude: parseFloat(item.location[1])
+                  latitude: parseFloat(item.location.latitude),
+                  longitude: parseFloat(item.location.longitude)
                 }}
                 key={item._id}
                 onPress={() => this.markerPress(item)}
@@ -149,7 +152,9 @@ class Map extends Component {
               </MapView.Marker>
             ))}
           </MapView>
-          <FilterInMap {...this.props} />
+
+          {this.props.page !== 'luxury' ? <FilterInMap {...this.props} /> : null}
+          
         </View>
         <View style={[g.mapList, r.wFull]}>
           <FlatList
@@ -170,8 +175,6 @@ class Map extends Component {
             initialNumToRender={3}
             onViewableItemsChanged={this.handleViewableItemsChanged}
             viewabilityConfig={this.viewabilityConfig}
-            // onMomentumScrollBegin={() => this.setState({ scrolling: true })}
-            // onMomentumScrollEnd={() => this.setState({ scrolling: false })}
           />
         </View>
       </View>

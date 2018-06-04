@@ -1,128 +1,314 @@
 {
   "items":[
     {
-    "id":1,
-    "name":"آذربایجان شرقی",
+      "id":1,
+      "name":"آذربایجان شرقی",
+      "region": {
+        "latitude": 38.07089725642021,
+        "longitude": 46.297245025634766,
+        "latitudeDelta": 0.14064727924568388,
+        "longitudeDelta": 0.16533806920051575
+      }
     },
     {
-    "id":2,
-    "name":"آذربایجان غربی",
+      "id":2,
+      "name":"آذربایجان غربی",
+      "region": {
+        "latitude": 37.55491528390621,
+        "longitude": 45.077771153301,
+        "latitudeDelta":  0.0880687904886841,
+        "longitudeDelta": 0.10280806571245904
+      }
     },
     {
-    "id":3,
-    "name":"اردبیل",
+      "id":3,
+      "name":"اردبیل",
+      "region": {
+        "latitude": 38.256772775799604,
+        "longitude": 48.29976098611951,
+        "latitudeDelta": 0.05595482432395471,
+        "longitudeDelta": 0.06594579666852951
+      }
     },
     {
-    "id":4,
-    "name":"اصفهان",
+      "id":4,
+      "name":"اصفهان",
+      "region": {
+        "latitude": 32.65462750,
+        "longitude": 51.66798260,
+        "latitudeDelta": 0.22889707178593,
+        "longitudeDelta": 0.19180845469236374
+      }
     },
     {
-    "id":5,
-    "name":"البرز",
+      "id":5,
+      "name":"البرز",
+      "region": {
+        "latitude": 35.84001880,
+        "longitude": 50.93909060,
+        "latitudeDelta": 0.22889707178593,
+        "longitudeDelta": 0.19180845469236374
+      }
     },
     {
-    "id":6,
-    "name":"ایلام",
+      "id":6,
+      "name":"ایلام",
+      "region": {
+        "latitude": 33.6388481652226,
+        "longitude": 46.415883991867304,
+        "latitudeDelta": 0.066743143857245,
+        "longitudeDelta": 0.07419090718030219
+      }
     },
     {
-    "id":7,
-    "name":"بوشهر",
+      "id":7,
+      "name":"بوشهر",
+      "region": {
+        "latitude": 28.926731630201445,
+        "longitude": 50.82689641043544,
+        "latitudeDelta": 0.05197029274283338,
+        "longitudeDelta": 0.054952092468738556
+      }
     },
     {
-    "id":8,
-    "name":"تهران",
+      "id":8,
+      "name":"تهران",
+      "region": {
+        "latitude": 35.69983573980582,
+        "longitude": 51.38768495991826,
+        "latitudeDelta": 0.22889707178593,
+        "longitudeDelta": 0.19180845469236374
+      }
     },
     {
-    "id":9,
-    "name":"چهارمحال و بختیاری",
+      "id":9,
+      "name":"چهارمحال و بختیاری",
+      "region": {
+        "latitude": 32.328920552310805,
+        "longitude": 50.857240576297045,
+        "latitudeDelta": 0.08017746950316251,
+        "longitudeDelta": 0.08781183511018753
+      }
     },
     {
-    "id":10,
-    "name":"خراسان جنوبی",
+      "id":10,
+      "name":"خراسان جنوبی",
+      "region": {
+        "latitude": 32.87152477959057,
+        "longitude": 59.224534425884485,
+        "latitudeDelta": 0.19935300283263047,
+        "longitudeDelta": 0.2196611836552691
+      }
     },
     {
-    "id":11,
-    "name":"خراسان رضوی",
+      "id":11,
+      "name":"خراسان رضوی",
+      "region": {
+        "latitude": 36.28791413733799,
+        "longitude": 59.60160506889225,
+        "latitudeDelta": 0.2633906688667125,
+        "longitudeDelta": 0.3024059906601906
+      }
     },
     {
-    "id":12,
-    "name":"خراسان شمالی",
+      "id":12,
+      "name":"خراسان شمالی",
+      "region": {
+        "latitude": 37.47608343357863,
+        "longitude": 57.32623150572181,
+        "latitudeDelta": 0.12183342836024735,
+        "longitudeDelta": 0.14207359403372521
+      }
     },
     {
-    "id":13,
-    "name":"خوزستان",
+      "id":13,
+      "name":"خوزستان",
+      "region": {
+        "latitude": 31.32470680814052,
+        "longitude": 48.67090931162238,
+        "latitudeDelta": 0.22916830792731346,
+        "longitudeDelta": 0.24827364832162857
+      }
     },
     {
-    "id":14,
-    "name":"زنجان",
+      "id":14,
+      "name":"زنجان",
+      "region": {
+        "latitude": 36.68702224586458,
+        "longitude": 48.50892702117562,
+        "latitudeDelta": 0.1171158055651702,
+        "longitudeDelta": 0.13515818864107132
+      }
     },
     {
-    "id":15,
-    "name":"سمنان",
+      "id":15,
+      "name":"سمنان",
+      "region": {
+        "latitude": 35.580724327100036,
+        "longitude": 53.3794273249805,
+        "latitudeDelta": 0.051888885944507024,
+        "longitudeDelta": 0.05904447287321091
+      }
     },
     {
-    "id":16,
-    "name":"سیستان و بلوچستان",
+      "id":16,
+      "name":"سیستان و بلوچستان",
+      "region": {
+        "latitude": 29.48706254598254,
+        "longitude": 60.86251152679324,
+        "latitudeDelta": 0.09217190253925978,
+        "longitudeDelta": 0.09799417108296637
+      }
     },
     {
-    "id":17,
-    "name":"فارس",
+      "id":17,
+      "name":"فارس",
+      "region": {
+        "latitude": 29.604232662146686,
+        "longitude": 52.53582866862416,
+        "latitudeDelta": 0.13465508560318185,
+        "longitudeDelta": 0.14332685619592667
+      }
     },
     {
-    "id":18,
-    "name":"قزوین",
+      "id":18,
+      "name":"قزوین",
+      "region": {
+        "latitude": 36.2857623978867,
+        "longitude": 50.00817758962512,
+        "latitudeDelta": 0.06888681980655775,
+        "longitudeDelta": 0.07908862084149604
+      }
     },
     {
-    "id":19,
-    "name":"قم",
+      "id":19,
+      "name":"قم",
+      "region": {
+        "latitude": 34.63994430,
+        "longitude": 50.87594190,
+        "latitudeDelta": 0.22889707178593,
+        "longitudeDelta": 0.19180845469236374
+      }
     },
     {
-    "id":20,
-    "name":"كردستان",
+      "id":20,
+      "name":"كردستان",
+      "region": {
+        "latitude": 35.314195115111055,
+        "longitude": 46.998163405805826,
+        "latitudeDelta": 0.05818271200776337,
+        "longitudeDelta": 0.06598737090825324
+      }
     },
     {
-    "id":21,
-    "name":"كرمان",
+      "id":21,
+      "name":"كرمان",
+      "region": {
+        "latitude": 30.28774289986192,
+        "longitude": 57.08362938836217,
+        "latitudeDelta": 0.09366785763139518,
+        "longitudeDelta": 0.10038737207651138
+      }
     },
     {
-    "id":22,
-    "name":"كرمانشاه",
+      "id":22,
+      "name":"كرمانشاه",
+      "region": {
+        "latitude": 34.330045472378146,
+        "longitude": 47.07697341218591,
+        "latitudeDelta": 0.0956428919607788,
+        "longitudeDelta": 0.10718408972024918
+      }
     },
     {
-    "id":23,
-    "name":"کهگیلویه و بویراحمد",
+      "id":23,
+      "name":"کهگیلویه و بویراحمد",
+      "region": {
+        "latitude": 30.67052302381451,
+        "longitude": 51.587982438504696,
+        "latitudeDelta": 0.052945535494512086,
+        "longitudeDelta": 0.05696743726731057
+      }
     },
     {
-    "id":24,
-    "name":"گلستان",
+      "id":24,
+      "name":"گلستان",
+      "region": {
+        "latitude": 36.84701104027577,
+        "longitude": 54.43894213065505,
+        "latitudeDelta": 0.03906653632354562,
+        "longitudeDelta": 0.045178793370723724
+      }
     },
     {
-    "id":25,
-    "name":"گیلان",
+      "id":25,
+      "name":"گیلان",
+      "region": {
+        "latitude": 37.27953581589929,
+        "longitude": 49.59118226543069,
+        "latitudeDelta": 0.061295205868248104,
+        "longitudeDelta": 0.07129143923521042
+      }
     },
     {
-    "id":26,
-    "name":"لرستان",
+      "id":26,
+      "name":"لرستان",
+      "region": {
+        "latitude": 33.47850949790114,
+        "longitude": 48.352478463202715,
+        "latitudeDelta": 0.07632776234908789,
+        "longitudeDelta": 0.0846877321600914
+      }
     },
     {
-    "id":27,
-    "name":"مازندران",
+      "id":27,
+      "name":"مازندران",
+      "region": {
+        "latitude": 36.56821190323339,
+        "longitude": 53.059106189757586,
+        "latitudeDelta": 0.058710058410049726,
+        "longitudeDelta": 0.06765034049749374
+      }
     },
     {
-    "id":28,
-    "name":"مركزی",
+      "id":28,
+      "name":"مركزی",
+      "region": {
+        "latitude": 34.09770899923966,
+        "longitude": 49.7007323987782,
+        "latitudeDelta": 0.08625133436775201,
+        "longitudeDelta": 0.09639289230108261
+      }
     },
     {
-    "id":29,
-    "name":"هرمزگان",
+      "id":29,
+      "name":"هرمزگان",
+      "region": {
+        "latitude": 27.186724758314817,
+        "longitude": 56.276653949171305,
+        "latitudeDelta": 0.06608870008555101,
+        "longitudeDelta": 0.06875809282064438
+      }
     },
     {
-    "id":30,
-    "name":"همدان",
+      "id":30,
+      "name":"همدان",
+      "region": {
+        "latitude": 34.80256548187172,
+        "longitude": 48.514141235500574,
+        "latitudeDelta": 0.057385011526221774,
+        "longitudeDelta": 0.06467577069997077
+      }
     },
     {
-    "id":31,
-    "name":"یزد",
+      "id":31,
+      "name":"یزد",
+      "region": {
+        "latitude": 31.902652526468962,
+        "longitude": 54.35535108670592,
+        "latitudeDelta": 0.10274377818178237,
+        "longitudeDelta": 0.11200267821550369
+      }
     }
   ]
 }

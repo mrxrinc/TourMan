@@ -74,6 +74,7 @@ class LuxuryHomes extends Component {
               ListFooterComponent={() => <View style={{ height: 80 }} />}
             />
           )}
+
         <View
           style={[g.mapFilter, r.absolute, r.bgLight1, r.rtl, r.horizCenter,
           { width: 70 }]}
@@ -95,6 +96,7 @@ class LuxuryHomes extends Component {
             </TouchableOpacity>
           </View>
         </View>
+        
       </View>
     )
   }

@@ -98,7 +98,6 @@ export default {
     privateRoom: false,
     sharedRoom: false,
     luxury: false,
-    price: [10, 1000],
     rooms: 1,
     beds: 1,
     bathrooms: 1,
@@ -112,7 +111,11 @@ export default {
     celebrationAllowed: false,
     petsAllowed: false,
     smokingAllowed: false,
-    popular: false
+    popular: false,
+    activeFilterIcon: false,
+    price: [10, 1000] // must be the last item in favor of mongodb query!
   },
-  filteredHomesList: []
+  filteredHomesList: [],
+  addHomeState: {},
+  addHomeSteps: 1
 }

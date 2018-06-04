@@ -49,6 +49,7 @@ class Explore extends Component {
       <View style={[r.full, r.bgWhite]}>
         <MainHeader
           exploreHeader
+          moneyGuid
           provincePress={() => {
             this.props.navigator.showModal({
               screen: 'mrxrinc.Where',
