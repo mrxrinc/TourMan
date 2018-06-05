@@ -268,7 +268,7 @@ class HomeItem extends Component {
                     onPress={() => {
                       this.props.navigator.push({
                         screen: 'mrxrinc.Host',
-                        passProps: { hostId: '5afafc77af0ab5136416c969' }
+                        passProps: { hostId: this.props.home.host.id }
                       })
                     }}
                   >
@@ -303,7 +303,7 @@ class HomeItem extends Component {
                         onPress={() => {
                           this.props.navigator.push({
                             screen: 'mrxrinc.Host',
-                            passProps: { hostId: '5afafc77af0ab5136416c969' }
+                            passProps: { hostId: this.props.home.host.id }
                           })
                         }}
                       >
@@ -642,8 +642,7 @@ class HomeItem extends Component {
                 delayPressIn={0}
                 onPress={() => {
                   this.props.navigator.showModal({
-                    screen: 'mrxrinc.When',
-                    // passProps: { homeId: this.state._id }
+                    screen: 'mrxrinc.ReservationReviewYourTrip'
                   })
                 }}
               >

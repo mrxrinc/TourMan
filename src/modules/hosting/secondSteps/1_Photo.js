@@ -21,7 +21,7 @@ import { BTN, NavBar } from '../HostAssets'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
-class HostingHomeTypes extends Component {
+class HostingPhoto extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -172,4 +172,4 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HostingHomeTypes)
+export default connect(mapStateToProps, mapDispatchToProps)(HostingPhoto)

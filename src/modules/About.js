@@ -134,7 +134,7 @@ export default class HomeGallery extends Component {
             delayPressIn={0}
             onPress={() => {
               this.props.navigator.push({
-                screen: 'mrxrinc.About'
+                screen: 'mrxrinc.Listings'
               })
             }}
           >

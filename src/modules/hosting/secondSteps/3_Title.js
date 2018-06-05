@@ -10,7 +10,7 @@ import { Fa, FaBold } from '../../assets/Font'
 import { addHome, addHomeStepsFunc } from '../../../actions/generalActions'
 import { BTN, NavBar } from '../HostAssets'
 
-class HostingHomeTypes extends Component {
+class HostingTitle extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -93,4 +93,4 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HostingHomeTypes)
+export default connect(mapStateToProps, mapDispatchToProps)(HostingTitle)

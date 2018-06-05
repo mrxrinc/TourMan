@@ -45,6 +45,11 @@ import HostingHomeRules from './modules/hosting/thirdSteps/1_HomeRules'
 import HostingReservation from './modules/hosting/thirdSteps/2_Reservation'
 import HostingPrice from './modules/hosting/thirdSteps/3_Price'
 import HostingCancelation from './modules/hosting/thirdSteps/4_Cancelation'
+import ReservationReviewYourTrip from './modules/reservation/1_ReviewYourTrip'
+import ReservationReviewHomeRules from './modules/reservation/2_ReviewHomeRules'
+import ReservationSendMessage from './modules/reservation/3_SendMessage'
+import ReservationReviewAndPay from './modules/reservation/4_ReviewAndPay'
+import ReservationPayment from './modules/reservation/5_Payment'
 
 export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Splash', () => Splash, store, Provider)
@@ -90,5 +95,11 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.HostingHomeRules', () => HostingHomeRules, store, Provider)
   Navigation.registerComponent('mrxrinc.HostingReservation', () => HostingReservation, store, Provider)
   Navigation.registerComponent('mrxrinc.HostingPrice', () => HostingPrice, store, Provider)
-  Navigation.registerComponent('mrxrinc.HostingCancelation', () => HostingCancelation, store, Provider) 
+  Navigation.registerComponent('mrxrinc.HostingCancelation', () => HostingCancelation, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReservationReviewYourTrip', () => ReservationReviewYourTrip, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReservationReviewHomeRules', () => ReservationReviewHomeRules, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReservationSendMessage', () => ReservationSendMessage, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReservationReviewAndPay', () => ReservationReviewAndPay, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReservationPayment', () => ReservationPayment, store, Provider) 
+
 }

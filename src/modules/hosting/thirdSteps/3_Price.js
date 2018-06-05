@@ -11,7 +11,7 @@ import { Fa, FaBold } from '../../assets/Font'
 import { addHome } from '../../../actions/generalActions'
 import { BTN, NavBar } from '../HostAssets'
 
-class HostingReservation extends Component {
+class HostingPrice extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -74,7 +74,7 @@ class HostingReservation extends Component {
                   this.state.price.substr(1, 3)} هزار تومان`
               ) : (
                   `${this.state.price} هزار تومان`
-                )}
+              )}
             </FaBold>
           </View>
         )}
@@ -106,4 +106,4 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HostingReservation)
+export default connect(mapStateToProps, mapDispatchToProps)(HostingPrice)

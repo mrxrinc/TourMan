@@ -38,7 +38,8 @@ class Splash extends Component {
             this.props.userToStore(user.data)
             // console.log('in Splash : ', this.props)      
             this.props.navigator.resetTo({ 
-              screen: 'mrxrinc.Explore'
+              screen: 'mrxrinc.HomeItem',
+              passProps: { homeId: '5b032f6cb33fc62ba879cd56' }
             })
           })
           .catch(err => console.log(err))

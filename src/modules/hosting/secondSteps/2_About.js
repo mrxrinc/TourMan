@@ -12,7 +12,7 @@ import { Fa, FaBold } from '../../assets/Font'
 import { addHome } from '../../../actions/generalActions'
 import { BTN, NavBar } from '../HostAssets'
 
-class HostingHomeTypes extends Component {
+class HostingAbout extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
@@ -58,7 +58,6 @@ class HostingHomeTypes extends Component {
   }
 
   handlePadder = (index) => {
-    console.log(this.state.bottomPadder)
     switch (index) {
       case 2:
         this.setState({ 
@@ -92,9 +91,9 @@ class HostingHomeTypes extends Component {
   nextPage = () => {
     const payload = {
       details: this.state.details.trim(),
-      guestAccessibility: this.state.guestAccessibility.trim() ? this.state.detaiguestAccessibilityls.trim() : null,
-      neighborhood: this.state.neighborhood.trim() ? this.state.neighborhood.trim() : null,
-      accessToCityGoods: this.state.accessToCityGoods.trim() ? this.state.accessToCityGoods.trim() : null
+      guestAccessibility: this.state.guestAccessibility ? this.state.detaiguestAccessibilityls.trim() : null,
+      neighborhood: this.state.neighborhood ? this.state.neighborhood.trim() : null,
+      accessToCityGoods: this.state.accessToCityGoods ? this.state.accessToCityGoods.trim() : null
     }
     this.props.addHome(payload, 'about')
     this.props.navigator.push({
@@ -203,4 +202,4 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(HostingHomeTypes)
+export default connect(mapStateToProps, mapDispatchToProps)(HostingAbout)

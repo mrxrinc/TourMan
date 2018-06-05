@@ -113,7 +113,7 @@ export default {
     smokingAllowed: false,
     popular: false,
     activeFilterIcon: false,
-    price: [10, 1000] // must be the last item in favor of mongodb query!
+    price: [10, 10000] // must be the last item in favor of mongodb query!
   },
   filteredHomesList: [],
   addHomeState: {},

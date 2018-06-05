@@ -563,7 +563,9 @@ module.exports = StyleSheet.create({
     textAlign: 'right',
     paddingHorizontal: 10,
   },
-
+  reserveMBox: {
+    height: 120
+  }
 
 
 

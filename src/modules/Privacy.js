@@ -85,7 +85,10 @@ export default class Privacy extends Component {
           <NavBar
             animate={DimWhiteNavBar}
             title={'قوانین و شرایط استفاده'}
-            back={() => this.props.navigator.pop()}
+            back={() => {
+              if (this.props.modal) this.props.navigator.dismissModal()
+              else this.props.navigator.pop()
+            }}
           />
         </Animated.View>
 

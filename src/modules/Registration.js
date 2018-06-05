@@ -463,22 +463,22 @@ class RegisterName extends Component {
             onSubmitEditing={this.props.next}
           />
         </View>
-          <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
-            <TouchableNativeFeedback
-              delayPressIn={0}
-              background={TouchableNativeFeedback.Ripple('#00000022')}
-              onPress={activeBTN ? this.props.next : null}
-            >
-              <View pointerEvents={'box-only'} style={[r.full, r.center]}>
-                <AirIcon
-                  name={'left-chevron-bold'}
-                  size={16}
-                  color={'#007e90'}
-                  style={[{ width: 15, height: 20 }]}
-                />
-              </View>
-            </TouchableNativeFeedback>
-          </View>
+        <View style={[g.loginBTN, r.absolute, r.bgWhite, { opacity: activeBTN ? 1 : 0.3 }]}>
+          <TouchableNativeFeedback
+            delayPressIn={0}
+            background={TouchableNativeFeedback.Ripple('#00000022')}
+            onPress={activeBTN ? this.props.next : null}
+          >
+            <View pointerEvents={'box-only'} style={[r.full, r.center]}>
+              <AirIcon
+                name={'left-chevron-bold'}
+                size={16}
+                color={'#007e90'}
+                style={[{ width: 15, height: 20 }]}
+              />
+            </View>
+          </TouchableNativeFeedback>
+        </View>
 
       </KeyboardAvoidingView>
     )

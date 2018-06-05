@@ -112,8 +112,7 @@ class HomeRules extends Component {
             )}
             <View style={[r.vertical10]}>
               <Fa size={14}>
-                <Text>ساعت مناسب برای بازدید  </Text>
-                {this.props.home.visitHours[0] + 1}
+                {`ساعت مناسب برای ورود  ${this.props.home.visitHours[0] + 1}`}
               </Fa>
             </View>
             <View style={g.line} />

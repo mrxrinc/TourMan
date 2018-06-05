@@ -74,9 +74,7 @@ export default class Host extends Component {
               ToastAndroid.show('در دریافت نظرات کاربران مشکلی پیش آمد!', ToastAndroid.LONG)
               console.log(err)
             })
-        })
-
-        
+        })       
       })
       .catch(err => {
         ToastAndroid.show('مشکلی در دریافت اطلاعات میزبان پیش آمد!', ToastAndroid.SHORT)
@@ -184,46 +182,54 @@ export default class Host extends Component {
                 <Fa style={[r.grayMid]} size={13}>{this.state.host.location} - ایران</Fa>
               )}
               {this.state.host.verified && (
-                <View style={[r.rtl, r.spaceBetween, r.verticalPadd10, r.top10]}>
-                  <Fa style={[r.grayMid, r.top3]} size={12}>کاربر تایید شده</Fa>
-                  <AirIcon
-                    name={'ok-fill'}
-                    size={22}
-                    style={[r.green, r.centerText, { width: 22 }]}
-                  />
+                <View>
+                  <View style={[r.rtl, r.spaceBetween, r.verticalPadd10, r.top10]}>
+                    <Fa style={[r.grayMid, r.top3]} size={12}>کاربر تایید شده</Fa>
+                    <AirIcon
+                      name={'ok-fill'}
+                      size={22}
+                      style={[r.green, r.centerText, { width: 22 }]}
+                    />
+                  </View>
+                  <View style={g.line} />
                 </View>
               )}
-              <View style={g.line} />
   
-              <View style={[r.verticalPadd20]}>
-                <FaMulti size={12}>
-                  {this.state.host.about}
-                </FaMulti>
-              </View>
-              <View style={g.line} />
+              {this.state.host.about && (
+                <View style={[r.verticalPadd20]}>
+                  <FaMulti size={12}>
+                    {this.state.host.about}
+                  </FaMulti>
+                  <View style={g.line} />
+                </View>
+              )}
+
               <View style={r.vertical10}>
                 <Fa size={12}>
-                  <Text>عضویت از</Text>
-                  <Text style={{ textAlign: 'left'}}>   {this.state.host.registerDate}</Text>
+                  عضویت از   {this.state.host.registerDate}
                 </Fa>
+                <View style={g.line} />
               </View>
-              <View style={g.line} />
   
-              <View style={r.vertical10}>
-                <FaBold size={13}>شغل</FaBold>
-                <FaMulti size={12} style={r.top5}>
-                  {this.state.host.job}
-                </FaMulti>
-              </View>
-              <View style={g.line} />
+              {this.state.host.job && (
+                <View style={r.vertical10}>
+                  <FaBold size={13}>شغل</FaBold>
+                  <FaMulti size={12} style={r.top5}>
+                    {this.state.host.job}
+                  </FaMulti>
+                  <View style={g.line} />
+                </View>
+              )}
   
-              <View style={r.vertical10}>
-                <FaBold size={13}>تحصیلات</FaBold>
-                <FaMulti size={12} style={r.top5}>
-                  {this.state.host.education}
-                </FaMulti>
-              </View>
-              <View style={g.line} />
+              {this.state.host.education && (
+                <View style={r.vertical10}>
+                  <FaBold size={13}>تحصیلات</FaBold>
+                  <FaMulti size={12} style={r.top5}>
+                    {this.state.host.education}
+                  </FaMulti>
+                  <View style={g.line} />
+                </View>
+              )}
   
               <View style={r.vertical10}>
                 <FaBold size={13}>زبان محاوره</FaBold>
@@ -266,25 +272,31 @@ export default class Host extends Component {
                     </View>
 
                     <View style={g.line} />
-                    <View style={r.vertical10}>
-                      <Fa
-                        size={14}
-                        style={g.primary}
-                        onPress={() => {
-                          this.props.navigator.push({
-                            screen: 'mrxrinc.Reviews',
-                            passProps: {
-                              parent: this.props.hostId,
-                              from: 'user',
-                              overallRate: this.state.host.overallRate
-                            }
-                          })
-                        }}
-                      >همه دیدگاه ها</Fa>
-                    </View>
-                    <View style={g.line} />
                   </View>
               )}
+              <View style={r.vertical10}>
+                <Fa
+                  size={14}
+                  style={g.primary}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.Reviews',
+                      passProps: {
+                        parent: this.props.hostId,
+                        from: 'user',
+                        overallRate: this.state.host.overallRate
+                      }
+                    })
+                  }}
+                >
+                  {this.state.host.reviewsCount > 0 ? (
+                    `همه ${this.state.host.reviewsCount} دیدگاه`
+                  ) : (
+                      'ارسال دیدگاه'
+                  )}
+                </Fa>
+              </View>
+              <View style={g.line} />
   
               {this.state.host.verifiedInfo && (
                 <View>
