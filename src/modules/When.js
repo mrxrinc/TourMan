@@ -17,7 +17,7 @@ import g from './styles/General'
 import { Fa, FaBold } from './assets/Font'
 import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
-import { selectDay, initializeDays, loadDays, resetDays } from '../actions/dateActions'
+import { selectDay, initializeDays, loadDays, resetDays, resetDaysSaveOff } from '../actions/dateActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
@@ -139,7 +139,13 @@ class When extends Component {
             </View>
             <Fa
               size={11}
-              onPress={() => this.props.resetDays()}
+              onPress={() => {
+                if (Object.keys(this.props.home).length === 0) {
+                  this.props.resetDays()
+                } else {
+                  this.props.resetDaysSaveOff()
+                }
+              }}
             >
               پاک کردن
             </Fa>
@@ -215,15 +221,24 @@ class When extends Component {
           initialNumToRender={1}
         />
 
-        <Footer onPress={() => {
-          this.props.navigator.dismissModal()
-          if (this.props.pushToSearchPage === true) {
-            this.props.navigator.push({
-              screen: 'mrxrinc.Search',
-              animationType: 'fade'
-            })
-          }
-        }}/>
+        <Footer 
+          reserve={this.props.reserve}
+          active={this.props.startDate !== 'تاریخ شروع'}
+          onPress={() => {
+            if (this.props.pushToSearchPage === true) {
+              this.props.navigator.push({
+                screen: 'mrxrinc.Search',
+                animationType: 'fade'
+              })
+            } else if (this.props.reserve && this.props.startDate !== 'تاریخ شروع') {
+              this.props.navigator.resetTo({
+                screen: 'mrxrinc.ReservationReviewYourTrip'
+              })
+            } else {
+              this.props.navigator.dismissModal()
+            }
+          }}
+        />
       </View>
     )
   }
@@ -232,14 +247,22 @@ class When extends Component {
 class Footer extends Component {
   render() {
     return (
-      <View style={[g.reportFooter, r.wFull, r.padd20, r.bgWhite ]}>
-        <View style = {[g.bgPrimary, r.round5, r.full, { height: 45 }]}>
+      <View style={[g.reportFooter, r.wFull, r.padd20, r.bgWhite]}>
+        <View style={[g.bgPrimary, r.round5, r.full, { height: 45, opacity: this.props.active ? 1 : 0.3 }]}>
           <TouchableNativeFeedback
             delayPressIn={0}
             background={TouchableNativeFeedback.Ripple('#ffffff33', false)}
             onPress={this.props.onPress}>
-            <View style={[r.full, r.center]} pointerEvents={'box-only'}>
-              <FaBold style={[r.white]} size={18}>ذخیره</FaBold>
+            <View 
+              style={[r.full, r.center]} 
+              pointerEvents={'box-only'}>
+              <FaBold style={[r.white]} size={18}>
+                {this.props.reserve ? (
+                  'شروع رزرو'
+                ) : (
+                  'ذخیره'
+                )}
+              </FaBold>
             </View>
           </TouchableNativeFeedback>
         </View>
@@ -276,7 +299,7 @@ class Day extends Component {
               end={this.props.end}
               off={this.props.off}
             >
-              {this.props.value}
+              {` ${this.props.value} `}
             </Text>
           </View>
         </TouchableWithoutFeedback>
@@ -293,7 +316,7 @@ function mapStateToProps(state) {
     startDate: state.date.startDate,
     endDate: state.date.endDate,
     user: state.user,
-    loading: state.loading
+    home: state.home,
   }
 }
 
@@ -302,7 +325,8 @@ function mapDispatchToProps(dispatch) {
     selectDay: day => dispatch(selectDay(day)),
     initializeDays: () => dispatch(initializeDays()),
     loadDays: () => dispatch(loadDays()),
-    resetDays: () => dispatch(resetDays())
+    resetDays: () => dispatch(resetDays()),
+    resetDaysSaveOff: () => dispatch(resetDaysSaveOff())
   }
 }
 

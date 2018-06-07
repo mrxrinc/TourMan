@@ -2,18 +2,68 @@ import React, { Component } from 'react'
 import {
   View,
   ScrollView,
-  Image
+  Image,
+  Text
 } from 'react-native'
 import { connect } from 'react-redux'
+import jalaali from 'jalaali-js'
 import r from '../styles/Rinc'
 import g from '../styles/General'
 import { Fa, FaBold } from '../assets/Font'
-import { addHome } from '../../actions/generalActions'
+import { reserveFunc } from '../../actions/generalActions'
 import { NavBar, ReserveFooter } from './ReservationAssets'
+
+const year = jalaali.toJalaali(new Date()).jy
+const month = jalaali.toJalaali(new Date()).jm
+const day = jalaali.toJalaali(new Date()).jd
+const reservedDate = `${year}/${month}/${day}`
 
 class ReservationReviewYourTrip extends Component {
   static navigatorStyle = {
     navBarHidden: true
+  }
+  state={ totalNights: 1, reservedDays: [] }
+
+  componentDidMount() {
+    this.daysCount()
+  }
+  daysCount = () => {
+    const rawData = this.props.date.days
+    const reservedDays = []
+    rawData.map(month => {
+      month.days.map(day => {
+        if (day.active) {
+          reservedDays.push([month.value, day.value])
+        }
+      })
+    })
+    this.setState({ 
+      reservedDays,
+      totalNights: reservedDays.length - 1 // nights always are 1 less than days
+     })
+  }
+
+  createReserve = () => {
+    const payload = {
+      homeId: this.props.home._id,
+      homeTitle: this.props.home.title,
+      hostId: this.props.home.host.id,
+      hostName: this.props.home.host.fullName,
+      guestId: this.props.user._id,
+      guestName: `${this.props.user.firstName} ${this.props.user.lastName}`,
+      adults: this.props.filters.adults,
+      children: this.props.filters.children,
+      pets: this.props.filters.petsAllowed,
+      reservedDays: this.state.reservedDays,
+      price: this.props.home.price,
+      totalNights: this.state.totalNights,
+      totalPrice: this.state.totalNights * this.props.home.price,
+      reservedDate
+    }
+    this.props.reserveFunc(payload, 'create')    
+    this.props.navigator.push({
+      screen: 'mrxrinc.ReservationReviewHomeRules'
+    })
   }
   
   render() {
@@ -21,7 +71,7 @@ class ReservationReviewYourTrip extends Component {
       <View style={[r.full, r.bgWhite]}>
         <NavBar 
           steps={[1, 4]}
-          back={() => this.props.navigator.pop()}
+          back={() => this.props.navigator.dismissModal()}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={[r.padd20]}>
@@ -31,12 +81,12 @@ class ReservationReviewYourTrip extends Component {
             
             <View style={[r.rtl, r.spaceBetween, r.paddHoriz10, { height: 100 }]} >
               <View style={[r.full, r.verticalCenter]}>
-                <FaBold size={18} style={[r.grayDark]}>ویلا خوب</FaBold>
-                <Fa size={13} style={r.top10}>توضیحات خانه</Fa>
+                <FaBold size={18} style={[r.grayDark]}>{this.props.home.title}</FaBold>
+                <Fa size={11} style={r.top10}>{this.props.home.about.details}</Fa>
               </View>
               <View style={[r.center, { width: 100 }]}>
                 <Image
-                  source={{ uri: 'http://192.168.1.7:3000/uploads/homeImages/01.jpg' }}
+                  source={{ uri: this.props.home.images[0] }}
                   style={[r.round3, r.wFull, { height: 80 }]}
                 />
               </View>
@@ -47,7 +97,24 @@ class ReservationReviewYourTrip extends Component {
                 <Fa style={[r.grayMid]} size={15}>تاریخ</Fa>
               </View>
               <View style={[r.center]}>
-                <Fa style={[g.primary]} size={15}>12 خرداد تا 15 تیر</Fa>
+                <Fa 
+                  style={[g.primary]} 
+                  size={15}
+                  onPress={() => this.props.navigator.showModal({ screen: 'mrxrinc.When' })}
+                >
+                  {this.props.date ? (
+                    <Text>
+                      {typeof this.props.date.startDate === 'object' ?
+                        this.props.date.startDate.join(' ') : null
+                      }
+                      {typeof this.props.date.endDate === 'object' ?
+                        `  تا  ${this.props.date.endDate.join(' ')}` : null
+                      }
+                    </Text>
+                  ) : (
+                      <Text>انتخاب کنید...</Text>
+                  )}
+                </Fa>
               </View>
             </View>
 
@@ -58,7 +125,23 @@ class ReservationReviewYourTrip extends Component {
                 <Fa style={[r.grayMid]} size={15}>تعداد مهمان ها</Fa>
               </View>
               <View style={[r.center]}>
-                <Fa style={[g.primary]} size={15}> 2 نفر</Fa>
+                {this.props.filters && (
+                  <Fa 
+                    style={[g.primary]} 
+                    size={15} 
+                    onPress={() => {
+                      this.props.navigator.showModal({ screen: 'mrxrinc.HowMany' })
+                    }}
+                  >
+                    {this.props.filters.adults &&
+                      `${this.props.filters.adults} بزرگسال `
+                    }
+                    {this.props.filters.children !== 0 ?
+                      ` - ${this.props.filters.children} کودک` : null
+                    }
+                    {this.props.filters.petsAllowed && ' - حیوان خانگی'}
+                  </Fa>
+                )}
               </View>
             </View>
           
@@ -67,12 +150,8 @@ class ReservationReviewYourTrip extends Component {
 
         <ReserveFooter 
           price={this.props.home.price}
-          totalNights={500}
-          onPress={() => {
-            this.props.navigator.push({
-              screen: 'mrxrinc.ReservationReviewHomeRules'
-            })
-          }}
+          totalNights={this.state.totalNights}
+          onPress={() => this.createReserve()}
         />
       </View>
     )
@@ -81,14 +160,17 @@ class ReservationReviewYourTrip extends Component {
 
 function mapStateToProps(state) {
   return {
+    home: state.home,
+    filters: state.filters,
+    date: state.date,
     user: state.user,
-    home: state.home
+    reserve: state.reserve
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    addHome: (data, section) => dispatch(addHome(data, section))
+    reserveFunc: (data, section) => dispatch(reserveFunc(data, section))
   }
 }
 

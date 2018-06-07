@@ -28,6 +28,7 @@ import airConfig from './assets/air_font_config.json'
 import lineConfig from './assets/line_font_config.json'
 import { stageHome } from '../actions/generalActions'
 import { userToStore } from '../actions/userActions'
+import { resetDays, homeDays } from '../actions/dateActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 const LineIcon = createIconSetFromFontello(lineConfig)
@@ -77,6 +78,7 @@ class HomeItem extends Component {
         setTimeout(() => {
           this.setState({ loading: false })
           console.log('home data : ', this.props.home)
+          this.calcThisHomeOffDays()
 
           // getting review and rating
           axios.get(`${baseURL}api/reviews/${this.props.home._id}`)
@@ -92,11 +94,12 @@ class HomeItem extends Component {
       .catch(err => {
         ToastAndroid.show('مشکلی در دریافت اطلاعات خانه پیش آمد!', ToastAndroid.SHORT)
         console.log(err)
-      })
+      })    
   }
 
   componentWillUnmount() {
     this.props.stageHome({})
+    this.props.resetDays()
   }
 
   onScroll(event) {
@@ -108,6 +111,27 @@ class HomeItem extends Component {
         [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }]
       )(event)
     }
+  }
+
+  calcThisHomeOffDays = () => {
+    const thisHomeOffDays = this.props.home.reservedDays
+    const homeDate = this.props.date.loadedDate.map(month => {
+      const newDays = month.days.map(day => {
+        let offDay = null
+        thisHomeOffDays.forEach(element => {
+          if (month.value === element[0] && day.value === element[1]) {
+            offDay = true 
+          }
+        })
+        if (offDay) {
+          return { ...day, off: true }
+        }
+        return day
+      })
+      return { ...month, days: newDays }
+    })
+    console.log(homeDate)
+    this.props.homeDays(homeDate)
   }
 
   share = () => {
@@ -236,7 +260,7 @@ class HomeItem extends Component {
                       }}
                     >
                       <Animated.Image
-                        style={[ r.bgLight3, { height: headerHeight, opacity: headerBG }]}
+                        style={[r.bgLight3, { height: headerHeight, opacity: headerBG }]}
                         source={{ uri: item }}
                       />
                     </TouchableNativeFeedback>
@@ -558,7 +582,7 @@ class HomeItem extends Component {
                   </View>
                 </TouchableNativeFeedback>
               </View>
-              <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]}></View>
+              <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
             </View>
 
             <View style={[r.top40, r.bottom20]}>
@@ -642,7 +666,8 @@ class HomeItem extends Component {
                 delayPressIn={0}
                 onPress={() => {
                   this.props.navigator.showModal({
-                    screen: 'mrxrinc.ReservationReviewYourTrip'
+                    screen: 'mrxrinc.When',
+                    passProps: { reserve: true }
                   })
                 }}
               >
@@ -740,14 +765,17 @@ class InfoBox extends Component {
 function mapStateToProps(state) {
   return {
     home: state.home,
-    user: state.user
+    user: state.user,
+    date: state.date
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     stageHome: homeInfo => dispatch(stageHome(homeInfo)),
-    userToStore: homeInfo => dispatch(userToStore(homeInfo))
+    userToStore: homeInfo => dispatch(userToStore(homeInfo)),
+    homeDays: days => dispatch(homeDays(days)),
+    resetDays: () => dispatch(resetDays())
   }
 }
 

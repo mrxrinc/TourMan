@@ -65,6 +65,15 @@ class Profile extends Component {
             }}
           />
           <ListBTN
+            title={'درخواستهای رزرو'}
+            icon={'host-home-alt'}
+            onPress={() => {
+              this.props.navigator.push({
+                screen: 'mrxrinc.ReserveRequests'
+              })
+            }}
+          />
+          <ListBTN
             title={'درباره تورمن'}
             icon={'handshake'}
             onPress={() => {

@@ -50,6 +50,7 @@ import ReservationReviewHomeRules from './modules/reservation/2_ReviewHomeRules'
 import ReservationSendMessage from './modules/reservation/3_SendMessage'
 import ReservationReviewAndPay from './modules/reservation/4_ReviewAndPay'
 import ReservationPayment from './modules/reservation/5_Payment'
+import ReserveRequests from './modules/ReserveRequests'
 
 export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.Splash', () => Splash, store, Provider)
@@ -100,6 +101,7 @@ export function registerScreens(store, Provider) {
   Navigation.registerComponent('mrxrinc.ReservationReviewHomeRules', () => ReservationReviewHomeRules, store, Provider)
   Navigation.registerComponent('mrxrinc.ReservationSendMessage', () => ReservationSendMessage, store, Provider)
   Navigation.registerComponent('mrxrinc.ReservationReviewAndPay', () => ReservationReviewAndPay, store, Provider)
-  Navigation.registerComponent('mrxrinc.ReservationPayment', () => ReservationPayment, store, Provider) 
+  Navigation.registerComponent('mrxrinc.ReservationPayment', () => ReservationPayment, store, Provider)
+  Navigation.registerComponent('mrxrinc.ReserveRequests', () => ReserveRequests, store, Provider) 
 
 }

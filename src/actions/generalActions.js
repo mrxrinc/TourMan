@@ -96,3 +96,11 @@ export function addHomeStepsFunc(payload) {
     payload
   }
 }
+
+export function reserveFunc(payload, section) {
+  return {
+    type: types.RESERVE,
+    payload,
+    section
+  }
+}

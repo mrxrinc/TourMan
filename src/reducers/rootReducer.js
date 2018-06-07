@@ -11,7 +11,7 @@ import {
   luxuryReducer,
   addHomeReducer,
   addHomeStepsReducer,
-
+  reserveReducer
  } from './pages/generalReducers'
 
 const rootReducer = combineReducers({
@@ -24,7 +24,8 @@ const rootReducer = combineReducers({
   filters: filtersReducer,
   filteredHomesList: homesListReducer,
   addHomeState: addHomeReducer,
-  addHomeSteps: addHomeStepsReducer
+  addHomeSteps: addHomeStepsReducer,
+  reserve: reserveReducer
 })
 
 export default rootReducer

@@ -117,5 +117,6 @@ export default {
   },
   filteredHomesList: [],
   addHomeState: {},
-  addHomeSteps: 1
+  addHomeSteps: 1,
+  reserve: {}
 }

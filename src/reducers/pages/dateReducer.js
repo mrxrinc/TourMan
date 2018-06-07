@@ -122,8 +122,14 @@ export default function dateReducer(state = initialState.date, { type, payload }
       caches = [...caches, [monthID, dayID]] // this is as else statment
       return { ...state, days: date, cacheDays: caches, endDate: [dayID, monthName] }
     }
+    case types.HOME_DAYS: {
+      return { ...state, days: payload }
+    }
     case types.RESET_DAYS: {
       return resetDays(state)
+    }
+    case types.RESET_DAYS_SAVE_OFF: {
+      return resetDaysSaveOff(state)
     }
     default:
       return state
@@ -132,7 +138,7 @@ export default function dateReducer(state = initialState.date, { type, payload }
 
 function resetDays(state) {
   const date = state.days.map(item => {
-    const days = item.days.map(day => ({ ...day, active: false, start: false, end: false }))
+    const days = item.days.map(day => ({ ...day, active: false, start: false, end: false, off: false }))
     return {
       ...item,
       activeBeginEmptyBoxes: false,
@@ -143,22 +149,29 @@ function resetDays(state) {
     days: date,
     cacheDays: [],
     startDate: 'تاریخ شروع',
-    endDate: 'تاریخ پایان'
+    endDate: 'تاریخ پایان',
+    loadedDate: state.loadedDate
   }
 }
 
-// export function loadDaysReducer(state = initialState.date, { type }) {
-//   switch (type) {
-//     case types.LOAD_DAYS: {
-//       return { ...state, days: state.loadedDate }
-//     }
-//     default: return state
-//   }
-// }
-
-
-
-
+function resetDaysSaveOff(state) { // will save the off days in home calender
+  const date = state.days.map(item => {
+    const days = item.days.map(day => ({ ...day, active: false, start: false, end: false }))
+    return {
+      ...item,
+      activeBeginEmptyBoxes: false,
+      activeEndEmptyBoxes: false,
+      days
+    }
+  })
+  return {
+    days: date,
+    cacheDays: [],
+    startDate: 'تاریخ شروع',
+    endDate: 'تاریخ پایان',
+    loadedDate: state.loadedDate
+  }
+}
 
 
 

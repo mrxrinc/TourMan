@@ -9,7 +9,7 @@ import { connect } from 'react-redux'
 import r from '../styles/Rinc'
 import g from '../styles/General'
 import { Fa, FaBold, FaMulti } from '../assets/Font'
-import { addHome } from '../../actions/generalActions'
+import { reserveFunc } from '../../actions/generalActions'
 import { NavBar, ReserveFooter } from './ReservationAssets'
 
 class ReservationReviewAndPay extends Component {
@@ -46,6 +46,12 @@ class ReservationReviewAndPay extends Component {
         totalPrice.toString().substr(1, 3)} هزار تومان`
     }    
     return ` ${totalPrice} هزار تومان`
+  }
+
+  handleReserve = () => {
+    this.props.navigator.push({
+      screen: 'mrxrinc.ReservationPayment'
+    })
   }
   
   render() {
@@ -164,11 +170,7 @@ class ReservationReviewAndPay extends Component {
           finish
           price={this.props.home.price}
           totalNights={500}
-          onPress={() => {
-            this.props.navigator.push({
-              screen: 'mrxrinc.ReservationPayment'
-            })
-          }}
+          onPress={() => this.handleReserve()}
         />
       </View>
     )
@@ -178,13 +180,14 @@ class ReservationReviewAndPay extends Component {
 function mapStateToProps(state) {
   return {
     user: state.user,
-    home: state.home
+    home: state.home,
+    reserve: state.reserve
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    addHome: (data, section) => dispatch(addHome(data, section))
+    reserveFunc: (data, section) => dispatch(reserveFunc(data, section))
   }
 }
 

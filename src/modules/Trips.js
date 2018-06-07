@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {
   FlatList,
-  TouchableOpacity
+  TouchableOpacity,
+  ToastAndroid
 } from 'react-native'
 import axios from 'axios'
 import { connect } from 'react-redux'
@@ -35,6 +36,7 @@ class Trips extends Component {
           .then(res => {
             this.state.data.push(res.data)
             console.log(this.state.data)
+            
             this.setState({ loading: false })
           })
           .catch(err => {

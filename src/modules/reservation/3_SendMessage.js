@@ -10,7 +10,7 @@ import { connect } from 'react-redux'
 import r from '../styles/Rinc'
 import g from '../styles/General'
 import { Fa, FaBold, FaMulti } from '../assets/Font'
-import { addHome } from '../../actions/generalActions'
+import { reserveFunc } from '../../actions/generalActions'
 import { NavBar, ReserveFooter } from './ReservationAssets'
 
 class ReservationSendMessage extends Component {
@@ -32,6 +32,16 @@ class ReservationSendMessage extends Component {
   componentWillUnmount() {
     this.keyboardDidHideListener.remove()
     this.keyboardDidShowListener.remove()
+  }
+
+  handleMessage = () => {
+    const payload = {
+      message: this.state.message
+    }
+    this.props.reserveFunc(payload, 'message')
+    this.props.navigator.push({
+      screen: 'mrxrinc.ReservationReviewAndPay'
+    })
   }
   
   render() {
@@ -81,13 +91,9 @@ class ReservationSendMessage extends Component {
         <ReserveFooter 
           agree
           price={this.props.home.price}
-          totalNights={500}
+          totalNights={this.props.reserve.totalNights}
           style={[r.absolute, r.bottom]}
-          onPress={() => {
-            this.props.navigator.push({
-              screen: 'mrxrinc.ReservationReviewAndPay'
-            })
-          }}
+          onPress={() => this.handleMessage()}
         />
       </View>
     )
@@ -96,14 +102,14 @@ class ReservationSendMessage extends Component {
 
 function mapStateToProps(state) {
   return {
-    user: state.user,
-    home: state.home
+    home: state.home,
+    reserve: state.reserve
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    addHome: (data, section) => dispatch(addHome(data, section))
+    reserveFunc: (data, section) => dispatch(reserveFunc(data, section))
   }
 }
 

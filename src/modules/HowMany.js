@@ -94,13 +94,12 @@ class HowMany extends Component {
         <Footer 
           onPress={() => {
             this.props.filtersResult(this.props.filters)
-            this.props.navigator.dismissModal()
             if (this.props.pushToSearchPage === true) {
               this.props.navigator.push({
                 screen: 'mrxrinc.Search',
                 animationType: 'fade'
               })
-            }
+            } else this.props.navigator.dismissModal()
           }}
         />
       </View>
@@ -132,7 +131,7 @@ class Footer extends Component {
 
 function mapStateToProps(state) {
   return {
-    filters: state.filters  
+    filters: state.filters,
   }
 }
 

@@ -3,7 +3,7 @@ export const ACTIVE_DAY = 'ACTIVE_DAY'
 export const INITIALIZE_DAYS = 'INITIALIZE_DAYS'
 export const LOAD_DAYS = 'LOAD_DAYS'
 export const RESET_DAYS = 'RESET_DAYS'
-
+export const RESET_DAYS_SAVE_OFF = 'RESET_DAYS_SAVE_OFF'
 
 export const USER_REGISTER = 'USER_REGISTER'
 export const USER_TO_STORE = 'USER_TO_STORE'
@@ -25,3 +25,6 @@ export const FILTER_GENERAL = 'FILTER_GENERAL'
 
 export const ADD_HOME = 'ADD_HOME'
 export const ADD_HOME_STEPS = 'ADD_HOME_STEPS'
+export const HOME_DAYS = 'HOME_DAYS'
+
+export const RESERVE = 'RESERVE'

@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 import r from '../styles/Rinc'
 import g from '../styles/General'
 import { Fa, FaBold, FaMulti } from '../assets/Font'
-import { addHome } from '../../actions/generalActions'
 import { NavBar, ReserveFooter } from './ReservationAssets'
 
 class ReservationReviewHomeRules extends Component {
@@ -68,7 +67,7 @@ class ReservationReviewHomeRules extends Component {
         <ReserveFooter 
           agree
           price={this.props.home.price}
-          totalNights={500}
+          totalNights={this.props.reserve.totalNights}
           onPress={() => {
             this.props.navigator.push({
               screen: 'mrxrinc.ReservationSendMessage'
@@ -82,15 +81,9 @@ class ReservationReviewHomeRules extends Component {
 
 function mapStateToProps(state) {
   return {
-    user: state.user,
+    reserve: state.reserve,
     home: state.home
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    addHome: (data, section) => dispatch(addHome(data, section))
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReservationReviewHomeRules)
+export default connect(mapStateToProps)(ReservationReviewHomeRules)

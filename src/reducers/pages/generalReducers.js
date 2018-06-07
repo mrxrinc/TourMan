@@ -163,3 +163,21 @@ export function addHomeStepsReducer(state = initialState.addHomeSteps, { type, p
       return state
   }
 }
+
+export function reserveReducer(state = initialState.reserve, { type, payload, section }) {
+  if (type === types.RESERVE) {
+    switch (section) {
+      case 'create':
+        return payload
+      case 'message':
+        return { ...state, message: payload.message }
+      case 'reset':
+        return {}
+
+      default:
+        return state
+    }
+  } else {
+    return state
+  }
+}
