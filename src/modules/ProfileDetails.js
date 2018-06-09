@@ -139,7 +139,7 @@ class ProfileDetails extends Component {
             ToastAndroid.show('مشکلی پیش آمد. لطفا مجددا تلاش کنید!', ToastAndroid.LONG)
             console.log(err)
           })
-    })
+    }).catch(err => console.log('user Canceled image selection', err))
   }
 
   renderLanguageName = () => {

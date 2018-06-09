@@ -13,6 +13,7 @@ import { Fa, FaMulti, FaBold } from './assets/Font'
 import Tabs from './assets/Tabs'
 import Loading from './assets/Loading'
 import { baseURL } from '../constants/api'
+import { userToStore } from '../actions/userActions'
 
 class Favorites extends Component {
   static navigatorStyle = {
@@ -21,25 +22,83 @@ class Favorites extends Component {
   }
   state={
     data: [],
-    loading: true
+    loading: true,
+    pullRefresh: false
   }
 
   componentWillMount() {
+    this.listFavorites()
+  }
+
+  listFavorites = () => {
+    this.setState({ pullRefresh: true })
     if (this.props.user.likes.length) {
-      this.props.user.likes.forEach(element => {
-        axios.get(`${baseURL}api/homes/${element}`)
-          .then(res => {
-            this.state.data.push(res.data)
-            console.log(this.state.data)
-            this.setState({ loading: false })
-          })
-          .catch(err => {
-            ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
-            console.log(err)
-          })
-      })
+      axios.get(`${baseURL}api/homes/getInArray/${this.props.user.likes}`)
+        .then(res => {
+          this.setState({ 
+            data: res.data,
+            loading: false, 
+            pullRefresh: false 
+          })        
+          if (res.data.length === 0) {
+            this.setState({ data: [] })
+          }
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
     } else {
-      this.setState({ loading: false })
+      this.setState({ data: [], loading: false })
+    }
+  }
+
+
+  liked = (item) => {
+    if (this.props.user.likes.indexOf(item) === -1) {
+      return false
+    }
+    return true
+  }
+
+  handleLike = (homeId) => {
+    const sendToServer = (data, status = 'add') => {
+      const msg = status === 'remove' ?
+        'از لیست علاقه مندی ها حذف شد' :
+        'به لیست علاقه مندی های شما اضافه شد'
+      axios.put(`${baseURL}api/users/update/${this.props.user._id}`, data)
+        .then(res => {
+          this.listFavorites()
+          ToastAndroid.show(msg, ToastAndroid.LONG)
+          this.setState({
+            loading: false,
+            pullRefresh: false
+          })
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
+    }
+    if (this.props.user.likes.indexOf(homeId) === -1) {
+      const likes = this.props.user.likes.map(item => item)
+      likes.push(homeId)
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data)
+    } else {
+      const index = this.props.user.likes.indexOf(homeId)
+      const likes = this.props.user.likes.slice(0, index)
+        .concat(this.props.user.likes.slice(index + 1))
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data, 'remove')
     }
   }
 
@@ -70,15 +129,23 @@ class Favorites extends Component {
                   rate={item.overallRate}
                   reviews={item.reviewsCount}
                   price={item.price}
-                  like={item.like}
                   verified={item.verified}
                   type={item.homeType}
-                  likePress={() => null}
-                  onPress={() => console.log(item.id)}
+                  like={this.liked(item._id)}
+                  likePress={() => this.handleLike(item._id)}
+                  onPress={() => {
+                    this.props.navigator.push({
+                      screen: 'mrxrinc.HomeItem',
+                      passProps: { homeId: item._id }
+                    })
+                  }}
                 />
               )}
               keyExtractor={item => item._id}
               showsVerticalScrollIndicator={false}
+              refreshing={this.state.pullRefresh}
+              onRefresh={() => this.listFavorites()}
+              contentContainerStyle={{ opacity: this.state.pullRefresh ? 0.5 : 1 }}
               initialNumToRender={3}
               ListFooterComponent={() => <View style={{ height: 60 }} />}
             />
@@ -148,5 +215,10 @@ function mapStateToProps(state) {
   }
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    userToStore: userInfo => dispatch(userToStore(userInfo))
+  }
+}
 
-export default connect(mapStateToProps)(Favorites)
+export default connect(mapStateToProps, mapDispatchToProps)(Favorites)

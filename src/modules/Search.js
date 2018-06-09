@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 import {
   View,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  ToastAndroid
 } from 'react-native'
 import { connect } from 'react-redux'
+import axios from 'axios'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
@@ -13,8 +15,10 @@ import { ItemBig } from './assets/Assets'
 import airConfig from './assets/air_font_config.json'
 import Tabs from './assets/Tabs'
 import Loading from './assets/Loading'
-import { homesList } from '../actions/generalActions'
+import { filtersResult, filtersToStore, homesListReset } from '../actions/generalActions'
 import MainHeader from './assets/MainHeader'
+import { baseURL } from '../constants/api'
+import { userToStore } from '../actions/userActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
@@ -22,12 +26,66 @@ class Search extends Component {
   static navigatorStyle = {
     navBarHidden: true
   }
+  componentDidMount() {
+    this.props.filtersResult(this.props.filters)
+  }
+
+  componentWillUnmount() {
+    this.props.homesListReset()
+  }
+
+  liked = (item) => {
+    if (this.props.user.likes.indexOf(item) === -1) {
+      return false
+    }
+    return true
+  }
+
+  handleLike = (homeId) => {
+    const sendToServer = (data, status = 'add') => {
+      const msg = status === 'remove' ?
+        'از لیست علاقه مندی ها حذف شد' :
+        'به لیست علاقه مندی های شما اضافه شد'
+      axios.put(`${baseURL}api/users/update/${this.props.user._id}`, data)
+        .then(res => {
+          ToastAndroid.show(msg, ToastAndroid.LONG)
+          this.setState({
+            loading: false,
+            pullRefresh: false
+          })
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
+    }
+    if (this.props.user.likes.indexOf(homeId) === -1) {
+      const likes = this.props.user.likes.map(item => item)
+      likes.push(homeId)
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data)
+    } else {
+      const index = this.props.user.likes.indexOf(homeId)
+      const likes = this.props.user.likes.slice(0, index)
+        .concat(this.props.user.likes.slice(index + 1))
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data, 'remove')
+    }
+  }
 
   render() {
     return (
       <View style={[r.full]}>
         <MainHeader 
-          autoOpen
+          // autoOpen
           provincePress={() => {
             this.props.navigator.showModal({
               screen: 'mrxrinc.Where'
@@ -59,10 +117,10 @@ class Search extends Component {
                 rate={item.overallRate}
                 reviews={item.reviewsCount}
                 price={item.price}
-                like={item.like}
                 verified={item.verified}
                 type={item.homeType}
-                likePress={() => null}
+                like={this.liked(item._id)}
+                likePress={() => this.handleLike(item._id)}
                 onPress={() => {
                   this.props.navigator.push({
                     screen: 'mrxrinc.HomeItem',
@@ -73,6 +131,8 @@ class Search extends Component {
             )}
             keyExtractor={item => `${item._id}`}
             showsVerticalScrollIndicator={false}
+            refreshing={this.props.filteredHomesList.length === 0}
+            onRefresh={() => this.props.filtersResult(this.props.filters)}
             initialNumToRender={2}
             ListFooterComponent={() => <View style={{ height: 80 }} />}
           />
@@ -159,13 +219,17 @@ function mapStateToProps(state) {
   return {
     filteredHomesList: state.filteredHomesList,
     filters: state.filters,
-    date: state.date
+    date: state.date,
+    user: state.user
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    homesList: data => dispatch(homesList(data))
+    filtersToStore: (key, value) => dispatch(filtersToStore(key, value)),
+    filtersResult: data => dispatch(filtersResult(data)),
+    homesListReset: () => dispatch(homesListReset()),
+    userToStore: (userInfo) => dispatch(userToStore(userInfo))
   }
 }
 

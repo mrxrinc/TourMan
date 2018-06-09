@@ -130,7 +130,12 @@ class ReservationReviewYourTrip extends Component {
                     style={[g.primary]} 
                     size={15} 
                     onPress={() => {
-                      this.props.navigator.showModal({ screen: 'mrxrinc.HowMany' })
+                      this.props.navigator.showModal({ 
+                        screen: 'mrxrinc.HowMany',
+                        passProps: {
+                          homeMaxCapacity: this.props.home.capacity.adults
+                        }
+                       })
                     }}
                   >
                     {this.props.filters.adults &&

@@ -92,36 +92,30 @@ class Explore extends Component {
           profile={() => {
             this.props.navigator.push({
               screen: 'mrxrinc.Profile',
-              animated: true,
               animationType: 'fade'
             })
           }}
           messages={() => {
             this.props.navigator.push({
               screen: 'mrxrinc.Messages',
-              animated: true,
               animationType: 'fade'
             })
           }}
           explore={() => {
             this.props.navigator.resetTo({
               screen: 'mrxrinc.Explore',
-              animated: true,
               animationType: 'fade'
             })
           }}
           favorites={() => {
             this.props.navigator.push({
-              screen: 'mrxrinc.HomeItem',
-              passProps: { homeId: '5b032f6cb33fc62ba879cd56' },
-              animated: true,
-              // animationType: 'fade'
+              screen: 'mrxrinc.Favorites',
+              animationType: 'fade'
             })
           }}
           trips={() => {
             this.props.navigator.push({
               screen: 'mrxrinc.Trips',
-              animated: true,
               animationType: 'fade'
             })
           }}

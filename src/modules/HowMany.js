@@ -23,6 +23,7 @@ class HowMany extends Component {
   }
 
   render() {
+    const homeMaxCapacity = this.props.homeMaxCapacity
     return (
       <View style={[r.full]}>
         <View style={[r.wFull, { height: 75, borderBottomWidth: 1, borderColor: '#e7e7e7' }]}>
@@ -46,8 +47,14 @@ class HowMany extends Component {
             title={'بزرگسال'}
             count={this.props.filters.adults}
             incPress={() => {
-              if (this.props.filters.adults < 16) {
+              if (homeMaxCapacity && this.props.filters.adults < homeMaxCapacity) {
                 this.props.filtersToStore('adults', this.props.filters.adults + 1)
+              } else if (homeMaxCapacity && this.props.filters.adults >= homeMaxCapacity) {
+                return null
+              } else {
+                if (this.props.filters.adults < 16) {
+                  this.props.filtersToStore('adults', this.props.filters.adults + 1)
+                }
               }
             }}
             decPress={() => {

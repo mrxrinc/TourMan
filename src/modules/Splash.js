@@ -36,11 +36,11 @@ class Splash extends Component {
         axios.get(`${baseURL}api/users/${userId}`)
           .then(user => {
             this.props.userToStore(user.data)
-            // console.log('in Splash : ', this.props)      
-            this.props.navigator.resetTo({ 
-              screen: 'mrxrinc.HomeItem',
+            this.props.navigator.resetTo({
+              screen: 'mrxrinc.Explore',
               passProps: { homeId: '5b032f6cb33fc62ba879cd56' }
             })
+            // console.log('in Splash : ', this.props)  
           })
           .catch(err => console.log(err))
       }

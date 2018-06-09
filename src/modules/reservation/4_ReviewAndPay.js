@@ -55,7 +55,7 @@ class ReservationReviewAndPay extends Component {
   }
   
   render() {
-    const totalNights = 500
+    const totalNights = this.props.reserve.totalNights
     const totalPrice = this.props.home.price * totalNights
     const titleColor = () => {
       switch (this.props.home.cancelation) {

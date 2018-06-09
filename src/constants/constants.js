@@ -14,6 +14,7 @@ export const STAGE_HOME = 'STAGE_HOME'
 
 export const LUXURY_LIST = 'LUXURY_LIST'
 export const HOMES_LIST = 'HOMES_LIST'
+export const HOMES_LIST_RESET = 'HOMES_LIST_RESET'
 
 export const STORE_REVIEWS = 'STORE_REVIEWS'
 export const ADD_REVIEW = 'ADD_REVIEW'
@@ -28,3 +29,8 @@ export const ADD_HOME_STEPS = 'ADD_HOME_STEPS'
 export const HOME_DAYS = 'HOME_DAYS'
 
 export const RESERVE = 'RESERVE'
+
+export const EXPLORE_SPECIAL_OFFERS = 'EXPLORE_SPECIAL_OFFERS'
+export const EXPLORE_PROMOTED_CITIES = 'EXPLORE_PROMOTED_CITIES'
+export const EXPLORE_CITY_01 = 'EXPLORE_CITY_01'
+export const EXPLORE_CITY_02 = 'EXPLORE_CITY_02'

@@ -45,6 +45,12 @@ export function homesList(data) {
   }
 }
 
+export function homesListReset() {
+  return {
+    type: types.HOMES_LIST_RESET
+  }
+}
+
 export function generalFilters(data) {
   return {
     type: types.FILTER_GENERAL,
@@ -102,5 +108,44 @@ export function reserveFunc(payload, section) {
     type: types.RESERVE,
     payload,
     section
+  }
+}
+
+export function exploreFunc() {
+  return (dispatch) => {
+    axios.get(`${baseURL}api/explore`)
+      .then(explore => {
+        console.log('EXPLORE DATA : ', explore.data)
+        axios.get(`${baseURL}api/homes/getInArray/${explore.data[0].specialOffers}`)
+          .then(specialOffers => {
+            dispatch({
+              type: types.EXPLORE_SPECIAL_OFFERS,
+              payload: specialOffers.data
+            })
+            dispatch({
+              type: types.EXPLORE_PROMOTED_CITIES,
+              payload: explore.data[0].promotedCities
+            })
+          })
+          .catch(err => console.log('Error on getting specialOffers Homes : ', err))
+
+        axios.get(`${baseURL}api/homes`, { params: { province: 'تهران' } })
+          .then(city01 => {
+            dispatch({
+              type: types.EXPLORE_CITY_01,
+              payload: city01.data
+            })
+          })
+          .catch(err => console.log('Error on getting city01 Homes : ', err))
+
+        axios.get(`${baseURL}api/homes`, { params: { province: 'مازندران' } })
+          .then(city02 => {
+            dispatch({
+              type: types.EXPLORE_CITY_02,
+              payload: city02.data
+            })
+          })
+          .catch(err => console.log('Error on getting city01 Homes : ', err))
+      }).catch(err => console.log('Error on getting specialOffer IDs', err))
   }
 }

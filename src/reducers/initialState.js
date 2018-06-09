@@ -118,5 +118,11 @@ export default {
   filteredHomesList: [],
   addHomeState: {},
   addHomeSteps: 1,
-  reserve: {}
+  reserve: {},
+  explore: {
+    specialOffers: [],
+    promotedCities: [],
+    city01: [],
+    city02: []
+  }
 }

@@ -23,10 +23,10 @@ class HostingLocation extends Component {
     province: null,
     location: null,
     region: { 
-      latitude: 35.69657412357928,
-      longitude: 51.3869989849627,
-      latitudeDelta: 0.22889707178593,
-      longitudeDelta: 0.19180845469236374
+      latitude: 32.719657,
+      longitude: 53.583574,
+      latitudeDelta: 17,
+      longitudeDelta: 17
     }
   }
 

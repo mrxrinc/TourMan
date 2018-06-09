@@ -27,6 +27,7 @@ export class HeartEmpty extends Component {
         duration={100}
         easing={'ease-in-back'}
         direction={'reverse'}
+        useNativeDriver
       >
         <AirIcon
           name={'heart-alt'}
@@ -42,10 +43,12 @@ export class HeartEmpty extends Component {
 export class HeartFull extends Component {
   render() {
     return (
-      <Animatable.View
+      <View
         animation={'zoomIn'}
-        duration={200}
+        duration={100}
         easing={'ease-out-back'}
+        direction={'reverse'}
+        useNativeDriver
       >
         <AirIcon
           name={'heart'}
@@ -58,7 +61,7 @@ export class HeartFull extends Component {
           color={'rgba(255,255,255,0.7)'}
           style={[r.absolute, r.centerText, { top: -1, left: 0, width: 40 }]}
         />
-      </Animatable.View>
+      </View>
     )
   }
 }
@@ -234,7 +237,13 @@ export class RowItem extends Component {
   render() {
     const mapList = this.props.mapList === true ? 0.7 : 1
     return (
-      <View style={[g.hmItem, { transform: [{ scale: mapList }] }]}>
+      <Animatable.View
+        style={[g.hmItem, { transform: [{ scale: mapList }] }]}
+        animation={'fadeIn'}
+        duration={3000}
+        easing={'ease-out-back'}
+        useNativeDriver
+      >
         <TouchableHighlight
           underlayColor={'rgba(0,0,0,0.1)'}
           onPress={this.props.onPress}
@@ -249,6 +258,9 @@ export class RowItem extends Component {
               <FaMulti numberOfLines={1} style={r.grayDark}>{this.props.title}</FaMulti>
               <View style={[r.rtl, r.spaceBetween, r.rightPadd5, { height: 25 }]}>
                 <View style={[r.row]}>
+                  {this.props.luxury && (
+                    <EnBold style={[g.luxuryBadge, { marginRight: 5, marginTop: 2 }]} size={9}>Luxury</EnBold>
+                  )}
                   <FaBold size={19} style={[g.hmItemPrice]}>{this.props.price}</FaBold>
                   <LineIcon name={'money'} size={20} style={r.gray} />
                 </View>
@@ -264,7 +276,7 @@ export class RowItem extends Component {
         >
           {this.props.like === true ? <HeartFull /> : <HeartEmpty />}
         </TouchableOpacity>
-      </View>
+      </Animatable.View>
     )
   }
 }
@@ -272,7 +284,13 @@ export class RowItem extends Component {
 export class MapRowItem extends Component {
   render() {
     return (
-      <View style={[g.mapHmItem]}>
+      <Animatable.View
+        style={[g.mapHmItem]}
+        animation={'fadeIn'}
+        duration={3000}
+        easing={'ease-out-back'}
+        useNativeDriver
+      >
         <TouchableHighlight
           underlayColor={'rgba(0,0,0,0.1)'}
           onPress={this.props.onPress}
@@ -314,7 +332,7 @@ export class MapRowItem extends Component {
         {this.props.focused && (
           <View style={[r.absolute, r.top, r.wFull, g.bgPrimaryLight, g.mapListFocus]} />
         )}
-      </View>
+      </Animatable.View>
     )
   }
 }
@@ -322,7 +340,13 @@ export class MapRowItem extends Component {
 export class ItemBig extends Component {
   render() {
     return (
-      <View style={[g.hmItemBig, r.margin15]}>
+      <Animatable.View
+        style={[g.hmItemBig, r.margin15]}
+        animation={'fadeIn'}
+        duration={2000}
+        easing={'ease-out-back'}
+        useNativeDriver
+      >
         <TouchableHighlight
           underlayColor={'rgba(0,0,0,0.1)'}
           onPress={this.props.onPress} >
@@ -362,7 +386,7 @@ export class ItemBig extends Component {
         >
           {this.props.like === true ? <HeartFull /> : <HeartEmpty />}
         </TouchableOpacity>
-      </View>
+      </Animatable.View>
     )
   }
 }

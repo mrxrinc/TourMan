@@ -66,7 +66,8 @@ class HomeItem extends Component {
       activeImage: 0,
       homeHeart_01: false,
       reviewExtendLines: 2,
-      debug: 'debug'
+      duplicateReserve: false,
+      similar: []
     }
   }
 
@@ -77,8 +78,8 @@ class HomeItem extends Component {
         this.props.stageHome(result.data)
         setTimeout(() => {
           this.setState({ loading: false })
-          console.log('home data : ', this.props.home)
           this.calcThisHomeOffDays()
+          this.duplicateReserveCheck()
 
           // getting review and rating
           axios.get(`${baseURL}api/reviews/${this.props.home._id}`)
@@ -89,13 +90,28 @@ class HomeItem extends Component {
               ToastAndroid.show('در دریافت نظرات کاربران مشکلی پیش آمد!', ToastAndroid.LONG)
               console.log(err)
             })
+          
+          // getting similar houses
+          axios.get(`${baseURL}api/homes`, { 
+            params: { 
+              province: this.props.home.province,
+              price: [this.props.home.price - 50, this.props.home.price + 50],
+              not: this.props.home._id
+             } 
+          })
+            .then(similarItems => {
+              this.setState({ similar: similarItems.data }, () => {
+                console.log('SIMILAR : ', this.state.similar)
+              })
+            })
+            .catch(err => console.log('Error on getting similar Homes : ', err))
         }, 0)
       })
       .catch(err => {
         ToastAndroid.show('مشکلی در دریافت اطلاعات خانه پیش آمد!', ToastAndroid.SHORT)
         console.log(err)
-      })    
-  }
+      }) 
+    }
 
   componentWillUnmount() {
     this.props.stageHome({})
@@ -111,6 +127,17 @@ class HomeItem extends Component {
         [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }]
       )(event)
     }
+  }
+
+  duplicateReserveCheck = () => {
+    axios.get(`${baseURL}api/reserve/duplicateCheck/${this.props.user._id}/${this.props.home._id}`)
+      .then(res => {
+        console.log('Duplicate data : ', res)
+
+        if (res.data.length) {
+          this.setState({ duplicateReserve: true })
+        }
+      }).catch(err => console.log('duplicate Reserve error', err))
   }
 
   calcThisHomeOffDays = () => {
@@ -585,76 +612,42 @@ class HomeItem extends Component {
               <View style={[g.line, { marginVertical: 0, marginHorizontal: 15 }]} />
             </View>
 
-            <View style={[r.top40, r.bottom20]}>
-              <View style={[r.rtl, r.spaceBetween, r.paddHoriz15]}>
-                <FaBold size={15} style={[r.grayDark]}>
-                  خانه های مشابه
-                </FaBold>
-                <Fa size={13} style={[r.grayLight]}>
-                  همه
-                </Fa>
+            {this.state.similar.length !== 0 && (
+              <View style={[r.top40, r.bottom20]}>
+                <View style={[r.paddHoriz15]}>
+                  <FaBold size={15} style={[r.grayDark]}>خانه های مشابه</FaBold>
+                </View>
+                <FlatList
+                  data={this.state.similar}
+                  renderItem={({ item }) => (
+                    <RowItem
+                      title={item.title}
+                      image={item.images[0]}
+                      rate={item.overallRate}
+                      reviews={item.reviewsCount}
+                      price={item.price}
+                      verified={item.verified}
+                      type={item.homeType}
+                      luxury={item.luxury}
+                      like={this.liked(item._id)}
+                      likePress={() => this.handleLike(item._id)}
+                      onPress={() => {
+                        this.props.navigator.push({
+                          screen: 'mrxrinc.HomeItem',
+                          passProps: { homeId: item._id }
+                        })
+                      }}
+                    />
+                  )}
+                  keyExtractor={item => `${item._id}`}
+                  contentContainerStyle={[r.leftPadd15, r.top10]}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  initialNumToRender={2}
+                  inverted
+                />
               </View>
-              <FlatList
-                data={[
-                  {
-                    id: 1,
-                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
-                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-                    price: 1250,
-                    reviews: 152,
-                    stars: 5,
-                    like: true,
-                  },
-                  {
-                    id: 2,
-                    title: 'آپارتمان لوکس سعادت آباد',
-                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-                    price: 1250,
-                    reviews: 152,
-                    stars: 5,
-                    like: false,
-                  },
-                  {
-                    id: 3,
-                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
-                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-                    price: 1250,
-                    reviews: 152,
-                    stars: 5,
-                    like: false,
-                  },
-                  {
-                    id: 4,
-                    title: 'ویلای فول در شهر نوربا تمامی امکانات از قبیل: استخر، سونا، جکوزی، سوارکاری، گلف، تنیس',
-                    image: 'https://wallpaperbrowse.com/media/images/cat-1285634_960_720.png',
-                    price: 1250,
-                    reviews: 152,
-                    stars: 5,
-                    like: false,
-                  },
-                ]}
-                renderItem={({ item }) => (
-                  <RowItem
-                    key={item.id}
-                    title={item.title}
-                    image={item.image}
-                    rate={5}
-                    reviews={168}
-                    price={1260}
-                    like={item.like}
-                    likePress={() => null}
-                    onPress={() => console.log(item.id)}
-                  />
-                )}
-                keyExtractor={item => `${item.id}`}
-                contentContainerStyle={[r.leftPadd15, r.top10]}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                initialNumToRender={2}
-                keyboardDismissMode={'on-drag'}
-                inverted
-              />
-            </View>
+            )}
 
           </ScrollView>
         )}
@@ -662,24 +655,34 @@ class HomeItem extends Component {
         <View style={[g.homeItemFooter, r.bgWhite, r.bottom, r.wFull, r.row]}>
           <View style={[r.center, { flex: 5 }]}>
             <View style={[g.checkAccessBtn, r.overhide]}>
-              <TouchableNativeFeedback
-                delayPressIn={0}
-                onPress={() => {
-                  this.props.navigator.showModal({
-                    screen: 'mrxrinc.When',
-                    passProps: { reserve: true }
-                  })
-                }}
-              >
-                <View
-                  style={[r.full, r.center, { backgroundColor: '#ff5555' }]}
-                  pointerEvents='box-only'
+              {this.state.duplicateReserve ? (
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  onPress={() => null}
                 >
-                  <FaBold size={15} style={r.white}>
-                    چک دسترسی
-                  </FaBold>
-                </View>
-              </TouchableNativeFeedback>
+                  <View style={[r.full, r.center, { backgroundColor: '#ffb9bb' }]}
+                    pointerEvents='box-only'
+                  >
+                    <FaBold size={15} style={r.white}>قبلا رزرو کرده اید!</FaBold>
+                  </View>
+                </TouchableNativeFeedback>
+              ) : (
+                <TouchableNativeFeedback
+                  delayPressIn={0}
+                  onPress={() => {
+                    this.props.navigator.showModal({
+                      screen: 'mrxrinc.When',
+                      passProps: { reserve: true }
+                    })
+                  }}
+                >
+                  <View style={[r.full, r.center, { backgroundColor: '#ff5555' }]}
+                    pointerEvents='box-only'
+                  >
+                    <FaBold size={15} style={r.white}>چک دسترسی</FaBold>
+                  </View>
+                </TouchableNativeFeedback>
+              )}
             </View>
           </View>
           <View style={[r.verticalCenter, { flex: 4 }]}>

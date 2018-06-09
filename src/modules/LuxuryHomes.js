@@ -16,6 +16,7 @@ import { ItemBig } from './assets/Assets'
 import airConfig from './assets/air_font_config.json'
 import { baseURL } from '../constants/api'
 import { luxuryList } from '../actions/generalActions'
+import { userToStore } from '../actions/userActions'
 
 const AirIcon = createIconSetFromFontello(airConfig)
 
@@ -30,6 +31,54 @@ class LuxuryHomes extends Component {
         ToastAndroid.show('مشکلی در دریافت اطلاعات پیش آمد', ToastAndroid.LONG)
         console.log(err)
       })
+  }
+
+  liked = (item) => {
+    if (this.props.user.likes.indexOf(item) === -1) {
+      return false
+    }
+    return true
+  }
+
+  handleLike = (homeId) => {
+    const sendToServer = (data, status = 'add') => {
+      const msg = status === 'remove' ?
+        'از لیست علاقه مندی ها حذف شد' :
+        'به لیست علاقه مندی های شما اضافه شد'
+      axios.put(`${baseURL}api/users/update/${this.props.user._id}`, data)
+        .then(res => {
+          ToastAndroid.show(msg, ToastAndroid.LONG)
+          this.setState({
+            loading: false,
+            pullRefresh: false
+          })
+        })
+        .catch(err => {
+          ToastAndroid.show('مشکلی در ارتباط با سرور پیش آمد!', ToastAndroid.LONG)
+          console.log(err)
+        })
+    }
+    // this.props.user is passed from Explore page coz of ...this.props on line 84-86
+    if (this.props.user.likes.indexOf(homeId) === -1) {
+      const likes = this.props.user.likes.map(item => item)
+      likes.push(homeId)
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data)
+    } else {
+      const index = this.props.user.likes.indexOf(homeId)
+      const likes = this.props.user.likes.slice(0, index)
+        .concat(this.props.user.likes.slice(index + 1))
+      const data = {
+        ...this.props.user,
+        likes
+      }
+      this.props.userToStore(data)
+      sendToServer(data, 'remove')
+    }
   }
 
   renderHeader() {
@@ -54,11 +103,11 @@ class LuxuryHomes extends Component {
                   rate={item.overallRate}
                   reviews={item.reviewsCount}
                   price={item.price}
-                  like={item.like}
                   verified={item.verified}
                   type={item.homeType}
                   luxury={item.luxury}
-                  likePress={() => null}
+                  like={this.liked(item._id)}
+                  likePress={() => this.handleLike(item._id)}
                   onPress={() => {
                     this.props.navigator.push({
                       screen: 'mrxrinc.HomeItem',
@@ -110,7 +159,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    luxuryList: (data) => dispatch(luxuryList(data))
+    luxuryList: (data) => dispatch(luxuryList(data)),
+    userToStore: (userInfo) => dispatch(userToStore(userInfo))
   }
 }
 

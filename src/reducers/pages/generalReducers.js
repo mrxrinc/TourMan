@@ -55,6 +55,9 @@ export function homesListReducer(state = initialState.filteredHomesList, { type,
     case types.HOMES_LIST:
       return payload
 
+    case types.HOMES_LIST_RESET:
+      return []
+
     default:
       return state
   }
@@ -179,5 +182,21 @@ export function reserveReducer(state = initialState.reserve, { type, payload, se
     }
   } else {
     return state
+  }
+}
+
+export function exploreReducer(state = initialState.explore, { type, payload }) {
+  switch (type) {
+    case types.EXPLORE_SPECIAL_OFFERS:
+      return { ...state, specialOffers: payload }
+    case types.EXPLORE_PROMOTED_CITIES:
+      return { ...state, promotedCities: payload }
+    case types.EXPLORE_CITY_01:
+      return { ...state, city01: payload }
+    case types.EXPLORE_CITY_02:
+      return { ...state, city02: payload }
+
+    default:
+      return state
   }
 }
