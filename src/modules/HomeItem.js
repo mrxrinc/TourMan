@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import axios from 'axios'
 import { connect } from 'react-redux'
+import * as Animatable from 'react-native-animatable'
 import MapView from 'react-native-maps'
 import Swiper from 'react-native-swiper'
 import StarRating from 'react-native-star-rating'
@@ -114,7 +115,11 @@ class HomeItem extends Component {
     }
 
   componentWillUnmount() {
-    this.props.stageHome({})
+    // in case user come here from host page, we shouldnt erase home data,
+    //cox he will pop back to home!
+    if (!this.props.dontEraseHomeData) { 
+      this.props.stageHome({})
+    }
     this.props.resetDays()
   }
 
@@ -132,8 +137,6 @@ class HomeItem extends Component {
   duplicateReserveCheck = () => {
     axios.get(`${baseURL}api/reserve/duplicateCheck/${this.props.user._id}/${this.props.home._id}`)
       .then(res => {
-        console.log('Duplicate data : ', res)
-
         if (res.data.length) {
           this.setState({ duplicateReserve: true })
         }
@@ -312,7 +315,13 @@ class HomeItem extends Component {
               <FaBoldMulti style={[r.grayDark]} size={16}>
                 {this.props.home.title}
               </FaBoldMulti>
-              <View style={[r.row, r.top10, { height: 100 }]}>
+              <Animatable.View
+                style={[r.row, r.top10, { height: 100 }]}
+                animation={'fadeIn'}
+                duration={2000}
+                easing={'ease-out-back'}
+                useNativeDriver
+              >
                 <View style={[r.center, { flex: 1 }]}>
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -365,9 +374,15 @@ class HomeItem extends Component {
                     </View>
                   </View>
                 </View>
-              </View>
+              </Animatable.View>
               <View style={g.line} />
-              <View style={[r.rtl, r.spaceBetween, { height: 100, alignItems: 'center' }]}>
+              <Animatable.View
+                style={[r.rtl, r.spaceBetween, { height: 100, alignItems: 'center' }]}
+                animation={'fadeIn'}
+                duration={3000}
+                easing={'ease-out-back'}
+                useNativeDriver
+              >
                 <View style={r.horizCenter}>
                   <Text style={[r.centerText, {width: 40, height: 40 }]}>
                     <AirIcon name={'group'} size={35} style={[r.grayDark]} />
@@ -392,7 +407,7 @@ class HomeItem extends Component {
                   </Text>
                   <Fa style={[r.grayDark]} size={12}>{this.props.home.bathrooms} سرویس بهداشتی</Fa>
                 </View>
-              </View>
+              </Animatable.View>
               <View style={g.line} />
 
               <View style={[r.verticalPadd20]}>
@@ -652,7 +667,14 @@ class HomeItem extends Component {
           </ScrollView>
         )}
 
-        <View style={[g.homeItemFooter, r.bgWhite, r.bottom, r.wFull, r.row]}>
+        <Animatable.View
+          style={[g.homeItemFooter, r.bgWhite, r.bottom, r.wFull, r.row]}
+          animation={'fadeInUp'}
+          duration={200}
+          delay={500}
+          easing={'ease-out-quint'}
+          useNativeDriver
+        >
           <View style={[r.center, { flex: 5 }]}>
             <View style={[g.checkAccessBtn, r.overhide]}>
               {this.state.duplicateReserve ? (
@@ -724,7 +746,7 @@ class HomeItem extends Component {
               </TouchableNativeFeedback>
             </View>
           </View>
-        </View>
+        </Animatable.View>
       </View>
     )
   }

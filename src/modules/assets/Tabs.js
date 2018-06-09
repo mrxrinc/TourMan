@@ -54,7 +54,7 @@ export default class Tabs extends Component {
         <AwIcon
           name={'circle'}
           size={55}
-          style={[r.absolute, g.tabBoxCurve, r.light1]}
+          style={[r.absolute, g.tabBoxCurve, r.light2]}
         />
         <View
           style={[r.full, g.tabIconContainer, r.row, r.verticalCenter, r.spaceAround]}>

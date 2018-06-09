@@ -66,7 +66,7 @@ export class HeartFull extends Component {
   }
 }
 
-export class IncDecBTN extends Component{
+export class IncDecBTN extends Component {
   render() {
     return (
       <View style={[g.increaseDecrease]}>
@@ -112,22 +112,20 @@ export class IncDec extends Component {
   }
 }
 
-export class Switch extends Component{
+export class Switch extends Component {
   componentDidMount() {
     this.switchAnimation()
   }
   componentDidUpdate() {
     this.switchAnimation()
   }
-  switchAnimation(){
+  switchAnimation() {
     if (this.props.state === true) {
       this.refs.switch.transitionTo({ transform: [{ translateX: -1 }] }, 1000, 'ease-out-circ')
-      setTimeout(() => {
-        // this.refs.switcherWrap.transitionTo({ backgroundColor: '#008489' })
-      }, 50)
+      this.refs.switcherWrap.transitionTo({ backgroundColor: '#008489' }, 500)
     } else {
       this.refs.switch.transitionTo({ transform: [{ translateX: 14 }] }, 1000, 'ease-out-circ')
-      // this.refs.switcherWrap.transitionTo({ backgroundColor: '#fff' })
+      this.refs.switcherWrap.transitionTo({ backgroundColor: '#fff' }, 500)
     }
   }
   render() {

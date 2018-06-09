@@ -18,7 +18,7 @@ module.exports = StyleSheet.create({
   bottomSafeSpace:{height: 40},
   tabBox:{
     width: '100%',
-    height: 80,
+    height: 70,
     overflow: 'hidden',
     zIndex: 50
   },
@@ -27,8 +27,8 @@ module.exports = StyleSheet.create({
     top: 65,
     zIndex: 0,
     transform: [{'scaleX':10}, {'scaleY':3}],
-    textShadowColor: 'rgba(0,0,0,0.07)',
-    textShadowOffset: {width: 0, height: -3},
+    textShadowColor: 'rgba(0,0,0,0.13)',
+    textShadowOffset: {width: 0, height: -2},
     textShadowRadius: 10
   },
   tabIconContainer:{

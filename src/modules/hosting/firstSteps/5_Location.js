@@ -61,7 +61,7 @@ class HostingLocation extends Component {
           <View style={[r.padd20]}>
             <FaBold size={20} style={[r.grayDark, r.bottom30]}>
               استان و محل دقیق خانه را مشخص کنید
-              </FaBold>
+            </FaBold>
 
             <View style={r.center}>
               <TouchableNativeFeedback

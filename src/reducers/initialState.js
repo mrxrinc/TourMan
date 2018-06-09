@@ -1,5 +1,7 @@
 import jalaali from 'jalaali-js'
 
+import { baseURL } from '../constants/api'
+
 const yearInfo = [
   [1, 31, 'فروردین'],
   [2, 31, 'اردیبهشت'],
@@ -86,7 +88,12 @@ export default {
   },
   user: {},
   reportUser: {},
-  home: {},
+  home: {
+    images: [`${baseURL}uploads/homeImages/defaultImageHolder.jpg`],
+    host: {
+      avatar: `${baseURL}uploads/userAvatars/default_profile_photo.jpg`
+    }
+  },
   luxury: [],
   reviews: [],
   filters: {

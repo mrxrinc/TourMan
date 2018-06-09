@@ -41,9 +41,11 @@ export default class NavBar extends Component {
       extrapolate: 'clamp',
     })
     return (
-      <Animated.View
+      <Animatable.View
         style={[g.navBar, r.rtl, this.props.style,
           { borderBottomWidth: bottomBorder }]}
+        animation={'fadeIn'}
+        duration={500}
       >
         <Animated.View style={[g.navBarGradient, { opacity: gradient }]}>
           <LinearGradient
@@ -146,7 +148,7 @@ export default class NavBar extends Component {
             </TouchableNativeFeedback>)
           }
         </View>
-      </Animated.View>
+      </Animatable.View>
     )
   }
 }

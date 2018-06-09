@@ -80,7 +80,7 @@ class HostingRooms extends Component {
                 }
               }}
               decPress={() => {
-                if (this.state.bathrooms > 0) {
+                if (this.state.bathrooms > 1) {
                   this.setState({ bathrooms: this.state.bathrooms - 1 })
                 }
               }}

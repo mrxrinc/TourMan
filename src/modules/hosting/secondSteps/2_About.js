@@ -91,7 +91,7 @@ class HostingAbout extends Component {
   nextPage = () => {
     const payload = {
       details: this.state.details.trim(),
-      guestAccessibility: this.state.guestAccessibility ? this.state.detaiguestAccessibilityls.trim() : null,
+      guestAccessibility: this.state.guestAccessibility ? this.state.guestAccessibility.trim() : null,
       neighborhood: this.state.neighborhood ? this.state.neighborhood.trim() : null,
       accessToCityGoods: this.state.accessToCityGoods ? this.state.accessToCityGoods.trim() : null
     }

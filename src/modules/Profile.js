@@ -60,7 +60,8 @@ class Profile extends Component {
             icon={'id-card-alt'}
             onPress={() => {
               this.props.navigator.push({
-                screen: 'mrxrinc.Listings'
+                screen: 'mrxrinc.Listings',
+                animationType: 'fade'
               })
             }}
           />
@@ -69,7 +70,8 @@ class Profile extends Component {
             icon={'host-home-alt'}
             onPress={() => {
               this.props.navigator.push({
-                screen: 'mrxrinc.ReserveRequests'
+                screen: 'mrxrinc.ReserveRequests',
+                animationType: 'fade'
               })
             }}
           />

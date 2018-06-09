@@ -20,18 +20,12 @@ import { exploreFunc, filtersToStore, filtersResult } from '../actions/generalAc
 
 
 class ForYou extends Component {
-  state = {
-    specialOffers: [],
-    promotedCities: [],
-    city1: [],
-    city2: [],
-  }
 
   componentWillMount() {
     this.props.exploreFunc()
   }
 
-   liked = (item) => {
+  liked = (item) => {
     if (this.props.user.likes.indexOf(item) === -1) {
       return false
     }
@@ -153,9 +147,10 @@ class ForYou extends Component {
                   <TouchableHighlight
                     underlayColor={'rgba(0,0,0,0.1)'}
                     onPress={() => {
+                      this.props.filtersToStore('province', item.province)
+                      this.props.filtersResult(this.props.filters)
                       this.props.navigator.push({
-                        screen: 'mrxrinc.Search',
-                        passProps: { homeId: item._id }
+                        screen: 'mrxrinc.Search'
                       })
                     }}
                   >
@@ -182,7 +177,7 @@ class ForYou extends Component {
           )}
         </View>
 
-        <View style={r.top60}>
+        <View style={[r.top60, { height: 270 }]}>
           <View style={[r.rtl, r.spaceBetween, r.paddHoriz15]}>
             <FaBold size={15} style={[r.grayDark]}>
               خانه های تهران
@@ -236,7 +231,7 @@ class ForYou extends Component {
           )}
         </View>
 
-        <View style={r.top40}>
+        <View style={[r.top40, { height: 270 }]}>
           <View style={[r.rtl, r.spaceBetween, r.paddHoriz15]}>
             <FaBold size={15} style={[r.grayDark]}>
               خانه های مازندران

@@ -8,6 +8,7 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 import axios from 'axios'
+import * as Animatable from 'react-native-animatable'
 import Modal from 'react-native-modal'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import airConfig from '../assets/air_font_config.json'
@@ -129,9 +130,13 @@ class Listings extends Component {
                   delayPressIn={0}
                   useForeground
                 >
-                  <View
+                  <Animatable.View
                     pointerEvents='box-only'
                     style={[r.rtl, r.spaceBetween, r.paddHoriz20, { height: 100 }]}
+                    animation={'fadeIn'}
+                    duration={2000}
+                    easing={'ease-out-back'}
+                    useNativeDriver
                   >
                     <View style={[r.full, r.padd10, r.verticalCenter]}>
                       <FaBold size={18} style={[r.grayDark]}>{item.title}</FaBold>
@@ -143,7 +148,7 @@ class Listings extends Component {
                         style={[g.listingThumb]}
                       />
                     </View>
-                  </View>
+                  </Animatable.View>
                 </TouchableNativeFeedback>
               )}
               keyExtractor={item => `${item._id}`}

@@ -13,7 +13,7 @@ import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBold } from './assets/Font'
 import { Switch, IncDec, Checkbox, CustomMarker } from './assets/Assets'
-import Loading from './assets/Loading'
+// import Loading from './assets/Loading'
 import airConfig from './assets/air_font_config.json'
 import lineConfig from './assets/line_font_config.json'
 import { filtersToStore, filtersResult } from '../actions/generalActions'
@@ -33,7 +33,7 @@ class Filters extends Component {
       bedCount: 1,
       instanseReserve: false,
       checkbox: false,
-      priceRange: [10, 1000]
+      priceRange: [this.props.filters.price[0], this.props.filters.price[1]]
     }
   }
 
@@ -98,9 +98,9 @@ class Filters extends Component {
               <Fa size={15}>محدوده قیمت</Fa>
               <View style={[r.rtl, r.center]}>
                 <Fa style={[r.grayLight, { height: 25 }]} size={17}>
-                  <Text>{this.props.filters.price[0]}</Text>
+                  <Text>{this.state.priceRange[0]}</Text>
                   <Text> - </Text>
-                  <Text>{this.props.filters.price[1]}</Text>
+                  <Text>{this.state.priceRange[1]}</Text>
                 </Fa>
                 <LineIcon name={'money'} size={20} style={[r.grayLight, r.rightMargin5]} />
               </View>
@@ -110,7 +110,9 @@ class Filters extends Component {
               <MultiSlider
                 values={[this.props.filters.price[0], this.props.filters.price[1]]}
                 onValuesChange={(values) => {
-                  console.log(values)
+                  this.setState({ priceRange: values })
+                }}
+                onValuesChangeFinish={(values) => {
                   this.props.filtersToStore('price', values)
                 }}
                 min={10}
