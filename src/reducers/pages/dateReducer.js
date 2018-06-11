@@ -53,7 +53,7 @@ export default function dateReducer(state = initialState.date, { type, payload }
           startDate
          } // this is needed here for caches update
       } else if (caches.length === 2) {
-        return resetDays(state)
+        return resetDaysSaveOff(state)
       } else if (caches.length === 1) {
         const startDay = [caches[0][0], caches[0][1]]
         const endDay = [monthID, dayID]
@@ -115,7 +115,7 @@ export default function dateReducer(state = initialState.date, { type, payload }
             return { ...rangeDays, days } // return all the other days out of range
           })
         } else { // if end day is before start day
-          return resetDays(state)
+          return resetDaysSaveOff(state)
         }
       }
 
@@ -126,7 +126,7 @@ export default function dateReducer(state = initialState.date, { type, payload }
       return { ...state, days: payload }
     }
     case types.RESET_DAYS: {
-      return resetDays(state)
+      return resetDays()
     }
     case types.RESET_DAYS_SAVE_OFF: {
       return resetDaysSaveOff(state)
@@ -136,22 +136,8 @@ export default function dateReducer(state = initialState.date, { type, payload }
   }
 }
 
-function resetDays(state) {
-  const date = state.days.map(item => {
-    const days = item.days.map(day => ({ ...day, active: false, start: false, end: false, off: false }))
-    return {
-      ...item,
-      activeBeginEmptyBoxes: false,
-      activeEndEmptyBoxes: false,
-      days }
-  })
-  return {
-    days: date,
-    cacheDays: [],
-    startDate: 'تاریخ شروع',
-    endDate: 'تاریخ پایان',
-    loadedDate: state.loadedDate
-  }
+function resetDays(state = initialState.date) {
+  return { ...state, days: state.loadedDate }
 }
 
 function resetDaysSaveOff(state) { // will save the off days in home calender

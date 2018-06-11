@@ -39,8 +39,8 @@ class HostingPhoto extends Component {
 
   addPhotos = () => { 
     ImagePicker.openPicker({
-      width: 700,
-      height: 500,
+      width: 800,
+      height: 600,
       cropping: true,
       cropperActiveWidgetColor: '#008A8A',
       cropperStatusBarColor: '#09686c',
@@ -119,15 +119,10 @@ class HostingPhoto extends Component {
             <AirIcon name={'webcam'} size={180} color={'#fafafa'} />
           </View>
         )}
-        {this.state.imageLoading && (
-          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex2]}>
-            <Loading />
-          </View>
-        )}
         <FlatList
           data={this.state.images}
           renderItem={({ item }) => (
-            <View style={[g.hostingImages]}>
+            <View style={[g.hostingImages, r.bgLight2]}>
               <Image  
                 source={{ uri: item }}
                 style={[r.full]}
@@ -144,6 +139,11 @@ class HostingPhoto extends Component {
           numColumns={2}
           contentContainerStyle={[g.hostingImagesWrap]}
         />
+        {this.state.imageLoading && (
+          <View style={[r.absolute, r.hFull, r.wFull, r.center, r.zIndex5]}>
+            <Loading />
+          </View>
+        )}
 
         <View style={[r.absolute, r.right, r.bottom, r.zIndex2, r.padd15]}>
           <Fa size={16} style={[r.grayLight]}>1/3</Fa>

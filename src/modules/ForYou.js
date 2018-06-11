@@ -157,7 +157,7 @@ class ForYou extends Component {
                     <View>
                       <Image
                         source={{ uri: item.image }}
-                        style={[g.featuredDestImg, g.round]}
+                        style={[g.featuredDestImg, g.round, r.bgLight2]}
                         resizeMode={'cover'} 
                       />
                       <View style={r.topPadd5}>
@@ -284,7 +284,7 @@ class ForYou extends Component {
           )}
         </View>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 90 }} />
       </ScrollView>
     )
   }

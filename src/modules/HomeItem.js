@@ -184,6 +184,13 @@ class HomeItem extends Component {
     return true
   }
 
+  likedSimilar = (item) => {
+    if (this.props.user.likes.indexOf(item) === -1) {
+      return false
+    }
+    return true
+  }
+
   handleLike = (homeId) => {
     const sendToServer = (data, status = 'add') => {
       const msg = status === 'remove' ? 
@@ -644,12 +651,12 @@ class HomeItem extends Component {
                       verified={item.verified}
                       type={item.homeType}
                       luxury={item.luxury}
-                      like={this.liked(item._id)}
+                      like={this.likedSimilar(item._id)}
                       likePress={() => this.handleLike(item._id)}
                       onPress={() => {
                         this.props.navigator.push({
                           screen: 'mrxrinc.HomeItem',
-                          passProps: { homeId: item._id }
+                          passProps: { homeId: item._id, fromSimilarHome: true }
                         })
                       }}
                     />

@@ -94,7 +94,7 @@ class HomeRules extends Component {
                 <View style={g.line} />
               </View>
             )}
-            {!this.props.home.homeRules.petAllowed && (
+            {!this.props.home.homeRules.petsAllowed && (
               <View>
                 <View style={[r.vertical10]}>
                   <Fa size={14}>آوردن حیوان خانگی ممنوع</Fa>

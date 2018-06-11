@@ -249,7 +249,7 @@ export class RowItem extends Component {
           <View>
             <Image
               source={{ uri: this.props.image }}
-              style={[g.hmItemImg, g.round]}
+              style={[g.hmItemImg, g.round, r.bgLight2]}
               resizeMode={'cover'}
             />
             <View style={r.topPadd5}>
@@ -296,7 +296,7 @@ export class MapRowItem extends Component {
           <View>
             <Image
               source={{ uri: this.props.images[0] }}
-              style={[g.mapHmItemImg, g.round]}
+              style={[g.mapHmItemImg, g.round, r.bgLight2]}
               resizeMode={'cover'}
             />
             <View style={r.topPadd10}>
@@ -351,7 +351,7 @@ export class ItemBig extends Component {
           <View>
             <Image
               source={{ uri: this.props.image }}
-              style={[g.hmItemBigImg, g.round]}
+              style={[g.hmItemBigImg, g.round, r.bgLight2]}
               resizeMode={'cover'}
             />
             <View style={r.topPadd5}>
