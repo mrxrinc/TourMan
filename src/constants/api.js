@@ -3,7 +3,7 @@
 
 // export const baseURL = 'http://192.168.1.2:3000/' // For Device
 
-export const baseURL = 'http://tourman.mrxrinc.ir:3000/' // For Real Device
+export const baseURL = 'http://tourman.mrxrinc.ir/' // For Real Device
 
 
 
