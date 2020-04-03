@@ -6,10 +6,10 @@ import {
   Image,
   TouchableOpacity,
   TouchableNativeFeedback,
-  ToastAndroid
+  ToastAndroid,
+  AsyncStorage
 } from 'react-native'
 import { connect } from 'react-redux'
-import Realm from 'realm'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import r from './styles/Rinc'
 import g from './styles/General'
@@ -28,6 +28,28 @@ class Profile extends Component {
   state={
     data: null
   }
+
+  handleLogout = () => {
+    ToastAndroid.show('از اکانت خود خارج شدید', ToastAndroid.SHORT)
+    try {
+      AsyncStorage.multiRemove(['userId', 'userKey'])
+    } catch (error) {
+      console.log("ERROR ON REMOVING ASYNCSTORAGE ON LOGOUT", error)
+      this.props.navigator.showInAppNotification({
+        screen: 'mrxrinc.Notification',
+        autoDismissTimerSec: 2,
+        passProps: { 
+          alarm: true, 
+          message: 'مشکلی در حذف اطلاعات کاربر روی دستگاه شما پیش آمد.' 
+        }
+      })
+    }
+
+    this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
+    this.props.userReset()
+    console.log('USER AFTER LOGOUT ==> ', this.props.user)
+  }
+
   render() {
     return (
       <View style={[r.full, r.bgWhite]}>
@@ -106,25 +128,7 @@ class Profile extends Component {
             title={'خروج'}
             icon={'rooms'}
             noBottomLine
-            onPress={() => {
-              ToastAndroid.show('از اکانت خود خارج شدید', ToastAndroid.SHORT)
-              Realm.open({
-                schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
-              }).then(realm => {
-                realm.write(() => {
-                  realm.delete(realm.objects('localToken'))
-                })
-                // console.log('Have realm ? : ', realm.objects('localToken')[0] == null)
-                if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
-                  this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
-                  this.props.userReset()
-                  // console.log('USER AFTER LOGOUT ==> ', this.props.user)                  
-                } else {
-                  console.log('Couldnt destroy realm')  
-                  ToastAndroid.show('مشکلی پیش آمد، لطفا دوباره تلاش کنید :(', ToastAndroid.LONG)                
-                }
-              })
-            }}
+            onPress={this.handleLogout}
           />
           <View style={{ height: 80 }} />
         </ScrollView>

@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { View, Image } from 'react-native'
+import { View, Image, AsyncStorage } from 'react-native'
 import { connect } from 'react-redux'
 import axios from 'axios'
-import Realm from 'realm'
-// import SplashScreen from 'react-native-splash-screen'
 import Loading from './assets/Loading'
 import r from './styles/Rinc'
 import { EnBold } from './assets/Font'
@@ -16,39 +14,30 @@ class Splash extends Component {
     statusBarColor: 'rgba(0, 0, 0, 0)'
   }
 
-  componentWillMount() {
-    Realm.open({
-      schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
-    }).then(realm => {
-      // realm.write(() => {
-      //   realm.delete(realm.objects('localToken'))
-      // })
-      // console.log('Have realm ? : ', realm.objects('localToken')[0] != null)
-      if (realm.objects('localToken')[0] == null) { // must be 2 equal sign OR wont work!
+  async componentDidMount() {
+
+    try {
+      const userId = await AsyncStorage.getItem('userId')
+      const userKey = await AsyncStorage.getItem('userKey')
+      if (userKey == null) { // must be 2 equal sign OR wont work!
+        console.log('yo here')
         this.props.navigator.resetTo({ screen: 'mrxrinc.Registration', passProps: { page: 'SignUp' } })
       } else {
-        // console.log('WE HAVE LOCAL DATABASE')        
-        // console.log('realm data: ', realm.objects('localToken')[0])
-
-        const userId = realm.objects('localToken')[0].id
-        const userKey = realm.objects('localToken')[0].key
+        console.log('else')
+        console.log('USER ID ', userId)
         axios.defaults.headers.common.Authorization = `Bearer ${userKey}` // Global Auth for All pages
         axios.get(`${baseURL}api/users/${userId}`)
-          .then(user => {
-            this.props.userToStore(user.data)
-            this.props.navigator.resetTo({
-              screen: 'mrxrinc.Explore',
-              // passProps: { homeId: '5b032f6cb33fc62ba879cd56' }
-            })
-            // console.log('in Splash : ', this.props)  
+        .then(user => {
+          this.props.userToStore(user.data)
+          this.props.navigator.resetTo({
+            screen: 'mrxrinc.Explore'
           })
-          .catch(err => console.log(err))
+        })
+        .catch(err => console.log(err))
       }
-    })
-  }
-
-  componentDidMount() {
-    // SplashScreen.hide()
+    } catch (error) {
+      console.log("ERROR", error)
+    }
   }
 
   render() {

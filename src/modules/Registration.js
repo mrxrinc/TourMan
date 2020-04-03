@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
-  BackHandler
+  BackHandler,
+  AsyncStorage
 } from 'react-native'
 import { connect } from 'react-redux'
 import { createIconSetFromFontello } from 'react-native-vector-icons'
 import LinearGradient from 'react-native-linear-gradient'
 import PersianDatePicker from 'react-native-persian-date-picker'
 import axios from 'axios'
-import Realm from 'realm'
 import r from './styles/Rinc'
 import g from './styles/General'
 import { Fa, FaBold, FaMulti, EnBold } from './assets/Font'
@@ -37,40 +37,48 @@ class Registration extends Component {
     loading: false 
   }
 
-  componentDidMount() {
-    Realm.open({
-      schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
-    }).then(realm => {
-      if (realm.empty === false) {
-        console.log(realm)
-        console.log('realm : ', realm.objects('localToken')[0].key)
-        axios.defaults.headers.common.Authorization = `Bearer ${realm.objects('localToken')[0].key}` 
+  async componentDidMount() {
+    try {
+      const userKey = await AsyncStorage.getItem('userKey')
+      if (userKey !== null) { 
+        axios.defaults.headers.common.Authorization = `Bearer ${userKey}` // Global Auth for All pages
       }
-    }) 
+    } catch (error) {
+      console.log("ERROR", error)
+    }
   }
 
 
   handleSignup = () => {
     this.setState({ loading: true })
+    console.log('BEFORE REQUEST ==> ', `${baseURL}api/users/signup`)
+    console.log('USER DATA  ==> ', { ...this.props.user })
     axios.post(`${baseURL}api/users/signup`, { ...this.props.user })
     .then(res => {
       console.log('Register Raw result : ', res)      
       if (res.data.userState !== 'duplicate') {
-        Realm.open({
-          schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
-        })
-        .then(realm => {
-          realm.write(() => {
-            realm.delete(realm.objects('localToken'))
-            realm.create('localToken', { key: res.data.token, id: res.data._id })
+
+        try {
+          AsyncStorage.setItem('userId', res.data._id)
+          AsyncStorage.setItem('userKey', res.data.token)
+        } catch (error) {
+          console.log("ERROR ON SETTING ASYNCSTORAGE ON REGISTRATION", error)
+          this.props.navigator.showInAppNotification({
+            screen: 'mrxrinc.Notification',
+            autoDismissTimerSec: 2,
+            passProps: { 
+              alarm: true, 
+              message: 'مشکلی در ذخیره اطلاعات کاربر روی دستگاه شما پیش آمد. لطفا از اپ خارج بشید و دوباره ثبت نام را انجام دهید.' 
+            }
           })
-          console.log('realm : ', realm.objects('localToken'))
-          this.props.userToStore(res.data)
-          this.props.navigator.resetTo({
-            screen: 'mrxrinc.Splash'
-          })
-          console.log(this.props.user)
+        }
+
+        this.props.userToStore(res.data)
+        this.props.navigator.resetTo({
+          screen: 'mrxrinc.Splash'
         })
+        console.log(this.props.user)
+
       } else { // duplicated user found
         console.log('Duplicate user')   
         this.setState({ loading: false })
@@ -94,7 +102,7 @@ class Registration extends Component {
           message: 'مشکلی در ارسال  درخواست شما بوجود آمد. لطفا بعدا تلاش بفرمایید.' 
         }
       })
-      console.log(err)
+      console.log('SIGN UP ERROR', err)
     })
   }
 
@@ -104,23 +112,27 @@ class Registration extends Component {
       email: this.props.user.email,
       password: this.props.user.password
     })
-    .then(res => {
-      // console.log('res DATA ===> ', res.data)        
+    .then(res => {   
       if (res.data.userState !== 'noUser') {
-        Realm.open({
-          schema: [{ name: 'localToken', properties: { key: 'string', id: 'string' } }]
-        }).then(realm => {       
-          realm.write(() => {
-            realm.delete(realm.objects('localToken'))
-            realm.create('localToken', { key: res.data.token, id: res.data._id })
+
+        try {
+          AsyncStorage.setItem('userId', res.data._id)
+          AsyncStorage.setItem('userKey', res.data.token)
+        } catch (error) {
+          console.log("ERROR ON ADDING ASYNCSTORAGE ON LOGIN", error)
+          this.props.navigator.showInAppNotification({
+            screen: 'mrxrinc.Notification',
+            autoDismissTimerSec: 2,
+            passProps: { 
+              alarm: true, 
+              message: 'مشکلی در ذخیره اطلاعات کاربر روی دستگاه شما پیش آمد. لطفا از اپ خارج بشید و دوباره لاگین کنید.' 
+            }
           })
-          // console.log('Login realm : ', realm.objects('localToken')[0].key)
-          this.props.userToStore(res.data)
-          this.props.navigator.resetTo({
-            screen: 'mrxrinc.Splash'
-          })
-          // console.log(this.props.user)
-        }) 
+        }
+        this.props.userToStore(res.data)
+        this.props.navigator.resetTo({
+          screen: 'mrxrinc.Splash'
+        })
       } else { // no user found
         console.log('No user!')    
         this.setState({ loading: false })
